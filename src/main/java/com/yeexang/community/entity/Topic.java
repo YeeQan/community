@@ -1,0 +1,93 @@
+package com.yeexang.community.entity;
+
+import lombok.Data;
+
+import java.util.Date;
+
+/**
+ * @author yeeq
+ * @date 2021/7/19
+ */
+@Data
+public class Topic {
+
+    /**
+     * 主键
+     */
+    private String id;
+
+    /**
+     * 帖子id
+     */
+    private String topicId;
+
+    /**
+     * 标题
+     */
+    private String topicTitle;
+
+    /**
+     * 内容
+     */
+    private String topicContent;
+
+    /**
+     * 分区
+     */
+    private String section;
+
+    /**
+     * 评论数
+     */
+    private String commentCount;
+
+    /**
+     * 浏览数
+     */
+    private String viewCount;
+
+    /**
+     * 点赞数
+     */
+    private String likeCount;
+
+    /**
+     * 加精标识
+     */
+    private Boolean essentialStatus;
+
+    /**
+     * 推荐标识
+     */
+    private Boolean recommendedStatus;
+
+    /**
+     * 最后一次评论时间
+     */
+    private Date lastCommentTime;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 创建者
+     */
+    private String createUser;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+    /**
+     * 更新者
+     */
+    private String updateUser;
+
+    /**
+     * 删除标识
+     */
+    private Boolean delFlag;
+}
