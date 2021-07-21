@@ -39,17 +39,17 @@ public class Topic {
     /**
      * 评论数
      */
-    private String commentCount;
+    private Integer commentCount;
 
     /**
      * 浏览数
      */
-    private String viewCount;
+    private Integer viewCount;
 
     /**
      * 点赞数
      */
-    private String likeCount;
+    private Integer likeCount;
 
     /**
      * 加精标识

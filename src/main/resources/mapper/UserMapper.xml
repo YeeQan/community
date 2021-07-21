@@ -62,26 +62,48 @@
     </sql>
 
     <sql id="set_condition">
-        u.id = #{id},
-        u.account = #{account},
-        u.username = #{username},
-        u.password = #{password},
-        u.exp = #{exp},
-        u.create_time = #{createTime},
-        u.create_user = #{createUser},
-        u.update_time = #{updateTime},
-        u.update_user = #{updateUser},
-        u.del_flag = #{delFlag}
+        <if test="username != null and username != ''">
+            u.username = #{username},
+        </if>
+        <if test="password != null and password != ''">
+            u.password = #{password},
+        </if>
+        <if test="exp != null and exp >= 0">
+            u.exp = #{exp},
+        </if>
+        <if test="createTime != null">
+            u.create_time = #{createTime},
+        </if>
+        <if test="createUser != null and createUser != ''">
+            u.create_user = #{createUser},
+        </if>
+        <if test="updateTime != null">
+            u.update_time = #{updateTime},
+        </if>
+        <if test="updateUser != null and updateUser != ''">
+            u.update_user = #{updateUser},
+        </if>
+        <if test="delFlag != null and delFlag != ''">
+            u.del_flag = #{delFlag}
+        </if>
     </sql>
 
     <insert id="insert" parameterType="com.yeexang.community.entity.User">
-        insert into y_c_user u values (<include refid="y_c_user"/>)
+        insert into y_c_user values (<include refid="User"/>)
     </insert>
 
     <delete id="delete" parameterType="com.yeexang.community.entity.User">
         delete from y_c_user u
         <where>
-            <include refid="where_condition"/>
+            <if test="id != null and id != ''">
+                AND u.id = #{id}
+            </if>
+            <if test="account != null and account != ''">
+                AND u.account = #{account}
+            </if>
+            <if test="username != null and username != ''">
+                AND u.username = #{username}
+            </if>
         </where>
     </delete>
 
@@ -91,12 +113,17 @@
             <include refid="set_condition"/>
         </set>
         <where>
-            <include refid="where_condition"/>
+            <if test="id != null and id != ''">
+                AND u.id = #{id}
+            </if>
+            <if test="account != null and account != ''">
+                AND u.account = #{account}
+            </if>
         </where>
     </update>
 
     <select id="select" parameterType="com.yeexang.community.entity.User" resultType="com.yeexang.community.entity.User">
-        select <include refid="y_c_user"/> from y_c_user
+        select <include refid="y_c_user"/> from y_c_user u
         <where>
             <include refid="where_condition"/>
         </where>
