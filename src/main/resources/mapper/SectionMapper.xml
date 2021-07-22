@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeexang.community.dao.SectionDao">
+
+    <sql id="y_c_section">
+        s.id,
+        s.section_id,
+        s.section_name,
+        s.create_time,
+        s.create_user,
+        s.update_time,
+        s.update_user,
+        s.del_flag
+    </sql>
+
+    <sql id="Section">
+        #{id},
+        #{sectionId},
+        #{sectionName},
+        #{createTime},
+        #{createUser},
+        #{updateTime},
+        #{updateUser},
+        #{delFlag}
+    </sql>
+
+    <sql id="where_condition">
+        <if test="id != null and id != ''">
+            AND s.id = #{id}
+        </if>
+        <if test="sectionId != null and sectionId != ''">
+            AND s.section_name = #{sectionId}
+        </if>
+        <if test="sectionName != null and sectionName != ''">
+            AND s.section_title = #{sectionName}
+        </if>
+        <if test="createTime != null">
+            AND s.create_time = #{createTime}
+        </if>
+        <if test="createUser != null and createUser != ''">
+            AND s.create_user = #{createUser}
+        </if>
+        <if test="updateTime != null">
+            AND s.update_time = #{updateTime}
+        </if>
+        <if test="updateUser != null and updateUser != ''">
+            AND s.update_user = #{updateUser}
+        </if>
+        <if test="delFlag != null">
+            AND s.del_flag = #{delFlag}
+        </if>
+    </sql>
+
+    <sql id="set_condition">
+        <if test="sectionName != null and sectionName != ''">
+            s.section_name = #{sectionName},
+        </if>
+        <if test="createTime != null">
+            s.create_time = #{createTime},
+        </if>
+        <if test="createUser != null and createUser != ''">
+            s.create_user = #{createUser},
+        </if>
+        <if test="updateTime != null">
+            s.update_time = #{updateTime},
+        </if>
+        <if test="updateUser != null and updateUser != ''">
+            s.update_user = #{updateUser},
+        </if>
+        <if test="delFlag != null">
+            s.del_flag = #{delFlag}
+        </if>
+    </sql>
+
+    <insert id="insert" parameterType="com.yeexang.community.entity.Section">
+        insert into y_c_section values (<include refid="Section"/>)
+    </insert>
+
+    <delete id="delete" parameterType="com.yeexang.community.entity.Section">
+        delete from y_c_section s
+        <where>
+            <if test="id != null and id != ''">
+                AND s.id = #{id}
+            </if>
+            <if test="sectionId != null and sectionId != ''">
+                AND s.section_id = #{sectionId}
+            </if>
+        </where>
+    </delete>
+
+    <update id="update" parameterType="com.yeexang.community.entity.Section">
+        update y_c_section s
+        <set>
+            <include refid="set_condition"/>
+        </set>
+        <where>
+            <if test="id != null and id != ''">
+                AND s.id = #{id}
+            </if>
+            <if test="sectionId != null and sectionId != ''">
+                AND s.section_id = #{sectionId}
+            </if>
+        </where>
+    </update>
+
+    <select id="select" parameterType="com.yeexang.community.entity.Section" resultType="com.yeexang.community.entity.Section">
+        select <include refid="y_c_section"/> from y_c_section s
+        <where>
+            <include refid="where_condition"/>
+        </where>
+    </select>
+
+</mapper>

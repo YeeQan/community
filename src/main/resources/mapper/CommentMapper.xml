@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeexang.community.dao.CommentDao">
+
+    <sql id="y_c_comment">
+        c.id,
+        c.comment_id,
+        c.parent_id,
+        c.comment_content,
+        c.comment_count,
+        c.like_count,
+        c.comment_type,
+        c.create_time,
+        c.create_user,
+        c.update_time,
+        c.update_user,
+        c.del_flag
+    </sql>
+
+    <sql id="Comment">
+        #{id},
+        #{commentId},
+        #{parentId},
+        #{commentContent},
+        #{commentCount},
+        #{likeCount},
+        #{commentType},
+        #{createTime},
+        #{createUser},
+        #{updateTime},
+        #{updateUser},
+        #{delFlag}
+    </sql>
+
+    <sql id="where_condition">
+        <if test="id != null and id != ''">
+            AND c.id = #{id}
+        </if>
+        <if test="commentId != null and commentId != ''">
+            AND c.comment_id = #{commentId}
+        </if>
+        <if test="parentId != null and parentId != ''">
+            AND c.parent_id = #{parentId}
+        </if>
+        <if test="commentContent != null and commentContent != ''">
+            AND c.comment_content = #{commentContent}
+        </if>
+        <if test="commentCount != null and commentCount >= 0">
+            AND c.comment_count = #{commentCount}
+        </if>
+        <if test="likeCount != null and likeCount >= 0">
+            AND c.like_count = #{likeCount}
+        </if>
+        <if test="commentType != null and commentType != ''">
+            AND c.comment_type = #{commentType}
+        </if>
+        <if test="createTime != null">
+            AND c.create_time = #{createTime}
+        </if>
+        <if test="createUser != null and createUser != ''">
+            AND c.create_user = #{createUser}
+        </if>
+        <if test="updateTime != null">
+            AND c.update_time = #{updateTime}
+        </if>
+        <if test="updateUser != null and updateUser != ''">
+            AND c.update_user = #{updateUser}
+        </if>
+        <if test="delFlag != null">
+            AND c.del_flag = #{delFlag}
+        </if>
+    </sql>
+
+    <sql id="set_condition">
+        <if test="commentContent != null and commentContent != ''">
+            c.comment_content = #{commentContent}
+        </if>
+        <if test="commentCount != null and commentCount >= 0">
+            c.comment_count = #{commentCount}
+        </if>
+        <if test="likeCount != null and likeCount >= 0">
+            c.like_count = #{likeCount}
+        </if>
+        <if test="commentType != null and commentType != ''">
+            c.comment_type = #{commentType}
+        </if>
+        <if test="createTime != null">
+            c.create_time = #{createTime}
+        </if>
+        <if test="createUser != null and createUser != ''">
+            c.create_user = #{createUser}
+        </if>
+        <if test="updateTime != null">
+            c.update_time = #{updateTime}
+        </if>
+        <if test="updateUser != null and updateUser != ''">
+            c.update_user = #{updateUser}
+        </if>
+        <if test="delFlag != null">
+            c.del_flag = #{delFlag}
+        </if>
+    </sql>
+
+    <insert id="insert" parameterType="com.yeexang.community.entity.Comment">
+        insert into y_c_comment values (<include refid="Comment"/>)
+    </insert>
+
+    <delete id="delete" parameterType="com.yeexang.community.entity.Comment">
+        delete from y_c_comment c
+        <where>
+            <if test="id != null and id != ''">
+                AND c.id = #{id}
+            </if>
+            <if test="commentId != null and commentId != ''">
+                AND c.comment_id = #{commentId}
+            </if>
+        </where>
+    </delete>
+
+    <update id="update" parameterType="com.yeexang.community.entity.Comment">
+        update y_c_comment c
+        <set>
+            <include refid="set_condition"/>
+        </set>
+        <where>
+            <if test="id != null and id != ''">
+                AND c.id = #{id}
+            </if>
+            <if test="commentId != null and commentId != ''">
+                AND c.comment_id = #{commentId}
+            </if>
+        </where>
+    </update>
+
+    <select id="select" parameterType="com.yeexang.community.entity.Comment" resultType="com.yeexang.community.entity.Comment">
+        select <include refid="y_c_comment"/> from y_c_comment c
+        <where>
+            <include refid="where_condition"/>
+        </where>
+    </select>
+
+</mapper>
