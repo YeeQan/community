@@ -1,4 +1,4 @@
-package com.yeexang.community.entity;
+package com.yeexang.community.pojo.po;
 
 import lombok.Data;
 

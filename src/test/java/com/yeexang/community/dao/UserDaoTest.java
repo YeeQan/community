@@ -1,6 +1,6 @@
 package com.yeexang.community.dao;
 
-import com.yeexang.community.entity.User;
+import com.yeexang.community.pojo.po.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;

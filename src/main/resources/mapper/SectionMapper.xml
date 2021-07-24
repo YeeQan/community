@@ -72,11 +72,11 @@
         </if>
     </sql>
 
-    <insert id="insert" parameterType="com.yeexang.community.entity.Section">
+    <insert id="insert" parameterType="com.yeexang.community.pojo.po.Section">
         insert into y_c_section values (<include refid="Section"/>)
     </insert>
 
-    <delete id="delete" parameterType="com.yeexang.community.entity.Section">
+    <delete id="delete" parameterType="com.yeexang.community.pojo.po.Section">
         delete from y_c_section s
         <where>
             <if test="id != null and id != ''">
@@ -88,7 +88,7 @@
         </where>
     </delete>
 
-    <update id="update" parameterType="com.yeexang.community.entity.Section">
+    <update id="update" parameterType="com.yeexang.community.pojo.po.Section">
         update y_c_section s
         <set>
             <include refid="set_condition"/>
@@ -103,7 +103,7 @@
         </where>
     </update>
 
-    <select id="select" parameterType="com.yeexang.community.entity.Section" resultType="com.yeexang.community.entity.Section">
+    <select id="select" parameterType="com.yeexang.community.pojo.po.Section" resultType="com.yeexang.community.pojo.po.Section">
         select <include refid="y_c_section"/> from y_c_section s
         <where>
             <include refid="where_condition"/>

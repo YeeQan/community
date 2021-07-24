@@ -1,8 +1,6 @@
 package com.yeexang.community.dao;
 
-import com.yeexang.community.entity.Comment;
-import com.yeexang.community.entity.Notification;
-import com.yeexang.community.entity.Section;
+import com.yeexang.community.pojo.po.Comment;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

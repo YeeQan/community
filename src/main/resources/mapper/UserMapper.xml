@@ -88,11 +88,11 @@
         </if>
     </sql>
 
-    <insert id="insert" parameterType="com.yeexang.community.entity.User">
+    <insert id="insert" parameterType="com.yeexang.community.pojo.po.User">
         insert into y_c_user values (<include refid="User"/>)
     </insert>
 
-    <delete id="delete" parameterType="com.yeexang.community.entity.User">
+    <delete id="delete" parameterType="com.yeexang.community.pojo.po.User">
         delete from y_c_user u
         <where>
             <if test="id != null and id != ''">
@@ -107,7 +107,7 @@
         </where>
     </delete>
 
-    <update id="update" parameterType="com.yeexang.community.entity.User">
+    <update id="update" parameterType="com.yeexang.community.pojo.po.User">
         update y_c_user u
         <set>
             <include refid="set_condition"/>
@@ -122,7 +122,7 @@
         </where>
     </update>
 
-    <select id="select" parameterType="com.yeexang.community.entity.User" resultType="com.yeexang.community.entity.User">
+    <select id="select" parameterType="com.yeexang.community.pojo.po.User" resultType="com.yeexang.community.pojo.po.User">
         select <include refid="y_c_user"/> from y_c_user u
         <where>
             <include refid="where_condition"/>

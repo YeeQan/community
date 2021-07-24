@@ -1,6 +1,10 @@
-package com.yeexang.community.entity;
+package com.yeexang.community.pojo.po;
 
+import com.yeexang.community.pojo.dto.BaseDTO;
+import com.yeexang.community.pojo.dto.UserDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -9,7 +13,9 @@ import java.util.Date;
  * @date 2021/7/19
  */
 @Data
-public class User {
+@EqualsAndHashCode(callSuper = false)
+@NoArgsConstructor
+public class User extends BasePO {
 
     /**
      * 主键
@@ -60,4 +66,19 @@ public class User {
      * 删除标识
      */
     private Boolean delFlag;
+
+    @Override
+    public BaseDTO toDTO() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setAccount(account);
+        userDTO.setUsername(username);
+        userDTO.setPassword(password);
+        return userDTO;
+    }
+
+    public User(String account, String username, String password) {
+        this.account = account;
+        this.username = username;
+        this.password = password;
+    }
 }

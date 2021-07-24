@@ -1,6 +1,6 @@
 package com.yeexang.community.dao;
 
-import com.yeexang.community.entity.User;
+import com.yeexang.community.pojo.po.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

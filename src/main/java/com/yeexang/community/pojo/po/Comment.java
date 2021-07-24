@@ -1,4 +1,4 @@
-package com.yeexang.community.entity;
+package com.yeexang.community.pojo.po;
 
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import java.util.Date;
  * @date 2021/7/19
  */
 @Data
-public class Notification {
+public class Comment {
 
     /**
      * 主键
@@ -17,34 +17,34 @@ public class Notification {
     private String id;
 
     /**
-     * 通知id
+     * 评论id
      */
-    private String notificationId;
+    private String commentId;
 
     /**
-     * 通知者
+     * 父id
      */
-    private String notifier;
+    private String parentId;
 
     /**
-     * 接收者
+     * 评论内容
      */
-    private String receiver;
+    private String commentContent;
 
     /**
-     * 通知所属
+     * 评论数
      */
-    private String outerId;
+    private Integer commentCount;
 
     /**
-     * 通知类型，1为评论帖子，2为回复评论
+     * 点赞数
      */
-    private String notificationType;
+    private Integer likeCount;
 
     /**
-     * 状态，0为未读，1为已读
+     * 评论类型，1为一级评论，2为二级评论
      */
-    private Boolean status;
+    private String commentType;
 
     /**
      * 创建时间

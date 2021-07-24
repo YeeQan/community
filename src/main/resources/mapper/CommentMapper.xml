@@ -101,11 +101,11 @@
         </if>
     </sql>
 
-    <insert id="insert" parameterType="com.yeexang.community.entity.Comment">
+    <insert id="insert" parameterType="com.yeexang.community.pojo.po.Comment">
         insert into y_c_comment values (<include refid="Comment"/>)
     </insert>
 
-    <delete id="delete" parameterType="com.yeexang.community.entity.Comment">
+    <delete id="delete" parameterType="com.yeexang.community.pojo.po.Comment">
         delete from y_c_comment c
         <where>
             <if test="id != null and id != ''">
@@ -117,7 +117,7 @@
         </where>
     </delete>
 
-    <update id="update" parameterType="com.yeexang.community.entity.Comment">
+    <update id="update" parameterType="com.yeexang.community.pojo.po.Comment">
         update y_c_comment c
         <set>
             <include refid="set_condition"/>
@@ -132,7 +132,7 @@
         </where>
     </update>
 
-    <select id="select" parameterType="com.yeexang.community.entity.Comment" resultType="com.yeexang.community.entity.Comment">
+    <select id="select" parameterType="com.yeexang.community.pojo.po.Comment" resultType="com.yeexang.community.pojo.po.Comment">
         select <include refid="y_c_comment"/> from y_c_comment c
         <where>
             <include refid="where_condition"/>

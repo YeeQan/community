@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: yeexang-community
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/yeexang_community_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useAffectedRows=true
+    username: root
+    password: 123
+    type: com.alibaba.druid.pool.DruidDataSource
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true  # 开启驼峰标识
+  mapper-locations: classpath:/mapper/*.xml   # 扫描映射配置文件
+  type-aliases-package: com.yeexang.community.entity  # 别名
+
+logging:
+  level:
+    com.yeexang.community.dao: debug   # 开启 sql 日志
+
+# 请求白名单
+interceptor:
+  white-request-uri:
+    - /user/login
+    - /user/register
+
+# jwt 密钥
+jwt:
+  token-secret: community_token#$%Abc

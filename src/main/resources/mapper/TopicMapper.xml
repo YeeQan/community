@@ -136,11 +136,11 @@
         </if>
     </sql>
 
-    <insert id="insert" parameterType="com.yeexang.community.entity.Topic">
+    <insert id="insert" parameterType="com.yeexang.community.pojo.po.Topic">
         insert into y_c_topic values (<include refid="Topic"/>)
     </insert>
 
-    <delete id="delete" parameterType="com.yeexang.community.entity.Topic">
+    <delete id="delete" parameterType="com.yeexang.community.pojo.po.Topic">
         delete from y_c_topic t
         <where>
             <if test="id != null and id != ''">
@@ -152,7 +152,7 @@
         </where>
     </delete>
 
-    <update id="update" parameterType="com.yeexang.community.entity.Topic">
+    <update id="update" parameterType="com.yeexang.community.pojo.po.Topic">
         update y_c_topic t
         <set>
             <include refid="set_condition"/>
@@ -167,7 +167,7 @@
         </where>
     </update>
 
-    <select id="select" parameterType="com.yeexang.community.entity.Topic" resultType="com.yeexang.community.entity.Topic">
+    <select id="select" parameterType="com.yeexang.community.pojo.po.Topic" resultType="com.yeexang.community.pojo.po.Topic">
         select <include refid="y_c_topic"/> from y_c_topic t
         <where>
             <include refid="where_condition"/>
