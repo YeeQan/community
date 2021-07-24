@@ -16,6 +16,7 @@
         <mybatis.version>2.2.0</mybatis.version>
         <druid.version>1.2.6</druid.version>
         <jwt.version>3.4.0</jwt.version>
+        <skipTests>true</skipTests>
     </properties>
 
     <dependencies>

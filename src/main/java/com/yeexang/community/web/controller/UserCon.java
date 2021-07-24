@@ -11,6 +11,7 @@ import com.yeexang.community.web.service.UserSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestController
-@RequestMapping("User")
+@RequestMapping("user")
 public class UserCon {
 
     @Autowired
@@ -40,6 +41,7 @@ public class UserCon {
     @Autowired
     private CookieUtil cookieUtil;
 
+    @PostMapping("register")
     public ResponseEntity<UserDTO> register(@RequestBody RequestEntity<UserDTO> request, HttpServletResponse response) {
 
         log.info("UserCon register start --------------------------------");
@@ -48,15 +50,16 @@ public class UserCon {
 
         if (StringUtils.isEmpty(userDTO.getAccount())) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_EMPTY);
-        } else if (userDTO.getAccount().matches("[a-zA-Z0-9_]{1,12}")) {
+        } else if (!userDTO.getAccount().matches("[a-zA-Z0-9_]{1,12}")) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_FORMAT_ERROR);
         } else if (StringUtils.isEmpty(userDTO.getUsername())) {
             return new ResponseEntity<>(ServerStatusCode.USERNAME_EMPTY);
-        } else if (userDTO.getUsername().matches("[a-zA-Z0-9]{1,12}")) {
+        } else if (userDTO.getUsername().length() > 12 ||
+                !userDTO.getUsername().matches("[\\u4E00-\\u9FA5A-Za-z0-9_]+$")) {
             return new ResponseEntity<>(ServerStatusCode.USERNAME_FORMAT_ERROR);
         } else if (StringUtils.isEmpty(userDTO.getPassword())) {
             return new ResponseEntity<>(ServerStatusCode.PASSWORD_EMPTY);
-        } else if (userDTO.getPassword().matches("[a-zA-Z0-9]{1,16}")) {
+        } else if (!userDTO.getPassword().matches("[a-zA-Z0-9]{1,16}")) {
             return new ResponseEntity<>(ServerStatusCode.PASSWORD_FORMAT_ERROR);
         }
 
@@ -82,6 +85,8 @@ public class UserCon {
 
         Cookie cookie = cookieUtil.getCookie("token", token, 86400 * 7);
         response.addCookie(cookie);
+
+        log.info("UserCon register end --------------------------------");
 
         return new ResponseEntity<>(userDTOList);
     }

@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author yeeq
@@ -42,8 +44,19 @@ public class UserSevImpl implements UserSev {
         try {
             // 避免重复注册
             synchronized (this) {
+                user.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+                user.setExp(0);
+                user.setCreateTime(new Date());
+                user.setCreateUser(user.getAccount());
+                user.setUpdateTime(new Date());
+                user.setUpdateUser(user.getAccount());
+                user.setDelFlag(false);
                 userDao.insert(user);
-                userList.addAll(userDao.select(user));
+
+                User userParam = new User();
+                userParam.setAccount(user.getAccount());
+                List<User> userDBList = userDao.select(userParam);
+                userList.addAll(userDBList);
             }
         } catch (Exception e) {
             log.error("UserSev register errorMsg: {}", e.getMessage());
