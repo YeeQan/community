@@ -1,7 +1,11 @@
 package com.yeexang.community.pojo.po;
 
+import com.yeexang.community.pojo.dto.BaseDTO;
+import com.yeexang.community.pojo.dto.TopicDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -9,7 +13,8 @@ import java.util.Date;
  * @date 2021/7/19
  */
 @Data
-public class Topic {
+@EqualsAndHashCode(callSuper = false)
+public class Topic extends BasePO {
 
     /**
      * 主键
@@ -90,4 +95,20 @@ public class Topic {
      * 删除标识
      */
     private Boolean delFlag;
+
+    @Override
+    public BaseDTO toDTO() {
+        TopicDTO topicDTO = new TopicDTO();
+        topicDTO.setTopicId(topicId);
+        topicDTO.setTopicTitle(topicTitle);
+        topicDTO.setTopicContent(topicContent);
+        topicDTO.setSection(section);
+        topicDTO.setCommentCount(commentCount);
+        topicDTO.setLikeCount(likeCount);
+        topicDTO.setViewCount(viewCount);
+        topicDTO.setEssentialStatus(essentialStatus);
+        topicDTO.setRecommendedStatus(recommendedStatus);
+        topicDTO.setLastCommentTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(lastCommentTime));
+        return topicDTO;
+    }
 }

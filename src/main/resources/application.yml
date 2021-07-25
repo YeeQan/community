@@ -25,9 +25,7 @@ logging:
 
 # 请求白名单
 interceptor:
-  white-request-uri:
-    - /user/login
-    - /user/register
+  white-request-uri: /user/login,/user/register
 
 # jwt 密钥
 jwt:

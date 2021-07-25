@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -20,9 +21,10 @@ import java.util.List;
  * @date 2021/7/23
  */
 @Slf4j
+@Component
 public class TokenVerifyInterceptor implements HandlerInterceptor {
 
-    @Value("${interceptor.white-request-uri}")
+    @Value("#{'${interceptor.white-request-uri:}'.empty ? null : '${interceptor.white-request-uri:}'.split(',')}")
     private List<String> whiteRequestUris;
 
     @Autowired
@@ -36,7 +38,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
         // 获取请求的 URI 路径
         String requestUri = request.getRequestURI();
         // 如果请求的 URI 在白名单中，则跳过 token 验证
-        if (whiteRequestUris.contains(requestUri)) {
+        if (whiteRequestUris != null && whiteRequestUris.contains(requestUri)) {
             return true;
         }
 

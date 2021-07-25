@@ -50,16 +50,21 @@ public class UserCon {
 
         if (StringUtils.isEmpty(userDTO.getAccount())) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_EMPTY);
-        } else if (!userDTO.getAccount().matches("[a-zA-Z0-9_]{1,12}")) {
+        }
+        if (!userDTO.getAccount().matches("[a-zA-Z0-9_]{1,12}")) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_FORMAT_ERROR);
-        } else if (StringUtils.isEmpty(userDTO.getUsername())) {
+        }
+        if (StringUtils.isEmpty(userDTO.getUsername())) {
             return new ResponseEntity<>(ServerStatusCode.USERNAME_EMPTY);
-        } else if (userDTO.getUsername().length() > 12 ||
+        }
+        if (userDTO.getUsername().length() > 12 ||
                 !userDTO.getUsername().matches("[\\u4E00-\\u9FA5A-Za-z0-9_]+$")) {
             return new ResponseEntity<>(ServerStatusCode.USERNAME_FORMAT_ERROR);
-        } else if (StringUtils.isEmpty(userDTO.getPassword())) {
+        }
+        if (StringUtils.isEmpty(userDTO.getPassword())) {
             return new ResponseEntity<>(ServerStatusCode.PASSWORD_EMPTY);
-        } else if (!userDTO.getPassword().matches("[a-zA-Z0-9]{1,16}")) {
+        }
+        if (!userDTO.getPassword().matches("[a-zA-Z0-9]{1,16}")) {
             return new ResponseEntity<>(ServerStatusCode.PASSWORD_FORMAT_ERROR);
         }
 
@@ -100,11 +105,14 @@ public class UserCon {
 
         if (StringUtils.isEmpty(userDTO.getAccount())) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_EMPTY);
-        } else if (!userDTO.getAccount().matches("[a-zA-Z0-9_]{1,12}")) {
+        }
+        if (!userDTO.getAccount().matches("[a-zA-Z0-9_]{1,12}")) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_FORMAT_ERROR);
-        } else if (StringUtils.isEmpty(userDTO.getPassword())) {
+        }
+        if (StringUtils.isEmpty(userDTO.getPassword())) {
             return new ResponseEntity<>(ServerStatusCode.PASSWORD_EMPTY);
-        } else if (!userDTO.getPassword().matches("[a-zA-Z0-9]{1,16}")) {
+        }
+        if (!userDTO.getPassword().matches("[a-zA-Z0-9]{1,16}")) {
             return new ResponseEntity<>(ServerStatusCode.PASSWORD_FORMAT_ERROR);
         }
 

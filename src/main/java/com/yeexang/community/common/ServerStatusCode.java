@@ -21,6 +21,12 @@ public enum ServerStatusCode {
     ACCOUNT_EXIST("4007", "账号已存在"),
     USERNAME_EXIST("4008", "昵称已存在"),
     ACCOUNT_NOT_EXIST("4009", "账号不存在或密码错误"),
+    TOPIC_TITLE_EMPTY("4010", "标题不能为空"),
+    TOPIC_TITLE_TOO_LONG("4010", "标题不能超过20个字符"),
+    TOPIC_CONTENT_EMPTY("4011", "内容不能为空"),
+    TOPIC_CONTENT_TOO_LONG("4012", "内容不能超过1000个字符"),
+    SECTION_EMPTY("4013", "分区不能为空"),
+    SECTION_NOT_EXIST("4014", "分区不存在"),
     ;
 
     private final String code;
