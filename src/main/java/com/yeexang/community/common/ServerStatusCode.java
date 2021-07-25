@@ -20,6 +20,7 @@ public enum ServerStatusCode {
     PASSWORD_FORMAT_ERROR("4006", "密码格式错误，必须由字母、数字、下划线组成，不能超过16位"),
     ACCOUNT_EXIST("4007", "账号已存在"),
     USERNAME_EXIST("4008", "昵称已存在"),
+    ACCOUNT_NOT_EXIST("4009", "账号不存在或密码错误"),
     ;
 
     private final String code;

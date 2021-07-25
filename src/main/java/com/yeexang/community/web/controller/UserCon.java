@@ -42,11 +42,11 @@ public class UserCon {
     private CookieUtil cookieUtil;
 
     @PostMapping("register")
-    public ResponseEntity<UserDTO> register(@RequestBody RequestEntity<UserDTO> request, HttpServletResponse response) {
+    public ResponseEntity<UserDTO> register(@RequestBody RequestEntity<UserDTO> requestEntity, HttpServletResponse response) {
 
         log.info("UserCon register start --------------------------------");
 
-        UserDTO userDTO = request.getData().get(0);
+        UserDTO userDTO = requestEntity.getData().get(0);
 
         if (StringUtils.isEmpty(userDTO.getAccount())) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_EMPTY);
@@ -87,6 +87,43 @@ public class UserCon {
         response.addCookie(cookie);
 
         log.info("UserCon register end --------------------------------");
+
+        return new ResponseEntity<>(userDTOList);
+    }
+
+    @PostMapping("login")
+    public ResponseEntity<UserDTO> login(@RequestBody RequestEntity<UserDTO> requestEntity, HttpServletResponse response) {
+
+        log.info("UserCon login start --------------------------------");
+
+        UserDTO userDTO = requestEntity.getData().get(0);
+
+        if (StringUtils.isEmpty(userDTO.getAccount())) {
+            return new ResponseEntity<>(ServerStatusCode.ACCOUNT_EMPTY);
+        } else if (!userDTO.getAccount().matches("[a-zA-Z0-9_]{1,12}")) {
+            return new ResponseEntity<>(ServerStatusCode.ACCOUNT_FORMAT_ERROR);
+        } else if (StringUtils.isEmpty(userDTO.getPassword())) {
+            return new ResponseEntity<>(ServerStatusCode.PASSWORD_EMPTY);
+        } else if (!userDTO.getPassword().matches("[a-zA-Z0-9]{1,16}")) {
+            return new ResponseEntity<>(ServerStatusCode.PASSWORD_FORMAT_ERROR);
+        }
+
+        List<User> userList = userSev.getUser(userDTO);
+        if (userList.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.ACCOUNT_NOT_EXIST);
+        }
+
+        List<UserDTO> userDTOList = userList.stream()
+                .map(user -> (UserDTO) user.toDTO()).collect(Collectors.toList());
+
+        Map<String, String> payloadMap = new HashMap<>(2);
+        payloadMap.put("account", userDTO.getAccount());
+        String token = jwtUtil.getToken(payloadMap);
+
+        Cookie cookie = cookieUtil.getCookie("token", token, 86400 * 7);
+        response.addCookie(cookie);
+
+        log.info("UserCon start end --------------------------------");
 
         return new ResponseEntity<>(userDTOList);
     }

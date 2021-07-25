@@ -2,7 +2,6 @@ package com.yeexang.community.web.service.impl;
 
 import com.yeexang.community.dao.UserDao;
 import com.yeexang.community.pojo.dto.UserDTO;
-import com.yeexang.community.pojo.po.BasePO;
 import com.yeexang.community.pojo.po.User;
 import com.yeexang.community.web.service.UserSev;
 import lombok.extern.slf4j.Slf4j;
