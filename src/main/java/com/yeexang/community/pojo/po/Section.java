@@ -1,6 +1,9 @@
 package com.yeexang.community.pojo.po;
 
+import com.yeexang.community.pojo.dto.BaseDTO;
+import com.yeexang.community.pojo.dto.SectionDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
@@ -9,7 +12,8 @@ import java.util.Date;
  * @date 2021/7/19
  */
 @Data
-public class Section {
+@EqualsAndHashCode(callSuper = false)
+public class Section extends BasePO {
 
     /**
      * 主键
@@ -25,11 +29,6 @@ public class Section {
      * 分区名
      */
     private String sectionName;
-
-    /**
-     * 经验值
-     */
-    private Integer exp;
 
     /**
      * 创建时间
@@ -55,4 +54,12 @@ public class Section {
      * 删除标识
      */
     private Boolean delFlag;
+
+    @Override
+    public BaseDTO toDTO() {
+        SectionDTO sectionDTO = new SectionDTO();
+        sectionDTO.setSectionId(id);
+        sectionDTO.setSectionName(sectionName);
+        return sectionDTO;
+    }
 }

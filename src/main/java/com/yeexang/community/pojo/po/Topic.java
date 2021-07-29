@@ -109,6 +109,7 @@ public class Topic extends BasePO {
         topicDTO.setEssentialStatus(essentialStatus);
         topicDTO.setRecommendedStatus(recommendedStatus);
         topicDTO.setLastCommentTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(lastCommentTime));
+        topicDTO.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime));
         return topicDTO;
     }
 }

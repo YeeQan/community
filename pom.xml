@@ -16,6 +16,7 @@
         <mybatis.version>2.2.0</mybatis.version>
         <druid.version>1.2.6</druid.version>
         <jwt.version>3.4.0</jwt.version>
+        <fastjson.version>1.2.76</fastjson.version>
         <skipTests>true</skipTests>
     </properties>
 
@@ -71,6 +72,13 @@
             <artifactId>java-jwt</artifactId>
             <version>${jwt.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
+        </dependency>
+
 
     </dependencies>
 

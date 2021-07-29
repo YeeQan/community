@@ -1,7 +1,11 @@
 package com.yeexang.community.pojo.po;
 
+import com.yeexang.community.pojo.dto.BaseDTO;
+import com.yeexang.community.pojo.dto.NotificationDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -9,7 +13,8 @@ import java.util.Date;
  * @date 2021/7/19
  */
 @Data
-public class Notification {
+@EqualsAndHashCode(callSuper = false)
+public class Notification extends BasePO {
 
     /**
      * 主键
@@ -37,7 +42,7 @@ public class Notification {
     private String outerId;
 
     /**
-     * 通知类型，1为评论帖子，2为回复评论
+     * 通知类型，1为评论帖子，2为回复评论，3为点赞帖子
      */
     private String notificationType;
 
@@ -70,4 +75,17 @@ public class Notification {
      * 删除标识
      */
     private Boolean delFlag;
+
+    @Override
+    public BaseDTO toDTO() {
+        NotificationDTO notificationDTO = new NotificationDTO();
+        notificationDTO.setNotificationId(notificationId);
+        notificationDTO.setNotifier(notifier);
+        notificationDTO.setReceiver(receiver);
+        notificationDTO.setOuterId(outerId);
+        notificationDTO.setNotificationType(notificationType);
+        notificationDTO.setStatus(status);
+        notificationDTO.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime));
+        return notificationDTO;
+    }
 }

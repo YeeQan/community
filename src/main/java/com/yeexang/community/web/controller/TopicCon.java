@@ -3,9 +3,10 @@ package com.yeexang.community.web.controller;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
+import com.yeexang.community.pojo.dto.SectionDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
-import com.yeexang.community.pojo.dto.UserDTO;
 import com.yeexang.community.pojo.po.Topic;
+import com.yeexang.community.web.service.SectionSev;
 import com.yeexang.community.web.service.TopicSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class TopicCon {
     @Autowired
     private TopicSev topicSev;
 
+    @Autowired
+    private SectionSev sectionSev;
+
     @PostMapping("publish")
     public ResponseEntity<TopicDTO> register(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
 
@@ -52,11 +56,13 @@ public class TopicCon {
             return new ResponseEntity<>(ServerStatusCode.TOPIC_CONTENT_TOO_LONG);
         }
         if (StringUtils.isEmpty(topicDTO.getSection())) {
-            return new ResponseEntity<>(ServerStatusCode.TOPIC_TITLE_EMPTY);
+            return new ResponseEntity<>(ServerStatusCode.SECTION_EMPTY);
         }
-        /*if () {
-            return new ResponseEntity<>(ServerStatusCode.TOPIC_TITLE_TOO_LONG);
-        }*/
+        SectionDTO sectionDTO = new SectionDTO();
+        sectionDTO.setSectionId(topicDTO.getSection());
+        if (sectionSev.getSection(sectionDTO).isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.SECTION_NOT_EXIST);
+        }
 
         List<Topic> topicList = topicSev.publish(topicDTO, account);
         if (topicList.isEmpty()) {
@@ -69,5 +75,17 @@ public class TopicCon {
         log.info("TopicCon publish end --------------------------------");
 
         return new ResponseEntity<>(topicDTOList);
+    }
+
+    @PostMapping("like")
+    public ResponseEntity<TopicDTO> like(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
+
+        log.info("TopicCon like start --------------------------------");
+
+
+
+        log.info("TopicCon like end --------------------------------");
+
+        return null;
     }
 }

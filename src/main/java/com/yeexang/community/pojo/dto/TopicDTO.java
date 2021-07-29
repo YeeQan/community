@@ -1,18 +1,20 @@
 package com.yeexang.community.pojo.dto;
 
 import com.yeexang.community.pojo.po.BasePO;
-import com.yeexang.community.pojo.po.Topic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
+import com.yeexang.community.pojo.po.Topic;
+import org.springframework.util.StringUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * @author yeeq
  * @date 2021/7/25
  */
 @Data
+@Slf4j
 @EqualsAndHashCode(callSuper = false)
 public class TopicDTO extends BaseDTO {
 
@@ -26,6 +28,7 @@ public class TopicDTO extends BaseDTO {
     private Boolean essentialStatus;
     private Boolean recommendedStatus;
     private String lastCommentTime;
+    private String createTime;
 
     @Override
     public BasePO toPO() {
@@ -40,9 +43,18 @@ public class TopicDTO extends BaseDTO {
             topic.setLikeCount(likeCount);
             topic.setEssentialStatus(essentialStatus);
             topic.setRecommendedStatus(recommendedStatus);
-            topic.setLastCommentTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(lastCommentTime));
+            if (StringUtils.isEmpty(lastCommentTime)) {
+                topic.setLastCommentTime(null);
+            } else {
+                topic.setLastCommentTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(lastCommentTime));
+            }
+            if (StringUtils.isEmpty(createTime)) {
+                topic.setCreateTime(null);
+            } else {
+                topic.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createTime));
+            }
         } catch (Exception e) {
-            // 抛出通用异常。。
+            log.error("TopicDTO toPO errorMsg: {}", e.getMessage());
         }
         return topic;
     }
