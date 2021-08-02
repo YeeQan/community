@@ -4,6 +4,7 @@ import com.yeexang.community.common.ServerStatusCode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,5 +30,12 @@ public class ResponseEntity<T> {
         this.code = ServerStatusCode.SUCCESS.getCode();
         this.description = ServerStatusCode.SUCCESS.getDesc();
         this.data = data;
+    }
+
+    public ResponseEntity(T data) {
+        this.code = ServerStatusCode.SUCCESS.getCode();
+        this.description = ServerStatusCode.SUCCESS.getDesc();
+        this.data = new ArrayList<>();
+        this.data.add(data);
     }
 }

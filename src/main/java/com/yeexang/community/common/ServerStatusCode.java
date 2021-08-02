@@ -27,6 +27,9 @@ public enum ServerStatusCode {
     TOPIC_CONTENT_TOO_LONG("4012", "内容不能超过1000个字符"),
     SECTION_EMPTY("4013", "分区不能为空"),
     SECTION_NOT_EXIST("4014", "分区不存在"),
+    DATA_NOT_FOUND("4015", "暂无更多的数据"),
+    COMMENT_CONTENT_EMPTY("4016", "评论不能为空"),
+    COMMENT_CONTENT_TOO_LONG("4017", "评论内容不能超过1000个字符"),
     ;
 
     private final String code;

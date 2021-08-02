@@ -45,12 +45,6 @@
         <if test="commentContent != null and commentContent != ''">
             AND c.comment_content = #{commentContent}
         </if>
-        <if test="commentCount != null and commentCount >= 0">
-            AND c.comment_count = #{commentCount}
-        </if>
-        <if test="likeCount != null and likeCount >= 0">
-            AND c.like_count = #{likeCount}
-        </if>
         <if test="commentType != null and commentType != ''">
             AND c.comment_type = #{commentType}
         </if>

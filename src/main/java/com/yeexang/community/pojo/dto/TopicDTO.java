@@ -8,6 +8,7 @@ import com.yeexang.community.pojo.po.Topic;
 import org.springframework.util.StringUtils;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 /**
  * @author yeeq
@@ -29,6 +30,8 @@ public class TopicDTO extends BaseDTO {
     private Boolean recommendedStatus;
     private String lastCommentTime;
     private String createTime;
+
+    private List<CommentDTO> commentDTOList;
 
     @Override
     public BasePO toPO() {

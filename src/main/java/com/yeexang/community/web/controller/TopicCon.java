@@ -1,11 +1,15 @@
 package com.yeexang.community.web.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
+import com.yeexang.community.pojo.dto.CommentDTO;
 import com.yeexang.community.pojo.dto.SectionDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
+import com.yeexang.community.pojo.po.Comment;
 import com.yeexang.community.pojo.po.Topic;
+import com.yeexang.community.web.service.CommentSev;
 import com.yeexang.community.web.service.SectionSev;
 import com.yeexang.community.web.service.TopicSev;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +39,67 @@ public class TopicCon {
     @Autowired
     private SectionSev sectionSev;
 
+    @Autowired
+    private CommentSev commentSev;
+
+    @PostMapping("getPage")
+    public ResponseEntity<?> getPage(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
+
+        log.info("TopicCon getPage start --------------------------------");
+
+        Integer pageNum = requestEntity.getPageNum();
+        Integer pageSize = requestEntity.getPageSize();
+
+        TopicDTO topicDTO;
+        List<TopicDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty()) {
+            topicDTO = new TopicDTO();
+        } else {
+            topicDTO = data.get(0);
+        }
+
+        PageInfo pageInfo = topicSev.getPage(pageNum, pageSize, topicDTO);
+        if (pageInfo == null || pageInfo.getTotal() == 0) {
+            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
+        }
+
+        List<Topic> topicList = pageInfo.getList();
+        List<TopicDTO> topicDTOList = topicList.stream()
+                .map(topic -> (TopicDTO) topic.toDTO()).collect(Collectors.toList());
+
+        pageInfo.setList(topicDTOList);
+
+        log.info("TopicCon getPage end --------------------------------");
+
+        return new ResponseEntity<>(pageInfo);
+    }
+
+    @PostMapping("visit")
+    public ResponseEntity<TopicDTO> visit(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
+
+        log.info("TopicCon visit start --------------------------------");
+
+        TopicDTO topicDTO = requestEntity.getData().get(0);
+        List<Topic> topicList = topicSev.getTopic(topicDTO);
+        List<TopicDTO> topicDTOList = topicList.stream()
+                .map(topic -> (TopicDTO) topic.toDTO()).collect(Collectors.toList());
+
+        topicDTOList.forEach(topicDTO1 -> {
+            CommentDTO commentDTO = new CommentDTO();
+            commentDTO.setParentId(topicDTO1.getTopicId());
+            List<Comment> commentList = commentSev.getCommentList(commentDTO);
+            List<CommentDTO> commentDTOList = commentList.stream()
+                    .map(comment -> (CommentDTO) comment.toDTO()).collect(Collectors.toList());
+            topicDTO1.setCommentDTOList(commentDTOList);
+        });
+
+        log.info("TopicCon visit end --------------------------------");
+
+        return new ResponseEntity<>(topicDTOList);
+    }
+
     @PostMapping("publish")
-    public ResponseEntity<TopicDTO> register(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
+    public ResponseEntity<TopicDTO> publish(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
 
         log.info("TopicCon publish start --------------------------------");
 
@@ -52,7 +115,7 @@ public class TopicCon {
         if (StringUtils.isEmpty(topicDTO.getTopicContent())) {
             return new ResponseEntity<>(ServerStatusCode.TOPIC_CONTENT_EMPTY);
         }
-        if (topicDTO.getTopicTitle().length() > 1000) {
+        if (topicDTO.getTopicContent().length() > 1000) {
             return new ResponseEntity<>(ServerStatusCode.TOPIC_CONTENT_TOO_LONG);
         }
         if (StringUtils.isEmpty(topicDTO.getSection())) {
@@ -66,7 +129,7 @@ public class TopicCon {
 
         List<Topic> topicList = topicSev.publish(topicDTO, account);
         if (topicList.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
+            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
         }
 
         List<TopicDTO> topicDTOList = topicList.stream()
@@ -82,10 +145,19 @@ public class TopicCon {
 
         log.info("TopicCon like start --------------------------------");
 
+        String account = request.getAttribute("account").toString();
+        TopicDTO topicDTO = requestEntity.getData().get(0);
 
+        List<Topic> topicList = topicSev.like(topicDTO, account);
+        if (topicList.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
+        }
+
+        List<TopicDTO> topicDTOList = topicList.stream()
+                .map(topic -> (TopicDTO) topic.toDTO()).collect(Collectors.toList());
 
         log.info("TopicCon like end --------------------------------");
 
-        return null;
+        return new ResponseEntity<>(topicDTOList);
     }
 }

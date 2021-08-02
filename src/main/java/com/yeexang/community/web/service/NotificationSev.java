@@ -8,5 +8,5 @@ import com.yeexang.community.pojo.dto.NotificationDTO;
  */
 public interface NotificationSev {
 
-    void notify(NotificationDTO notificationDTO);
+    void setNotify(NotificationDTO notificationDTO);
 }

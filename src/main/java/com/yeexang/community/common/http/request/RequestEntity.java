@@ -11,5 +11,9 @@ import java.util.List;
 @Data
 public class RequestEntity<T> {
 
-    List<T> data;
+    private Integer pageNum;
+
+    private Integer pageSize;
+
+    private List<T> data;
 }

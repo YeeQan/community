@@ -56,15 +56,6 @@
         <if test="section != null and section != ''">
             AND t.section = #{section}
         </if>
-        <if test="commentCount != null and commentCount >= 0">
-            AND t.comment_count = #{commentCount}
-        </if>
-        <if test="viewCount != null and viewCount >= 0">
-            AND t.view_count = #{viewCount}
-        </if>
-        <if test="likeCount != null and likeCount >= 0">
-            AND t.like_count = #{likeCount}
-        </if>
         <if test="essentialStatus != null">
             AND t.essential_status = #{essentialStatus}
         </if>
@@ -161,6 +152,15 @@
             <if test="id != null and id != ''">
                 AND t.id = #{id}
             </if>
+            <if test="topicId != null and topicId != ''">
+                AND t.topic_id = #{topicId}
+            </if>
+        </where>
+    </update>
+
+    <update id="updateCountIncrease" parameterType="string">
+        update y_c_topic t set t.like_count = t.like_count + 1
+        <where>
             <if test="topicId != null and topicId != ''">
                 AND t.topic_id = #{topicId}
             </if>

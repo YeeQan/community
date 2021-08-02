@@ -1,6 +1,7 @@
 package com.yeexang.community.dao;
 
 import com.yeexang.community.pojo.po.Topic;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,6 +18,8 @@ public interface TopicDao {
     void delete(Topic topic);
 
     void update(Topic topic);
+
+    void updateCountIncrease(@Param("topicId") String topicId);
 
     List<Topic> select(Topic topic);
 }

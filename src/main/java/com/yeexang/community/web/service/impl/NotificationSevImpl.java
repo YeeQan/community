@@ -1,8 +1,10 @@
 package com.yeexang.community.web.service.impl;
 
 import com.yeexang.community.dao.NotificationDao;
+import com.yeexang.community.dao.UserDao;
 import com.yeexang.community.pojo.dto.NotificationDTO;
 import com.yeexang.community.pojo.po.Notification;
+import com.yeexang.community.pojo.po.User;
 import com.yeexang.community.web.service.NotificationSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -24,8 +27,11 @@ public class NotificationSevImpl implements NotificationSev {
     @Autowired
     private NotificationDao notificationDao;
 
+    @Autowired
+    private UserDao userDao;
+
     @Override
-    public void notify(NotificationDTO notificationDTO) {
+    public void setNotify(NotificationDTO notificationDTO) {
         Notification notification = (Notification) notificationDTO.toPO();
         try {
             notification.setId(UUID.randomUUID().toString().replaceAll("-", ""));
