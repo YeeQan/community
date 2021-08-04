@@ -1,6 +1,7 @@
 package com.yeexang.community.common.http.response;
 
 import com.yeexang.community.common.ServerStatusCode;
+import com.yeexang.community.pojo.dto.NotificationDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,6 +21,8 @@ public class ResponseEntity<T> {
     private String description;
 
     private List<T> data;
+
+    private List<NotificationDTO> notificationDTOList;
 
     public ResponseEntity(ServerStatusCode serverStatusCode) {
         this.code = serverStatusCode.getCode();

@@ -28,7 +28,10 @@ logging:
 
 # 请求白名单
 interceptor:
-  white-request-uri: /user/login,/user/register,/topic/list
+  token-white-request-uri: /yeexang-community/user/login,
+                           /yeexang-community/user/register,
+                           /yeexang-community/topic/list,
+                           /yeexang-community/comment/list
 
 # jwt 密钥
 jwt:

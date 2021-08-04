@@ -24,8 +24,8 @@ import java.util.List;
 @Component
 public class TokenVerifyInterceptor implements HandlerInterceptor {
 
-    @Value("#{'${interceptor.white-request-uri:}'.empty ? null : '${interceptor.white-request-uri:}'.split(',')}")
-    private List<String> whiteRequestUris;
+    @Value("#{'${interceptor.token-white-request-uri:}'.empty ? null : '${interceptor.token-white-request-uri:}'.split(',')}")
+    private List<String> tokenWhiteRequestUris;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -33,12 +33,12 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        log.debug("TokenVerifyInterceptor preHandle start --------------------------");
+        log.info("TokenVerifyInterceptor preHandle start --------------------------");
 
         // 获取请求的 URI 路径
         String requestUri = request.getRequestURI();
         // 如果请求的 URI 在白名单中，则跳过 token 验证
-        if (whiteRequestUris != null && whiteRequestUris.contains(requestUri)) {
+        if (tokenWhiteRequestUris != null && tokenWhiteRequestUris.contains(requestUri)) {
             return true;
         }
 

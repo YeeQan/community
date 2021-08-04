@@ -4,7 +4,6 @@ import com.yeexang.community.web.interceptor.TokenVerifyInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -23,7 +22,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // token 校验拦截器
-        InterceptorRegistration registration = registry.addInterceptor(getTokenVerifyInterceptor());
-        registration.addPathPatterns("/**");
+        registry.addInterceptor(getTokenVerifyInterceptor()).addPathPatterns("/**");
+
     }
 }

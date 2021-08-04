@@ -1,10 +1,10 @@
 package com.yeexang.community.web.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.pojo.dto.CommentDTO;
-import com.yeexang.community.pojo.dto.SectionDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.dto.UserDTO;
 import com.yeexang.community.pojo.po.Comment;
@@ -38,6 +38,32 @@ public class CommentCon {
 
     @Autowired
     private UserSev userSev;
+
+    @PostMapping("list")
+    public ResponseEntity<CommentDTO> list(@RequestBody RequestEntity<CommentDTO> requestEntity, HttpServletRequest request) {
+
+        log.info("CommentCon list start --------------------------------");
+
+        CommentDTO commentDTO;
+        List<CommentDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty()) {
+            commentDTO = new CommentDTO();
+        } else {
+            commentDTO = data.get(0);
+        }
+
+        List<Comment> commentList = commentSev.getCommentList(commentDTO);
+        if (commentList == null || commentList.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
+        }
+
+        List<CommentDTO> commentDTOList = commentList.stream()
+                .map(comment -> (CommentDTO) comment.toDTO()).collect(Collectors.toList());
+
+        log.info("CommentCon list end --------------------------------");
+
+        return new ResponseEntity<>(commentDTOList);
+    }
 
     @PostMapping("publish")
     public ResponseEntity<CommentDTO> publish(@RequestBody RequestEntity<CommentDTO> requestEntity, HttpServletRequest request) {
