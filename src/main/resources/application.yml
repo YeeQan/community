@@ -31,7 +31,8 @@ interceptor:
   token-white-request-uri: /yeexang-community/user/login,
                            /yeexang-community/user/register,
                            /yeexang-community/topic/list,
-                           /yeexang-community/comment/list
+                           /yeexang-community/comment/list,
+                           /yeexang-community/section/list
 
 # jwt 密钥
 jwt:

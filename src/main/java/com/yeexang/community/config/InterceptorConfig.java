@@ -23,6 +23,5 @@ public class InterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         // token 校验拦截器
         registry.addInterceptor(getTokenVerifyInterceptor()).addPathPatterns("/**");
-
     }
 }

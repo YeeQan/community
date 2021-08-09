@@ -14,6 +14,7 @@ import com.yeexang.community.web.service.TopicSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -41,7 +42,9 @@ public class TopicSevImpl implements TopicSev {
             List<Topic> list = topicDao.select(topic);
             pageInfo = new PageInfo<>(list);
         } catch (Exception e) {
-            log.error("TopicSev list errorMsg: {}", e.getMessage());
+            log.error("TopicSev getPage errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new PageInfo<>();
         }
         return pageInfo;
     }

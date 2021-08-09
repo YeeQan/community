@@ -2,6 +2,7 @@ package com.yeexang.community.pojo.po;
 
 import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.UserDTO;
+import io.swagger.models.auth.In;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -36,11 +37,6 @@ public class User extends BasePO {
      * 密码
      */
     private String password;
-
-    /**
-     * 经验值
-     */
-    private Integer exp;
 
     /**
      * 创建时间

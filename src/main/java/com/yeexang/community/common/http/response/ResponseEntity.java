@@ -4,6 +4,7 @@ import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.pojo.dto.NotificationDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  * @date 2021/7/23
  */
 @Data
+@ToString
 @NoArgsConstructor
 public class ResponseEntity<T> {
 

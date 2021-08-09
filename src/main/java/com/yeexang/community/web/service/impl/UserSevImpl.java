@@ -1,5 +1,6 @@
 package com.yeexang.community.web.service.impl;
 
+import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.dao.UserDao;
 import com.yeexang.community.pojo.dto.UserDTO;
 import com.yeexang.community.pojo.po.User;
@@ -7,11 +8,11 @@ import com.yeexang.community.web.service.UserSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author yeeq
@@ -24,14 +25,20 @@ public class UserSevImpl implements UserSev {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private CommonUtil commonUtil;
+
     @Override
     public List<User> getUser(UserDTO userDTO) {
         User user = (User) userDTO.toPO();
         List<User> userList = new ArrayList<>();
         try {
-            userList.addAll(userDao.select(user));
+            List<User> userDBList = userDao.select(user);
+            userList.addAll(userDBList);
         } catch (Exception e) {
             log.error("UserSev getUser errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ArrayList<>();
         }
         return userList;
     }
@@ -43,8 +50,7 @@ public class UserSevImpl implements UserSev {
         try {
             // 避免重复注册
             synchronized (this) {
-                user.setId(UUID.randomUUID().toString().replaceAll("-", ""));
-                user.setExp(0);
+                user.setId(commonUtil.uuid());
                 user.setCreateTime(new Date());
                 user.setCreateUser(user.getAccount());
                 user.setUpdateTime(new Date());
@@ -59,6 +65,8 @@ public class UserSevImpl implements UserSev {
             }
         } catch (Exception e) {
             log.error("UserSev register errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ArrayList<>();
         }
         return userList;
     }

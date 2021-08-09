@@ -12,6 +12,8 @@ import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.web.service.CommentSev;
 import com.yeexang.community.web.service.SectionSev;
 import com.yeexang.community.web.service.TopicSev;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("topic")
+@Api(tags = "帖子服务接口")
 public class TopicCon {
 
     @Autowired
@@ -42,10 +45,9 @@ public class TopicCon {
     @Autowired
     private CommentSev commentSev;
 
-    @PostMapping("getPage")
-    public ResponseEntity<?> getPage(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
-
-        log.info("TopicCon getPage start --------------------------------");
+    @PostMapping("page")
+    @ApiOperation(value = "获取帖子分页")
+    public ResponseEntity<?> page(@RequestBody RequestEntity<TopicDTO> requestEntity) {
 
         Integer pageNum = requestEntity.getPageNum();
         Integer pageSize = requestEntity.getPageSize();
@@ -59,7 +61,7 @@ public class TopicCon {
         }
 
         PageInfo pageInfo = topicSev.getPage(pageNum, pageSize, topicDTO);
-        if (pageInfo == null || pageInfo.getTotal() == 0) {
+        if (pageInfo.getTotal() == 0) {
             return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
         }
 
@@ -69,15 +71,11 @@ public class TopicCon {
 
         pageInfo.setList(topicDTOList);
 
-        log.info("TopicCon getPage end --------------------------------");
-
         return new ResponseEntity<>(pageInfo);
     }
 
     @PostMapping("visit")
     public ResponseEntity<TopicDTO> visit(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
-
-        log.info("TopicCon visit start --------------------------------");
 
         TopicDTO topicDTO = requestEntity.getData().get(0);
         List<Topic> topicList = topicSev.getTopic(topicDTO);
@@ -92,8 +90,6 @@ public class TopicCon {
                     .map(comment -> (CommentDTO) comment.toDTO()).collect(Collectors.toList());
             topicDTO1.setCommentDTOList(commentDTOList);
         });
-
-        log.info("TopicCon visit end --------------------------------");
 
         return new ResponseEntity<>(topicDTOList);
     }

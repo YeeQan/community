@@ -7,7 +7,6 @@
         u.account,
         u.username,
         u.password,
-        u.exp,
         u.create_time,
         u.create_user,
         u.update_time,
@@ -20,7 +19,6 @@
         #{account},
         #{username},
         #{password},
-        #{exp},
         #{createTime},
         #{createUser},
         #{updateTime},
@@ -40,9 +38,6 @@
         </if>
         <if test="password != null and password != ''">
             AND u.password = #{password}
-        </if>
-        <if test="exp != null and exp >= 0">
-            AND u.exp = #{exp}
         </if>
         <if test="createTime != null">
             AND u.create_time = #{createTime}
@@ -67,9 +62,6 @@
         </if>
         <if test="password != null and password != ''">
             u.password = #{password},
-        </if>
-        <if test="exp != null and exp >= 0">
-            u.exp = #{exp},
         </if>
         <if test="createTime != null">
             u.create_time = #{createTime},

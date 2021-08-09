@@ -32,31 +32,26 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
-        log.info("TokenVerifyInterceptor preHandle start --------------------------");
-
-        // 获取请求的 URI 路径
-        String requestUri = request.getRequestURI();
-        // 如果请求的 URI 在白名单中，则跳过 token 验证
-        if (tokenWhiteRequestUris != null && tokenWhiteRequestUris.contains(requestUri)) {
-            return true;
-        }
-
-        Cookie[] cookies = request.getCookies();
-        String token = null;
-        if (cookies != null && cookies.length != 0) {
-            for (Cookie cookie : cookies) {
-                if (CommonField.TOKEN.equals(cookie.getName())) {
-                    token = cookie.getValue();
+        try {
+            // 获取请求的 URI 路径
+            String requestUri = request.getRequestURI();
+            // 如果请求的 URI 在白名单中，则跳过 token 验证
+            if (tokenWhiteRequestUris != null && tokenWhiteRequestUris.contains(requestUri)) {
+                return true;
+            }
+            Cookie[] cookies = request.getCookies();
+            String token = null;
+            if (cookies != null && cookies.length != 0) {
+                for (Cookie cookie : cookies) {
+                    if (CommonField.TOKEN.equals(cookie.getName())) {
+                        token = cookie.getValue();
+                    }
                 }
             }
-        }
-        if (StringUtils.isEmpty(token)) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return false;
-        }
-
-        try {
+            if (StringUtils.isEmpty(token)) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                return false;
+            }
             // 校验 token
             jwtUtil.verifyJwt(token);
             // 从加密 token 中获取信息
@@ -65,6 +60,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
             // 将 token 中的 account 放到 request 里面，转发到业务
             request.setAttribute("account", account);
         } catch (Exception e) {
+            log.error("TokenVerifyInterceptor preHandle error: {}", e.getMessage());
             // 验证失败，返回 401 状态码
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             return false;

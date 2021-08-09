@@ -1,4 +1,4 @@
-package com.yeexang.community.web.controller.advice;
+package com.yeexang.community.web.advice;
 
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.pojo.dto.NotificationDTO;

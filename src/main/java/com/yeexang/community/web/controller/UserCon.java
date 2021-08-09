@@ -1,13 +1,19 @@
 package com.yeexang.community.web.controller;
 
+import com.yeexang.community.common.CommonField;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.CookieUtil;
+import com.yeexang.community.common.util.DictUtil;
 import com.yeexang.community.common.util.JwtUtil;
 import com.yeexang.community.pojo.dto.UserDTO;
+import com.yeexang.community.pojo.po.Dict;
 import com.yeexang.community.pojo.po.User;
 import com.yeexang.community.web.service.UserSev;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -18,9 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("user")
+@Api(tags = "用户服务接口")
 public class UserCon {
 
     @Autowired
@@ -41,82 +46,93 @@ public class UserCon {
     @Autowired
     private CookieUtil cookieUtil;
 
-    @PostMapping("register")
-    public ResponseEntity<UserDTO> register(@RequestBody RequestEntity<UserDTO> requestEntity, HttpServletResponse response) {
+    @Autowired
+    private DictUtil dictUtil;
 
-        log.info("UserCon register start --------------------------------");
+    @PostMapping("register")
+    @ApiOperation(value = "用户注册")
+    public ResponseEntity<UserDTO> register(@RequestBody RequestEntity<UserDTO> requestEntity, HttpServletResponse response) {
 
         UserDTO userDTO = requestEntity.getData().get(0);
 
+        // 格式校验
+        if (userDTO == null) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+        }
         if (StringUtils.isEmpty(userDTO.getAccount())) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_EMPTY);
         }
-        if (!userDTO.getAccount().matches("[a-zA-Z0-9_]{1,12}")) {
+        if (!userDTO.getAccount().matches(CommonField.ACCOUNT_FORMAT_REGULAR)) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_FORMAT_ERROR);
         }
         if (StringUtils.isEmpty(userDTO.getUsername())) {
             return new ResponseEntity<>(ServerStatusCode.USERNAME_EMPTY);
         }
         if (userDTO.getUsername().length() > 12 ||
-                !userDTO.getUsername().matches("[\\u4E00-\\u9FA5A-Za-z0-9_]+$")) {
+                !userDTO.getUsername().matches(CommonField.USERNAME_FORMAT_REGULAR)) {
             return new ResponseEntity<>(ServerStatusCode.USERNAME_FORMAT_ERROR);
         }
         if (StringUtils.isEmpty(userDTO.getPassword())) {
             return new ResponseEntity<>(ServerStatusCode.PASSWORD_EMPTY);
         }
-        if (!userDTO.getPassword().matches("[a-zA-Z0-9]{1,16}")) {
+        if (!userDTO.getPassword().matches(CommonField.PASSWORD_FORMAT_REGULAR)) {
             return new ResponseEntity<>(ServerStatusCode.PASSWORD_FORMAT_ERROR);
         }
 
+        // 账号已存在
         if (!userSev.getUser(new UserDTO(userDTO.getAccount(), null, null)).isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_EXIST);
         }
 
+        // 昵称已存在
         if (!userSev.getUser(new UserDTO(null, userDTO.getUsername(), null)).isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.USERNAME_EXIST);
         }
 
+        // 注册
         List<User> userList = userSev.register(userDTO);
         if (userList.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
+            return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
         }
 
         List<UserDTO> userDTOList = userList.stream()
                 .map(user -> (UserDTO) user.toDTO()).collect(Collectors.toList());
 
         Map<String, String> payloadMap = new HashMap<>(2);
-        payloadMap.put("account", userDTO.getAccount());
+        payloadMap.put(CommonField.ACCOUNT, userDTO.getAccount());
         String token = jwtUtil.getToken(payloadMap);
-
-        Cookie cookie = cookieUtil.getCookie("token", token, 86400 * 7);
+        Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 7);
         response.addCookie(cookie);
-
-        log.info("UserCon register end --------------------------------");
 
         return new ResponseEntity<>(userDTOList);
     }
 
     @PostMapping("login")
+    @ApiOperation(value = "用户登录")
     public ResponseEntity<UserDTO> login(@RequestBody RequestEntity<UserDTO> requestEntity, HttpServletResponse response) {
-
-        log.info("UserCon login start --------------------------------");
 
         UserDTO userDTO = requestEntity.getData().get(0);
 
+        // 格式校验
+        if (userDTO == null) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+        }
         if (StringUtils.isEmpty(userDTO.getAccount())) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_EMPTY);
         }
-        if (!userDTO.getAccount().matches("[a-zA-Z0-9_]{1,12}")) {
+        if (!userDTO.getAccount().matches(CommonField.ACCOUNT_FORMAT_REGULAR)) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_FORMAT_ERROR);
         }
         if (StringUtils.isEmpty(userDTO.getPassword())) {
             return new ResponseEntity<>(ServerStatusCode.PASSWORD_EMPTY);
         }
-        if (!userDTO.getPassword().matches("[a-zA-Z0-9]{1,16}")) {
+        if (!userDTO.getPassword().matches(CommonField.PASSWORD_FORMAT_REGULAR)) {
             return new ResponseEntity<>(ServerStatusCode.PASSWORD_FORMAT_ERROR);
         }
 
+        // 获取用户信息
         List<User> userList = userSev.getUser(userDTO);
+        // 用户不存在
         if (userList.isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_NOT_EXIST);
         }
@@ -125,13 +141,10 @@ public class UserCon {
                 .map(user -> (UserDTO) user.toDTO()).collect(Collectors.toList());
 
         Map<String, String> payloadMap = new HashMap<>(2);
-        payloadMap.put("account", userDTO.getAccount());
+        payloadMap.put(CommonField.ACCOUNT, userDTO.getAccount());
         String token = jwtUtil.getToken(payloadMap);
-
-        Cookie cookie = cookieUtil.getCookie("token", token, 86400 * 7);
+        Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 7);
         response.addCookie(cookie);
-
-        log.info("UserCon start end --------------------------------");
 
         return new ResponseEntity<>(userDTOList);
     }

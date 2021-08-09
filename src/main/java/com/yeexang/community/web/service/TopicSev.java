@@ -12,6 +12,13 @@ import java.util.List;
  */
 public interface TopicSev {
 
+    /**
+     * 分页获取
+     * @param pageNum 页码
+     * @param pageSize 分页大小
+     * @param topicDTO 筛选条件
+     * @return PageInfo<Topic>
+     */
     PageInfo<Topic> getPage(Integer pageNum, Integer pageSize, TopicDTO topicDTO);
 
     List<Topic> getTopic(TopicDTO topicDTO);
