@@ -16,15 +16,35 @@ public class CommonField {
      */
     public static final String ACCOUNT = "account";
 
+    /**
+     * 评论类型 —— 一级评论
+     */
     public static final String FIRST_LEVEL_COMMENT = "1";
 
+    /**
+     * 评论类型 —— 二级评论
+     */
     public static final String SECOND_LEVEL_COMMENT = "2";
 
+    /**
+     * 通知类型 —— 回帖
+     */
     public static final String NOTIFICATION_TYPE_TOPIC = "1";
 
+    /**
+     * 通知类型 —— 回复评论
+     */
     public static final String NOTIFICATION_TYPE_COMMENT = "2";
 
-    public static final String NOTIFICATION_TYPE_LIKE = "3";
+    /**
+     * 通知类型 —— 点赞帖子
+     */
+    public static final String NOTIFICATION_TYPE_LIKE_TOPIC = "3";
+
+    /**
+     * 通知类型 —— 点赞评论
+     */
+    public static final String NOTIFICATION_TYPE_LIKE_COMMENT = "4";
 
     /**
      * 账号必须由字母、数字、下划线组成，不能超过12位

@@ -29,10 +29,10 @@
             AND s.id = #{id}
         </if>
         <if test="sectionId != null and sectionId != ''">
-            AND s.section_name = #{sectionId}
+            AND s.section_id = #{sectionId}
         </if>
         <if test="sectionName != null and sectionName != ''">
-            AND s.section_title = #{sectionName}
+            AND s.section_name = #{sectionName}
         </if>
         <if test="createTime != null">
             AND s.create_time = #{createTime}

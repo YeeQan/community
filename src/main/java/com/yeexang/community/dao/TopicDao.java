@@ -19,7 +19,7 @@ public interface TopicDao {
 
     void update(Topic topic);
 
-    void updateCountIncrease(@Param("topicId") String topicId);
+    void updateLikeCountIncrease(@Param("topicId") String topicId);
 
     List<Topic> select(Topic topic);
 }

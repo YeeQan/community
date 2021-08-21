@@ -7,11 +7,14 @@ import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.pojo.dto.CommentDTO;
 import com.yeexang.community.pojo.dto.SectionDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
+import com.yeexang.community.pojo.dto.UserDTO;
 import com.yeexang.community.pojo.po.Comment;
 import com.yeexang.community.pojo.po.Topic;
+import com.yeexang.community.pojo.po.User;
 import com.yeexang.community.web.service.CommentSev;
 import com.yeexang.community.web.service.SectionSev;
 import com.yeexang.community.web.service.TopicSev;
+import com.yeexang.community.web.service.UserSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +48,9 @@ public class TopicCon {
     @Autowired
     private CommentSev commentSev;
 
+    @Autowired
+    private UserSev userSev;
+
     @PostMapping("page")
     @ApiOperation(value = "获取帖子分页")
     public ResponseEntity<?> page(@RequestBody RequestEntity<TopicDTO> requestEntity) {
@@ -75,33 +81,66 @@ public class TopicCon {
     }
 
     @PostMapping("visit")
-    public ResponseEntity<TopicDTO> visit(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
+    @ApiOperation(value = "访问帖子")
+    public ResponseEntity<TopicDTO> visit(@RequestBody RequestEntity<TopicDTO> requestEntity) {
 
-        TopicDTO topicDTO = requestEntity.getData().get(0);
+        TopicDTO topicDTO;
+        List<TopicDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+        } else {
+            topicDTO = data.get(0);
+        }
+
         List<Topic> topicList = topicSev.getTopic(topicDTO);
+
         List<TopicDTO> topicDTOList = topicList.stream()
                 .map(topic -> (TopicDTO) topic.toDTO()).collect(Collectors.toList());
 
-        topicDTOList.forEach(topicDTO1 -> {
+        if (topicDTOList.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
+        }
+
+        topicDTOList.forEach(dto -> {
+            // 设置用户名
+            UserDTO userDTO = new UserDTO();
+            userDTO.setAccount(dto.getCreateUser());
+            User user = userSev.getUser(userDTO).get(0);
+            dto.setCreateUserName(user.getUsername());
+            // 设置评论
             CommentDTO commentDTO = new CommentDTO();
-            commentDTO.setParentId(topicDTO1.getTopicId());
+            commentDTO.setParentId(dto.getTopicId());
             List<Comment> commentList = commentSev.getCommentList(commentDTO);
             List<CommentDTO> commentDTOList = commentList.stream()
-                    .map(comment -> (CommentDTO) comment.toDTO()).collect(Collectors.toList());
-            topicDTO1.setCommentDTOList(commentDTOList);
+                    .map(comment -> {
+                        CommentDTO cdto = (CommentDTO) comment.toDTO();
+                        UserDTO param = new UserDTO();
+                        param.setAccount(cdto.getCreateUser());
+                        String username = userSev.getUser(param).get(0).getUsername();
+                        cdto.setCreateUsername(username);
+                        return cdto;
+                    }).collect(Collectors.toList());
+            dto.setCommentDTOList(commentDTOList);
         });
 
         return new ResponseEntity<>(topicDTOList);
     }
 
     @PostMapping("publish")
+    @ApiOperation(value = "发布帖子")
     public ResponseEntity<TopicDTO> publish(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
 
-        log.info("TopicCon publish start --------------------------------");
-
         String account = request.getAttribute("account").toString();
-        TopicDTO topicDTO = requestEntity.getData().get(0);
 
+        TopicDTO topicDTO;
+        List<TopicDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+        } else {
+            topicDTO = data.get(0);
+        }
+
+        // 参数校验
         if (StringUtils.isEmpty(topicDTO.getTopicTitle())) {
             return new ResponseEntity<>(ServerStatusCode.TOPIC_TITLE_EMPTY);
         }
@@ -123,36 +162,54 @@ public class TopicCon {
             return new ResponseEntity<>(ServerStatusCode.SECTION_NOT_EXIST);
         }
 
+        // 发布
         List<Topic> topicList = topicSev.publish(topicDTO, account);
         if (topicList.isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
         }
 
         List<TopicDTO> topicDTOList = topicList.stream()
-                .map(topic -> (TopicDTO) topic.toDTO()).collect(Collectors.toList());
-
-        log.info("TopicCon publish end --------------------------------");
+                .map(topic -> {
+                    TopicDTO dto = (TopicDTO) topic.toDTO();
+                    UserDTO param = new UserDTO();
+                    param.setAccount(dto.getCreateUser());
+                    String username = userSev.getUser(param).get(0).getUsername();
+                    dto.setCreateUserName(username);
+                    return dto;
+                }).collect(Collectors.toList());
 
         return new ResponseEntity<>(topicDTOList);
     }
 
     @PostMapping("like")
+    @ApiOperation(value = "点赞帖子")
     public ResponseEntity<TopicDTO> like(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
 
-        log.info("TopicCon like start --------------------------------");
-
         String account = request.getAttribute("account").toString();
-        TopicDTO topicDTO = requestEntity.getData().get(0);
 
+        TopicDTO topicDTO;
+        List<TopicDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+        } else {
+            topicDTO = data.get(0);
+        }
+
+        // 点赞
         List<Topic> topicList = topicSev.like(topicDTO, account);
         if (topicList.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
+            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
         }
 
         List<TopicDTO> topicDTOList = topicList.stream()
-                .map(topic -> (TopicDTO) topic.toDTO()).collect(Collectors.toList());
-
-        log.info("TopicCon like end --------------------------------");
+                .map(topic -> {
+                    TopicDTO dto = (TopicDTO) topic.toDTO();
+                    UserDTO param = new UserDTO();
+                    param.setAccount(dto.getCreateUser());
+                    String username = userSev.getUser(param).get(0).getUsername();
+                    dto.setCreateUserName(username);
+                    return dto;
+                }).collect(Collectors.toList());
 
         return new ResponseEntity<>(topicDTOList);
     }

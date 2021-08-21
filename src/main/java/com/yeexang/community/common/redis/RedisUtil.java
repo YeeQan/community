@@ -28,7 +28,7 @@ public class RedisUtil {
         return template.opsForValue().get(redisKey.getKey(id));
     }
 
-    public Object getObjectValue(Class<? extends Object> clazz, RedisKey redisKey, String id) {
+    public Object getObjectValue(Class<?> clazz, RedisKey redisKey, String id) {
         String value = getValue(redisKey, id);
         return JSON.parseObject(value, clazz);
     }

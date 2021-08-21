@@ -22,6 +22,9 @@ public enum RedisKey {
         this.timeout = timeout;
     }
 
+    /**
+     * 获取 key 值，参数为空传回枚举值
+     */
     public String getKey(String id) {
         if (StringUtils.isEmpty(id)) {
             return this.name();

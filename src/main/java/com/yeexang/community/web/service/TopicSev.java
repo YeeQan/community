@@ -21,9 +21,26 @@ public interface TopicSev {
      */
     PageInfo<Topic> getPage(Integer pageNum, Integer pageSize, TopicDTO topicDTO);
 
+    /**
+     * 获取帖子
+     * @param topicDTO topicDTO
+     * @return List<Topic>
+     */
     List<Topic> getTopic(TopicDTO topicDTO);
 
+    /**
+     * 发布帖子
+     * @param topicDTO topicDTO
+     * @param account account
+     * @return List<Topic>
+     */
     List<Topic> publish(TopicDTO topicDTO, String account);
 
+    /**
+     * 点赞
+     * @param topicDTO topicDTO
+     * @param account account
+     * @return List<Topic>
+     */
     List<Topic> like(TopicDTO topicDTO, String account);
 }

@@ -1,5 +1,6 @@
 package com.yeexang.community.web.service.impl;
 
+import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.dao.NotificationDao;
 import com.yeexang.community.dao.UserDao;
 import com.yeexang.community.pojo.dto.NotificationDTO;
@@ -11,6 +12,7 @@ import com.yeexang.community.web.service.NotificationSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -27,16 +29,14 @@ public class NotificationSevImpl implements NotificationSev {
     private NotificationDao notificationDao;
 
     @Autowired
-    private UserDao userDao;
+    private CommonUtil commonUtil;
 
     @Override
     public void setNotify(NotificationDTO notificationDTO) {
         Notification notification = (Notification) notificationDTO.toPO();
         try {
-            notification.setId(UUID.randomUUID().toString().replaceAll("-", ""));
-            String dateStr = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-            int random = new Random().nextInt(1000000);
-            String notificationId = dateStr + random;
+            notification.setId(commonUtil.uuid());
+            String notificationId = commonUtil.randomCode();
             notification.setNotificationId(notificationId);
             notification.setNotificationId(notificationId);
             notification.setStatus(false);
@@ -48,6 +48,7 @@ public class NotificationSevImpl implements NotificationSev {
             notificationDao.insert(notification);
         } catch (Exception e) {
             log.error("NotificationSev setNotify errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }
 
@@ -60,9 +61,9 @@ public class NotificationSevImpl implements NotificationSev {
             notificationList.addAll(notificationDBList);
         } catch (Exception e) {
             log.error("NotificationSev receive errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ArrayList<>();
         }
         return notificationList;
     }
-
-
 }

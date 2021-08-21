@@ -3,12 +3,11 @@ package com.yeexang.community.web.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.yeexang.community.common.CommonField;
+import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.dao.TopicDao;
-import com.yeexang.community.pojo.dto.CommentDTO;
 import com.yeexang.community.pojo.dto.NotificationDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.po.Topic;
-import com.yeexang.community.web.service.CommentSev;
 import com.yeexang.community.web.service.NotificationSev;
 import com.yeexang.community.web.service.TopicSev;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author yeeq
@@ -33,10 +33,13 @@ public class TopicSevImpl implements TopicSev {
     @Autowired
     private NotificationSev notificationSev;
 
+    @Autowired
+    private CommonUtil commonUtil;
+
     @Override
     public PageInfo<Topic> getPage(Integer pageNum, Integer pageSize, TopicDTO topicDTO) {
         Topic topic = (Topic) topicDTO.toPO();
-        PageInfo<Topic> pageInfo = null;
+        PageInfo<Topic> pageInfo;
         try {
             PageHelper.startPage(pageNum, pageSize);
             List<Topic> list = topicDao.select(topic);
@@ -58,6 +61,8 @@ public class TopicSevImpl implements TopicSev {
             topicList.addAll(topicDBList);
         } catch (Exception e) {
             log.error("TopicSev getTopic errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ArrayList<>();
         }
         return topicList;
     }
@@ -67,10 +72,8 @@ public class TopicSevImpl implements TopicSev {
         Topic topic = (Topic) topicDTO.toPO();
         List<Topic> topicList = new ArrayList<>();
         try {
-            topic.setId(UUID.randomUUID().toString().replaceAll("-", ""));
-            String dateStr = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-            int random = new Random().nextInt(1000000);
-            String topicId = dateStr + random;
+            topic.setId(commonUtil.uuid());
+            String topicId = commonUtil.randomCode();
             topic.setTopicId(topicId);
             topic.setCommentCount(0);
             topic.setViewCount(0);
@@ -91,6 +94,8 @@ public class TopicSevImpl implements TopicSev {
             topicList.addAll(topicDBList);
         } catch (Exception e) {
             log.error("TopicSev publish errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ArrayList<>();
         }
         return topicList;
     }
@@ -100,7 +105,7 @@ public class TopicSevImpl implements TopicSev {
         String topicId = topicDTO.getTopicId();
         List<Topic> topicList = new ArrayList<>();
         try {
-            topicDao.updateCountIncrease(topicId);
+            topicDao.updateLikeCountIncrease(topicId);
             Topic topicParam = new Topic();
             topicParam.setTopicId(topicId);
             List<Topic> topicDBList = topicDao.select(topicParam);
@@ -111,10 +116,12 @@ public class TopicSevImpl implements TopicSev {
             notificationDTO.setNotifier(account);
             notificationDTO.setReceiver(topicDB.getCreateUser());
             notificationDTO.setOuterId(topicDB.getTopicId());
-            notificationDTO.setNotificationType(CommonField.NOTIFICATION_TYPE_LIKE);
+            notificationDTO.setNotificationType(CommonField.NOTIFICATION_TYPE_LIKE_TOPIC);
             notificationSev.setNotify(notificationDTO);
         } catch (Exception e) {
             log.error("TopicSev like errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ArrayList<>();
         }
         return topicList;
     }

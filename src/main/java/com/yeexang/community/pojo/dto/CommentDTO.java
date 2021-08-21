@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 /**
@@ -31,21 +32,21 @@ public class CommentDTO extends BaseDTO {
     @Override
     public BasePO toPO() {
         Comment comment = new Comment();
-        try {
-            comment.setCommentId(commentId);
-            comment.setParentId(parentId);
-            comment.setCommentContent(commentContent);
-            comment.setCommentCount(commentCount);
-            comment.setLikeCount(likeCount);
-            comment.setCommentType(commentType);
-            comment.setCreateUser(createUser);
-            if (StringUtils.isEmpty(createTime)) {
-                comment.setCreateTime(null);
-            } else {
+        comment.setCommentId(commentId);
+        comment.setParentId(parentId);
+        comment.setCommentContent(commentContent);
+        comment.setCommentCount(commentCount);
+        comment.setLikeCount(likeCount);
+        comment.setCommentType(commentType);
+        comment.setCreateUser(createUser);
+        if (StringUtils.isEmpty(createTime)) {
+            comment.setCreateTime(null);
+        } else {
+            try {
                 comment.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createTime));
+            } catch (ParseException e) {
+                log.error("CommentDTO toPO errorMsg: {}", e.getMessage());
             }
-        } catch (Exception e) {
-            log.error("CommentDTO toPO errorMsg: {}", e.getMessage());
         }
         return comment;
     }

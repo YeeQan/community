@@ -18,7 +18,6 @@ public class UserDTO extends BaseDTO {
     private String account;
     private String username;
     private String password;
-    private String levelTitle;
 
     public UserDTO(String account, String username, String password) {
         this.account = account;

@@ -126,6 +126,15 @@
         </where>
     </update>
 
+    <update id="updateLikeCountIncrease" parameterType="string">
+        update y_c_comment t set c.like_count = c.like_count + 1
+        <where>
+            <if test="commentId != null and commentId != ''">
+                AND t.comment_id = #{commentId}
+            </if>
+        </where>
+    </update>
+
     <select id="select" parameterType="com.yeexang.community.pojo.po.Comment" resultType="com.yeexang.community.pojo.po.Comment">
         select <include refid="y_c_comment"/> from y_c_comment c
         <where>

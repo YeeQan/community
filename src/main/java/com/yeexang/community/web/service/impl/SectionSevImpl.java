@@ -37,14 +37,17 @@ public class SectionSevImpl implements SectionSev {
             Section sectionCache = (Section) redisUtil.getObjectValue(Section.class, RedisKey.SECTION, section.getSectionId());
             if (sectionCache == null) {
                 Section sectionParam = new Section();
-                section.setSectionId(section.getSectionId());
+                sectionParam.setSectionId(section.getSectionId());
                 List<Section> select = sectionDao.select(sectionParam);
                 sectionList.addAll(select);
                 sectionList.forEach(s ->
                         redisUtil.setValue(RedisKey.SECTION, s.getSectionId(), JSON.toJSONString(s)));
+            } else {
+                sectionList.add(sectionCache);
             }
         } catch (Exception e) {
             log.error("SectionSev getSection errorMsg: {}", e.getMessage());
+            return new ArrayList<>();
         }
         return sectionList;
     }

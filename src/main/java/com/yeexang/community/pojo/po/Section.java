@@ -58,7 +58,7 @@ public class Section extends BasePO {
     @Override
     public BaseDTO toDTO() {
         SectionDTO sectionDTO = new SectionDTO();
-        sectionDTO.setSectionId(id);
+        sectionDTO.setSectionId(sectionId);
         sectionDTO.setSectionName(sectionName);
         return sectionDTO;
     }

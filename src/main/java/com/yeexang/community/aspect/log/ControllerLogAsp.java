@@ -11,6 +11,8 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
 /**
+ * Controller 日志切面
+ *
  * @author yeeq
  * @date 2021/8/4
  */
@@ -24,7 +26,7 @@ public class ControllerLogAsp {
 
     }
 
-    @Before("controllerMethod()")
+    @Before(value = "controllerMethod()", argNames = "joinPoint")
     public void LogRequestInfo(JoinPoint joinPoint) {
         Signature signature = joinPoint.getSignature();
         String methodName = signature.getName();
@@ -32,28 +34,34 @@ public class ControllerLogAsp {
         Object[] args = joinPoint.getArgs();
         StringBuilder sb = new StringBuilder();
         sb.append(typeName).append("controller log start: ")
-                .append(typeName).append(" ")
                 .append(methodName).append("(");
         for (int i = 0; i < args.length; i++) {
-            if (i == args.length - 1) {
-                sb.append(args[i].toString()).append(")");
+            if (args[i] != null) {
+                if (i == args.length - 1) {
+                    sb.append(args[i].toString()).append(")");
+                } else {
+                    sb.append(args[i].toString()).append(",");
+                }
             } else {
-                sb.append(args[i].toString()).append(",");
+                if (i == args.length - 1) {
+                    sb.append("null").append(")");
+                } else {
+                    sb.append("null").append(",");
+                }
             }
         }
         log.info(sb.toString());
     }
 
-    @AfterReturning(returning = "responseEntity", pointcut = "controllerMethod()", argNames = "responseEntity,joinPoint")
-    public void logResultVOInfo(ResponseEntity responseEntity, JoinPoint joinPoint) {
+    @AfterReturning(returning = "responseEntity", pointcut = "controllerMethod()")
+    public void logResultInfo(JoinPoint joinPoint, ResponseEntity responseEntity) {
         Signature signature = joinPoint.getSignature();
         String methodName = signature.getName();
         String typeName = signature.getDeclaringTypeName();
-        StringBuilder sb = new StringBuilder();
-        sb.append(typeName).append("controller log end: ")
-                .append(typeName).append(" ")
-                .append(methodName).append(" ")
-                .append("returnValue: ").append(responseEntity.toString());
-        log.info(sb.toString());
+        String sb = typeName + "controller log end: " +
+                typeName + " " +
+                methodName + " " +
+                "returnValue: " + responseEntity.toString();
+        log.info(sb);
     }
 }

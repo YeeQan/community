@@ -158,7 +158,7 @@
         </where>
     </update>
 
-    <update id="updateCountIncrease" parameterType="string">
+    <update id="updateLikeCountIncrease" parameterType="string">
         update y_c_topic t set t.like_count = t.like_count + 1
         <where>
             <if test="topicId != null and topicId != ''">

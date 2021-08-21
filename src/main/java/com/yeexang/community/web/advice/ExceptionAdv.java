@@ -1,26 +1,25 @@
 package com.yeexang.community.web.advice;
 
+import com.yeexang.community.common.ServerStatusCode;
+import com.yeexang.community.common.http.response.ResponseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.servlet.HandlerExceptionResolver;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author yeeq
- * @date 2021/8/5
+ * @date 2021/8/12
  */
 @Slf4j
 @ControllerAdvice
-public class ExceptionAdv implements HandlerExceptionResolver {
+public class ExceptionAdv {
 
-    @Override
-    public ModelAndView resolveException(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) {
-        ModelAndView mv = new ModelAndView();
-        log.error("ExceptionAdv resolveException: {}", e.getMessage());
-        mv.setViewName("error");
-        return mv;
+    @ExceptionHandler(value = Exception.class)
+    @ResponseBody
+    public ResponseEntity<?> exceptionHandler(Exception e) {
+        log.error("ExceptionAdv exceptionHandler Exception: {}, errorMsg: {}", e.toString(), e.getMessage());
+        e.printStackTrace();
+        return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
     }
 }

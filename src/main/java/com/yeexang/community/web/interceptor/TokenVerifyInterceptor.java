@@ -1,12 +1,14 @@
 package com.yeexang.community.web.interceptor;
 
+import com.alibaba.fastjson.JSON;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.yeexang.community.common.CommonField;
+import com.yeexang.community.common.ServerStatusCode;
+import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -14,6 +16,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.util.List;
 
 /**
@@ -32,12 +35,22 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        log.info("TokenVerifyInterceptor preHandle start");
+
+        PrintWriter out = null;
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json; charset=utf-8");
         try {
             // 获取请求的 URI 路径
             String requestUri = request.getRequestURI();
             // 如果请求的 URI 在白名单中，则跳过 token 验证
-            if (tokenWhiteRequestUris != null && tokenWhiteRequestUris.contains(requestUri)) {
-                return true;
+            if (tokenWhiteRequestUris != null && !tokenWhiteRequestUris.isEmpty()) {
+                for (String whiteRequestUri : tokenWhiteRequestUris) {
+                    if (requestUri.equals(whiteRequestUri)) {
+                        return true;
+                    }
+                }
             }
             Cookie[] cookies = request.getCookies();
             String token = null;
@@ -49,7 +62,10 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
                 }
             }
             if (StringUtils.isEmpty(token)) {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                ResponseEntity<?> responseEntity = new ResponseEntity<>(ServerStatusCode.UNAUTHORIZED);
+                String json = JSON.toJSONString(responseEntity);
+                out = response.getWriter();
+                out.append(json);
                 return false;
             }
             // 校验 token
@@ -62,7 +78,10 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
         } catch (Exception e) {
             log.error("TokenVerifyInterceptor preHandle error: {}", e.getMessage());
             // 验证失败，返回 401 状态码
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            ResponseEntity<?> responseEntity = new ResponseEntity<>(ServerStatusCode.UNKNOWN);
+            String json = JSON.toJSONString(responseEntity);
+            out = response.getWriter();
+            out.append(json);
             return false;
         }
         return true;

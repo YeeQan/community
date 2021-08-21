@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.yeexang.community.pojo.po.Topic;
 import org.springframework.util.StringUtils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -30,35 +31,42 @@ public class TopicDTO extends BaseDTO {
     private Boolean recommendedStatus;
     private String lastCommentTime;
     private String createTime;
+    private String createUser;
+    private String createUserName;
 
     private List<CommentDTO> commentDTOList;
 
     @Override
     public BasePO toPO() {
         Topic topic = new Topic();
-        try {
-            topic.setTopicId(topicId);
-            topic.setTopicTitle(topicTitle);
-            topic.setTopicContent(topicContent);
-            topic.setSection(section);
-            topic.setCommentCount(commentCount);
-            topic.setViewCount(viewCount);
-            topic.setLikeCount(likeCount);
-            topic.setEssentialStatus(essentialStatus);
-            topic.setRecommendedStatus(recommendedStatus);
-            if (StringUtils.isEmpty(lastCommentTime)) {
-                topic.setLastCommentTime(null);
-            } else {
+        topic.setTopicId(topicId);
+        topic.setTopicTitle(topicTitle);
+        topic.setTopicContent(topicContent);
+        topic.setSection(section);
+        topic.setCommentCount(commentCount);
+        topic.setViewCount(viewCount);
+        topic.setLikeCount(likeCount);
+        topic.setEssentialStatus(essentialStatus);
+        topic.setRecommendedStatus(recommendedStatus);
+        if (StringUtils.isEmpty(lastCommentTime)) {
+            topic.setLastCommentTime(null);
+        } else {
+            try {
                 topic.setLastCommentTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(lastCommentTime));
+            } catch (ParseException e) {
+                log.error("TopicDTO toPO errorMsg: {}", e.getMessage());
             }
-            if (StringUtils.isEmpty(createTime)) {
-                topic.setCreateTime(null);
-            } else {
-                topic.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createTime));
-            }
-        } catch (Exception e) {
-            log.error("TopicDTO toPO errorMsg: {}", e.getMessage());
         }
+        if (StringUtils.isEmpty(createTime)) {
+            topic.setCreateTime(null);
+        } else {
+            try {
+                topic.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createTime));
+            } catch (ParseException e) {
+                log.error("TopicDTO toPO errorMsg: {}", e.getMessage());
+            }
+        }
+        topic.setCreateUser(createUser);
         return topic;
     }
 }

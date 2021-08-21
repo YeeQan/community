@@ -31,7 +31,6 @@ public class UserDaoTest {
         user.setAccount("123456");
         user.setUsername("testUser");
         user.setPassword("123456");
-        user.setExp(0);
         user.setCreateTime(new Date());
         user.setCreateUser("123456");
         user.setUpdateTime(new Date());

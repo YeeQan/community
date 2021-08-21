@@ -12,7 +12,16 @@ import java.util.List;
  */
 public interface NotificationSev {
 
+    /**
+     * 设置通知
+     * @param notificationDTO notificationDTO
+     */
     void setNotify(NotificationDTO notificationDTO);
 
+    /**
+     * 接收通知
+     * @param notificationDTO notificationDTO
+     * @return List<Notification>
+     */
     List<Notification> receive(NotificationDTO notificationDTO);
 }

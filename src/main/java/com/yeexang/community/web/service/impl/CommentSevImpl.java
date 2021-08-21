@@ -1,6 +1,7 @@
 package com.yeexang.community.web.service.impl;
 
 import com.yeexang.community.common.CommonField;
+import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.dao.CommentDao;
 import com.yeexang.community.dao.TopicDao;
 import com.yeexang.community.pojo.dto.CommentDTO;
@@ -12,8 +13,8 @@ import com.yeexang.community.web.service.NotificationSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -33,6 +34,9 @@ public class CommentSevImpl implements CommentSev {
     @Autowired
     private NotificationSev notificationSev;
 
+    @Autowired
+    private CommonUtil commonUtil;
+
     @Override
     public List<Comment> getCommentList(CommentDTO commentDTO) {
         Comment commment = (Comment) commentDTO.toPO();
@@ -42,6 +46,7 @@ public class CommentSevImpl implements CommentSev {
             commentList.addAll(commentDBList);
         } catch (Exception e) {
             log.error("CommentSev getCommentList errorMsg: {}", e.getMessage());
+            return new ArrayList<>();
         }
         return commentList;
     }
@@ -51,10 +56,8 @@ public class CommentSevImpl implements CommentSev {
         Comment comment = (Comment) commentDTO.toPO();
         List<Comment> commentList = new ArrayList<>();
         try {
-            comment.setId(UUID.randomUUID().toString().replaceAll("-", ""));
-            String dateStr = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-            int random = new Random().nextInt(1000000);
-            String commentId = dateStr + random;
+            comment.setId(commonUtil.uuid());
+            String commentId = commonUtil.randomCode();
             comment.setCommentId(commentId);
             comment.setCommentCount(0);
             comment.setLikeCount(0);
@@ -90,11 +93,37 @@ public class CommentSevImpl implements CommentSev {
                 notificationDTO.setOuterId(comment1.getCommentId());
                 notificationDTO.setNotificationType(CommonField.NOTIFICATION_TYPE_COMMENT);
             }
-
             notificationSev.setNotify(notificationDTO);
-
         } catch (Exception e) {
             log.error("CommentSev publish errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ArrayList<>();
+        }
+        return commentList;
+    }
+
+    @Override
+    public List<Comment> like(CommentDTO commentDTO, String account) {
+        String commentId = commentDTO.getCommentId();
+        List<Comment> commentList = new ArrayList<>();
+        try {
+            commentDao.updateLikeCountIncrease(commentId);
+            Comment commentParam = new Comment();
+            commentParam.setCommentId(commentId);
+            List<Comment> commentDBList = commentDao.select(commentParam);
+            commentList.addAll(commentDBList);
+
+            Comment commentDB = commentDBList.get(0);
+            NotificationDTO notificationDTO = new NotificationDTO();
+            notificationDTO.setNotifier(account);
+            notificationDTO.setReceiver(commentDB.getCreateUser());
+            notificationDTO.setOuterId(commentDB.getCommentId());
+            notificationDTO.setNotificationType(CommonField.NOTIFICATION_TYPE_LIKE_COMMENT);
+            notificationSev.setNotify(notificationDTO);
+        } catch (Exception e) {
+            log.error("CommentSev like errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ArrayList<>();
         }
         return commentList;
     }

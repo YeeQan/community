@@ -1,6 +1,7 @@
 package com.yeexang.community.dao;
 
 import com.yeexang.community.pojo.po.Comment;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface CommentDao {
     void update(Comment comment);
 
     List<Comment> select(Comment comment);
+
+    void updateLikeCountIncrease(@Param("commentId") String commentId);
 }

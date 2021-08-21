@@ -1,13 +1,10 @@
 package com.yeexang.community.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.pojo.dto.SectionDTO;
-import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.po.Section;
-import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.web.service.SectionSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,14 +33,14 @@ public class SectionCon {
 
     @PostMapping("list")
     @ApiOperation(value = "获取分区列表")
-    public ResponseEntity<SectionDTO> list(@RequestBody RequestEntity<SectionDTO> requestEntity) {
+    public ResponseEntity<SectionDTO> list(@RequestBody(required = false) RequestEntity<SectionDTO> requestEntity) {
 
         SectionDTO sectionDTO;
-        List<SectionDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
+        if (requestEntity == null || requestEntity.getData() == null
+                || requestEntity.getData().isEmpty()) {
             sectionDTO = new SectionDTO();
         } else {
-            sectionDTO = data.get(0);
+            sectionDTO = requestEntity.getData().get(0);
         }
 
         List<Section> sectionList = sectionSev.getSection(sectionDTO);

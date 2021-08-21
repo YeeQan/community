@@ -31,7 +31,8 @@ public enum ServerStatusCode {
     COMMENT_CONTENT_EMPTY("4016", "评论不能为空"),
     COMMENT_CONTENT_TOO_LONG("4017", "评论内容不能超过1000个字符"),
     REQUEST_DATA_EMPTY("4018", "请求数据不能为空"),
-    RESPONSE_DATA_EMPTY("4019", "响应数据为空")
+    RESPONSE_DATA_EMPTY("4019", "响应数据为空"),
+    UNAUTHORIZED("4020", "请先完成登录操作")
     ;
 
     private final String code;
