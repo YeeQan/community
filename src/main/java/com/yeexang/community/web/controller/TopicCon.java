@@ -1,6 +1,7 @@
 package com.yeexang.community.web.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.yeexang.community.common.CommonField;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
@@ -110,6 +111,7 @@ public class TopicCon {
             // 设置评论
             CommentDTO commentDTO = new CommentDTO();
             commentDTO.setParentId(dto.getTopicId());
+            commentDTO.setCommentType(CommonField.FIRST_LEVEL_COMMENT);
             List<Comment> commentList = commentSev.getCommentList(commentDTO);
             List<CommentDTO> commentDTOList = commentList.stream()
                     .map(comment -> {
@@ -122,6 +124,8 @@ public class TopicCon {
                     }).collect(Collectors.toList());
             dto.setCommentDTOList(commentDTOList);
         });
+
+
 
         return new ResponseEntity<>(topicDTOList);
     }

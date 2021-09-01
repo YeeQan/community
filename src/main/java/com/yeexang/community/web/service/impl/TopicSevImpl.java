@@ -59,6 +59,7 @@ public class TopicSevImpl implements TopicSev {
         try {
             List<Topic> topicDBList = topicDao.select(topic);
             topicList.addAll(topicDBList);
+            topicDao.updateVisitCountIncrease(topicDTO.getTopicId());
         } catch (Exception e) {
             log.error("TopicSev getTopic errorMsg: {}", e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();

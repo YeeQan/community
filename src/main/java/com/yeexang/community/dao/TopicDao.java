@@ -21,5 +21,7 @@ public interface TopicDao {
 
     void updateLikeCountIncrease(@Param("topicId") String topicId);
 
+    void updateVisitCountIncrease(@Param("topicId") String topicId);
+
     List<Topic> select(Topic topic);
 }
