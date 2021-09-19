@@ -5,10 +5,7 @@ import com.yeexang.community.common.CommonField;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
-import com.yeexang.community.pojo.dto.CommentDTO;
-import com.yeexang.community.pojo.dto.SectionDTO;
-import com.yeexang.community.pojo.dto.TopicDTO;
-import com.yeexang.community.pojo.dto.UserDTO;
+import com.yeexang.community.pojo.dto.*;
 import com.yeexang.community.pojo.po.Comment;
 import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.pojo.po.User;
@@ -28,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -37,7 +35,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("topic")
-@Api(tags = "帖子服务接口")
+@Api(tags = "帖子管理 Controller")
 public class TopicCon {
 
     @Autowired
@@ -68,15 +66,20 @@ public class TopicCon {
         }
 
         PageInfo pageInfo = topicSev.getPage(pageNum, pageSize, topicDTO);
-        if (pageInfo.getTotal() == 0) {
-            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
+
+        if (pageInfo != null) {
+            List<Topic> topicList = pageInfo.getList();
+            List<TopicDTO> topicDTOList = topicList.stream()
+                    .map(topic -> {
+                        TopicDTO dto = null;
+                        Optional<BaseDTO> optional = topic.toDTO();
+                        if (optional.isPresent()) {
+                            dto = (TopicDTO) optional.get();
+                        }
+                        return dto;
+                    }).collect(Collectors.toList());
+            pageInfo.setList(topicDTOList);
         }
-
-        List<Topic> topicList = pageInfo.getList();
-        List<TopicDTO> topicDTOList = topicList.stream()
-                .map(topic -> (TopicDTO) topic.toDTO()).collect(Collectors.toList());
-
-        pageInfo.setList(topicDTOList);
 
         return new ResponseEntity<>(pageInfo);
     }
@@ -96,7 +99,14 @@ public class TopicCon {
         List<Topic> topicList = topicSev.getTopic(topicDTO);
 
         List<TopicDTO> topicDTOList = topicList.stream()
-                .map(topic -> (TopicDTO) topic.toDTO()).collect(Collectors.toList());
+                .map(topic -> {
+                    TopicDTO dto = null;
+                    Optional<BaseDTO> optional = topic.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (TopicDTO) optional.get();
+                    }
+                    return dto;
+                }).collect(Collectors.toList());
 
         if (topicDTOList.isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
@@ -115,11 +125,18 @@ public class TopicCon {
             List<Comment> commentList = commentSev.getCommentList(commentDTO);
             List<CommentDTO> commentDTOList = commentList.stream()
                     .map(comment -> {
-                        CommentDTO cdto = (CommentDTO) comment.toDTO();
-                        UserDTO param = new UserDTO();
-                        param.setAccount(cdto.getCreateUser());
-                        String username = userSev.getUser(param).get(0).getUsername();
-                        cdto.setCreateUsername(username);
+                        CommentDTO cdto = null;
+                        Optional<BaseDTO> optional = comment.toDTO();
+                        if (optional.isPresent()) {
+                            cdto = (CommentDTO) optional.get();
+                            UserDTO param = new UserDTO();
+                            param.setAccount(cdto.getCreateUser());
+                            List<User> userList = userSev.getUser(param);
+                            if (!userList.isEmpty()) {
+                                User user1 = userList.get(0);
+                                cdto.setCreateUsername(user1.getUsername());
+                            }
+                        }
                         return cdto;
                     }).collect(Collectors.toList());
             dto.setCommentDTOList(commentDTOList);
@@ -174,11 +191,18 @@ public class TopicCon {
 
         List<TopicDTO> topicDTOList = topicList.stream()
                 .map(topic -> {
-                    TopicDTO dto = (TopicDTO) topic.toDTO();
-                    UserDTO param = new UserDTO();
-                    param.setAccount(dto.getCreateUser());
-                    String username = userSev.getUser(param).get(0).getUsername();
-                    dto.setCreateUserName(username);
+                    TopicDTO dto = null;
+                    Optional<BaseDTO> optional = topic.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (TopicDTO) optional.get();
+                        UserDTO param = new UserDTO();
+                        param.setAccount(dto.getCreateUser());
+                        List<User> userList = userSev.getUser(param);
+                        if (!userList.isEmpty()) {
+                            String username = userList.get(0).getUsername();
+                            dto.setCreateUserName(username);
+                        }
+                    }
                     return dto;
                 }).collect(Collectors.toList());
 
@@ -207,11 +231,18 @@ public class TopicCon {
 
         List<TopicDTO> topicDTOList = topicList.stream()
                 .map(topic -> {
-                    TopicDTO dto = (TopicDTO) topic.toDTO();
-                    UserDTO param = new UserDTO();
-                    param.setAccount(dto.getCreateUser());
-                    String username = userSev.getUser(param).get(0).getUsername();
-                    dto.setCreateUserName(username);
+                    TopicDTO dto = null;
+                    Optional<BaseDTO> optional = topic.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (TopicDTO) optional.get();
+                        UserDTO param = new UserDTO();
+                        param.setAccount(dto.getCreateUser());
+                        List<User> userList = userSev.getUser(param);
+                        if (!userList.isEmpty()) {
+                            String username = userList.get(0).getUsername();
+                            dto.setCreateUserName(username);
+                        }
+                    }
                     return dto;
                 }).collect(Collectors.toList());
 

@@ -7,10 +7,12 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 
 /**
+ * 通知 DTO
+ *
  * @author yeeq
  * @date 2021/7/29
  */
@@ -31,23 +33,25 @@ public class NotificationDTO extends BaseDTO {
     private String createTime;
 
     @Override
-    public BasePO toPO() {
-        Notification notification = new Notification();
-        notification.setNotificationId(notificationId);
-        notification.setNotifier(notifier);
-        notification.setReceiver(receiver);
-        notification.setOuterId(outerId);
-        notification.setNotificationType(notificationType);
-        notification.setStatus(status);
-        if (StringUtils.isEmpty(createTime)) {
-            notification.setCreateTime(null);
-        } else {
-            try {
+    public Optional<BasePO> toPO() {
+        Notification notification;
+        try {
+            notification = new Notification();
+            notification.setNotificationId(notificationId);
+            notification.setNotifier(notifier);
+            notification.setReceiver(receiver);
+            notification.setOuterId(outerId);
+            notification.setNotificationType(notificationType);
+            notification.setStatus(status);
+            if (StringUtils.isEmpty(createTime)) {
+                notification.setCreateTime(null);
+            } else {
                 notification.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createTime));
-            } catch (ParseException e) {
-                log.error("NotificatinDTO toPO errorMsg: {}", e.getMessage());
             }
+        } catch (Exception e) {
+            log.error("NotificatinDTO toPO errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
         }
-        return notification;
+        return Optional.of(notification);
     }
 }

@@ -7,6 +7,7 @@ import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.dao.TopicDao;
 import com.yeexang.community.pojo.dto.NotificationDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
+import com.yeexang.community.pojo.po.BasePO;
 import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.web.service.NotificationSev;
 import com.yeexang.community.web.service.TopicSev;
@@ -18,6 +19,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author yeeq
@@ -38,12 +40,15 @@ public class TopicSevImpl implements TopicSev {
 
     @Override
     public PageInfo<Topic> getPage(Integer pageNum, Integer pageSize, TopicDTO topicDTO) {
-        Topic topic = (Topic) topicDTO.toPO();
-        PageInfo<Topic> pageInfo;
+        PageInfo<Topic> pageInfo = null;
         try {
-            PageHelper.startPage(pageNum, pageSize);
-            List<Topic> list = topicDao.select(topic);
-            pageInfo = new PageInfo<>(list);
+            Optional<BasePO> optional = topicDTO.toPO();
+            if (optional.isPresent()) {
+                Topic topic = (Topic) optional.get();
+                PageHelper.startPage(pageNum, pageSize);
+                List<Topic> list = topicDao.select(topic);
+                pageInfo = new PageInfo<>(list);
+            }
         } catch (Exception e) {
             log.error("TopicSev getPage errorMsg: {}", e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -54,12 +59,15 @@ public class TopicSevImpl implements TopicSev {
 
     @Override
     public List<Topic> getTopic(TopicDTO topicDTO) {
-        Topic topic = (Topic) topicDTO.toPO();
         List<Topic> topicList = new ArrayList<>();
         try {
-            List<Topic> topicDBList = topicDao.select(topic);
-            topicList.addAll(topicDBList);
-            topicDao.updateVisitCountIncrease(topicDTO.getTopicId());
+            Optional<BasePO> optional = topicDTO.toPO();
+            if (optional.isPresent()) {
+                Topic topic = (Topic) optional.get();
+                List<Topic> topicDBList = topicDao.select(topic);
+                topicList.addAll(topicDBList);
+                topicDao.updateVisitCountIncrease(topicDTO.getTopicId());
+            }
         } catch (Exception e) {
             log.error("TopicSev getTopic errorMsg: {}", e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -70,29 +78,32 @@ public class TopicSevImpl implements TopicSev {
 
     @Override
     public List<Topic> publish(TopicDTO topicDTO, String account) {
-        Topic topic = (Topic) topicDTO.toPO();
         List<Topic> topicList = new ArrayList<>();
         try {
-            topic.setId(commonUtil.uuid());
-            String topicId = commonUtil.randomCode();
-            topic.setTopicId(topicId);
-            topic.setCommentCount(0);
-            topic.setViewCount(0);
-            topic.setLikeCount(0);
-            topic.setEssentialStatus(false);
-            topic.setRecommendedStatus(false);
-            topic.setLastCommentTime(new Date());
-            topic.setCreateTime(new Date());
-            topic.setCreateUser(account);
-            topic.setUpdateTime(new Date());
-            topic.setUpdateUser(account);
-            topic.setDelFlag(false);
-            topicDao.insert(topic);
+            Optional<BasePO> optional = topicDTO.toPO();
+            if (optional.isPresent()) {
+                Topic topic = (Topic) optional.get();
+                topic.setId(commonUtil.uuid());
+                String topicId = commonUtil.randomCode();
+                topic.setTopicId(topicId);
+                topic.setCommentCount(0);
+                topic.setViewCount(0);
+                topic.setLikeCount(0);
+                topic.setEssentialStatus(false);
+                topic.setRecommendedStatus(false);
+                topic.setLastCommentTime(new Date());
+                topic.setCreateTime(new Date());
+                topic.setCreateUser(account);
+                topic.setUpdateTime(new Date());
+                topic.setUpdateUser(account);
+                topic.setDelFlag(false);
+                topicDao.insert(topic);
 
-            Topic topicParam = new Topic();
-            topicParam.setTopicId(topicId);
-            List<Topic> topicDBList = topicDao.select(topicParam);
-            topicList.addAll(topicDBList);
+                Topic topicParam = new Topic();
+                topicParam.setTopicId(topicId);
+                List<Topic> topicDBList = topicDao.select(topicParam);
+                topicList.addAll(topicDBList);
+            }
         } catch (Exception e) {
             log.error("TopicSev publish errorMsg: {}", e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -107,18 +118,20 @@ public class TopicSevImpl implements TopicSev {
         List<Topic> topicList = new ArrayList<>();
         try {
             topicDao.updateLikeCountIncrease(topicId);
+
             Topic topicParam = new Topic();
             topicParam.setTopicId(topicId);
             List<Topic> topicDBList = topicDao.select(topicParam);
-            topicList.addAll(topicDBList);
-
-            Topic topicDB = topicDBList.get(0);
-            NotificationDTO notificationDTO = new NotificationDTO();
-            notificationDTO.setNotifier(account);
-            notificationDTO.setReceiver(topicDB.getCreateUser());
-            notificationDTO.setOuterId(topicDB.getTopicId());
-            notificationDTO.setNotificationType(CommonField.NOTIFICATION_TYPE_LIKE_TOPIC);
-            notificationSev.setNotify(notificationDTO);
+            if (!topicDBList.isEmpty()) {
+                topicList.addAll(topicDBList);
+                Topic topicDB = topicDBList.get(0);
+                NotificationDTO notificationDTO = new NotificationDTO();
+                notificationDTO.setNotifier(account);
+                notificationDTO.setReceiver(topicDB.getCreateUser());
+                notificationDTO.setOuterId(topicDB.getTopicId());
+                notificationDTO.setNotificationType(CommonField.NOTIFICATION_TYPE_LIKE_TOPIC);
+                notificationSev.setNotify(notificationDTO);
+            }
         } catch (Exception e) {
             log.error("TopicSev like errorMsg: {}", e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();

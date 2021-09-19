@@ -53,7 +53,7 @@
         <if test="topicContent != null and topicContent != ''">
             AND t.topic_content = #{topicContent}
         </if>
-        <if test="section != null and section != ''">
+        <if test="section != null and section != '' and section != '#new'">
             AND t.section = #{section}
         </if>
         <if test="essentialStatus != null">
@@ -169,6 +169,15 @@
 
     <update id="updateVisitCountIncrease" parameterType="string">
         update y_c_topic t set t.view_count = t.view_count + 1
+        <where>
+            <if test="topicId != null and topicId != ''">
+                AND t.topic_id = #{topicId}
+            </if>
+        </where>
+    </update>
+
+    <update id="updateCommentCountIncrease">
+        update y_c_topic t set t.comment_count = t.comment_count + 1
         <where>
             <if test="topicId != null and topicId != ''">
                 AND t.topic_id = #{topicId}

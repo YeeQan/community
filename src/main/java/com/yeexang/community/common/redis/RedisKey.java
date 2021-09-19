@@ -5,6 +5,8 @@ import org.springframework.util.StringUtils;
 import java.time.Duration;
 
 /**
+ * Redis key-tool
+ *
  * @author yeeq
  * @date 2021/7/26
  */

@@ -1,13 +1,13 @@
 package com.yeexang.community.web.service;
 
 import com.yeexang.community.pojo.dto.CommentDTO;
-import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.po.Comment;
-import com.yeexang.community.pojo.po.Topic;
 
 import java.util.List;
 
 /**
+ * 评论管理 Service
+ *
  * @author yeeq
  * @date 2021/8/2
  */

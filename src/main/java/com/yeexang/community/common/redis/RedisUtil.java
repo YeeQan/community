@@ -1,35 +1,81 @@
 package com.yeexang.community.common.redis;
 
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Optional;
 
 /**
+ * Redis 工具类
+ *
  * @author yeeq
  * @date 2021/7/26
  */
+@Slf4j
 @Component
 public class RedisUtil {
 
     @Resource
     private StringRedisTemplate template;
 
+    /**
+     * 设置 value
+     * @param redisKey redisKey
+     * @param id id
+     * @param value value
+     */
     public void setValue(RedisKey redisKey, String id, String value) {
-        if (redisKey.getTimeout() == null) {
-            template.opsForValue().set(redisKey.getKey(id), value);
-        } else {
-            template.opsForValue().set(redisKey.getKey(id), value, redisKey.getTimeout());
+        try {
+            if (redisKey.getTimeout() == null) {
+                template.opsForValue().set(redisKey.getKey(id), value);
+            } else {
+                template.opsForValue().set(redisKey.getKey(id), value, redisKey.getTimeout());
+            }
+        } catch (Exception e) {
+            log.error("RedisUtil setValue errorMsg: {}", e.getMessage(), e);
         }
     }
 
-    public String getValue(RedisKey redisKey, String id) {
-        return template.opsForValue().get(redisKey.getKey(id));
+    /**
+     * 获取 value
+     * @param redisKey redisKey
+     * @param id id
+     * @return String
+     */
+    public Optional<String> getValue(RedisKey redisKey, String id) {
+        String value;
+        try {
+            value = template.opsForValue().get(redisKey.getKey(id));
+        } catch (Exception e) {
+            log.error("RedisUtil getValue errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
+        return Optional.ofNullable(value);
     }
 
-    public Object getObjectValue(Class<?> clazz, RedisKey redisKey, String id) {
-        String value = getValue(redisKey, id);
-        return JSON.parseObject(value, clazz);
+    /**
+     * 获取 Object-value
+     *
+     * @param clazz    对象类型
+     * @param redisKey redisKey
+     * @param id       id
+     * @return Object
+     */
+    public Optional<?> getObjectValue(Class<?> clazz, RedisKey redisKey, String id) {
+        Object parseObject = null;
+        try {
+            Optional<String> optional = getValue(redisKey, id);
+            if (optional.isPresent()) {
+                String value = optional.get();
+                parseObject = JSON.parseObject(value, clazz);
+            }
+        } catch (Exception e) {
+            log.error("RedisUtil getValue getObjectValue: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
+        return Optional.ofNullable(parseObject);
     }
 }

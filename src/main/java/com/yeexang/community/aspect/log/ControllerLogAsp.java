@@ -29,11 +29,14 @@ public class ControllerLogAsp {
     @Before(value = "controllerMethod()", argNames = "joinPoint")
     public void LogRequestInfo(JoinPoint joinPoint) {
         Signature signature = joinPoint.getSignature();
+        // 方法名
         String methodName = signature.getName();
+        // 类名
         String typeName = signature.getDeclaringTypeName();
+        // 方法参数
         Object[] args = joinPoint.getArgs();
         StringBuilder sb = new StringBuilder();
-        sb.append(typeName).append("controller log start: ")
+        sb.append("controller log start: ").append(typeName).append(" ")
                 .append(methodName).append("(");
         for (int i = 0; i < args.length; i++) {
             if (args[i] != null) {
@@ -56,8 +59,11 @@ public class ControllerLogAsp {
     @AfterReturning(returning = "responseEntity", pointcut = "controllerMethod()")
     public void logResultInfo(JoinPoint joinPoint, ResponseEntity responseEntity) {
         Signature signature = joinPoint.getSignature();
+        // 方法名
         String methodName = signature.getName();
+        // 类名
         String typeName = signature.getDeclaringTypeName();
+        // 拼接返回值
         String sb = typeName + "controller log end: " +
                 typeName + " " +
                 methodName + " " +

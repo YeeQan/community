@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author yeeq
@@ -31,19 +32,24 @@ public class SectionSevImpl implements SectionSev {
 
     @Override
     public List<Section> getSection(SectionDTO sectionDTO) {
-        Section section = (Section) sectionDTO.toPO();
         List<Section> sectionList = new ArrayList<>();
         try {
-            Section sectionCache = (Section) redisUtil.getObjectValue(Section.class, RedisKey.SECTION, section.getSectionId());
-            if (sectionCache == null) {
-                Section sectionParam = new Section();
-                sectionParam.setSectionId(section.getSectionId());
-                List<Section> select = sectionDao.select(sectionParam);
-                sectionList.addAll(select);
-                sectionList.forEach(s ->
-                        redisUtil.setValue(RedisKey.SECTION, s.getSectionId(), JSON.toJSONString(s)));
-            } else {
-                sectionList.add(sectionCache);
+            Optional<BasePO> optional = sectionDTO.toPO();
+            if (optional.isPresent()) {
+                Section sectionCache;
+                Section section = (Section) optional.get();
+                Optional<?> optionalCache = redisUtil.getObjectValue(Section.class, RedisKey.SECTION, section.getSectionId());
+                if (optionalCache.isPresent()) {
+                    sectionCache = (Section) optionalCache.get();
+                    sectionList.add(sectionCache);
+                } else {
+                    Section sectionParam = new Section();
+                    sectionParam.setSectionId(section.getSectionId());
+                    List<Section> select = sectionDao.select(sectionParam);
+                    sectionList.addAll(select);
+                    sectionList.forEach(s ->
+                            redisUtil.setValue(RedisKey.SECTION, s.getSectionId(), JSON.toJSONString(s)));
+                }
             }
         } catch (Exception e) {
             log.error("SectionSev getSection errorMsg: {}", e.getMessage());

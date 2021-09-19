@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
+ * 通用工具类
+ *
  * @author yeeq
  * @date 2021/8/9
  */

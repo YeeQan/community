@@ -4,15 +4,20 @@ import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 /**
+ * 帖子 PO
+ *
  * @author yeeq
  * @date 2021/7/19
  */
 @Data
+@Slf4j
 @EqualsAndHashCode(callSuper = false)
 public class Topic extends BasePO {
 
@@ -97,20 +102,26 @@ public class Topic extends BasePO {
     private Boolean delFlag;
 
     @Override
-    public BaseDTO toDTO() {
-        TopicDTO topicDTO = new TopicDTO();
-        topicDTO.setTopicId(topicId);
-        topicDTO.setTopicTitle(topicTitle);
-        topicDTO.setTopicContent(topicContent);
-        topicDTO.setSection(section);
-        topicDTO.setCommentCount(commentCount);
-        topicDTO.setLikeCount(likeCount);
-        topicDTO.setViewCount(viewCount);
-        topicDTO.setEssentialStatus(essentialStatus);
-        topicDTO.setRecommendedStatus(recommendedStatus);
-        topicDTO.setLastCommentTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(lastCommentTime));
-        topicDTO.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime));
-        topicDTO.setCreateUser(createUser);
-        return topicDTO;
+    public Optional<BaseDTO> toDTO() {
+        TopicDTO topicDTO;
+        try {
+            topicDTO = new TopicDTO();
+            topicDTO.setTopicId(topicId);
+            topicDTO.setTopicTitle(topicTitle);
+            topicDTO.setTopicContent(topicContent);
+            topicDTO.setSection(section);
+            topicDTO.setCommentCount(commentCount);
+            topicDTO.setLikeCount(likeCount);
+            topicDTO.setViewCount(viewCount);
+            topicDTO.setEssentialStatus(essentialStatus);
+            topicDTO.setRecommendedStatus(recommendedStatus);
+            topicDTO.setLastCommentTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(lastCommentTime));
+            topicDTO.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime));
+            topicDTO.setCreateUser(createUser);
+        } catch (Exception e) {
+            log.error("Topic toDTO errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
+        return Optional.of(topicDTO);
     }
 }

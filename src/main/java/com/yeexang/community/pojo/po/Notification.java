@@ -4,15 +4,20 @@ import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.NotificationDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 /**
+ * 通知 PO
+ *
  * @author yeeq
  * @date 2021/7/19
  */
 @Data
+@Slf4j
 @EqualsAndHashCode(callSuper = false)
 public class Notification extends BasePO {
 
@@ -77,15 +82,21 @@ public class Notification extends BasePO {
     private Boolean delFlag;
 
     @Override
-    public BaseDTO toDTO() {
-        NotificationDTO notificationDTO = new NotificationDTO();
-        notificationDTO.setNotificationId(notificationId);
-        notificationDTO.setNotifier(notifier);
-        notificationDTO.setReceiver(receiver);
-        notificationDTO.setOuterId(outerId);
-        notificationDTO.setNotificationType(notificationType);
-        notificationDTO.setStatus(status);
-        notificationDTO.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime));
-        return notificationDTO;
+    public Optional<BaseDTO> toDTO() {
+        NotificationDTO notificationDTO;
+        try {
+            notificationDTO = new NotificationDTO();
+            notificationDTO.setNotificationId(notificationId);
+            notificationDTO.setNotifier(notifier);
+            notificationDTO.setReceiver(receiver);
+            notificationDTO.setOuterId(outerId);
+            notificationDTO.setNotificationType(notificationType);
+            notificationDTO.setStatus(status);
+            notificationDTO.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime));
+        } catch (Exception e) {
+            log.error("Notification toDTO errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
+        return Optional.of(notificationDTO);
     }
 }

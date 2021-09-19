@@ -2,20 +2,19 @@ package com.yeexang.community.web.service.impl;
 
 import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.dao.NotificationDao;
-import com.yeexang.community.dao.UserDao;
 import com.yeexang.community.pojo.dto.NotificationDTO;
-import com.yeexang.community.pojo.dto.UserDTO;
 import com.yeexang.community.pojo.po.BasePO;
 import com.yeexang.community.pojo.po.Notification;
-import com.yeexang.community.pojo.po.User;
 import com.yeexang.community.web.service.NotificationSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author yeeq
@@ -33,19 +32,22 @@ public class NotificationSevImpl implements NotificationSev {
 
     @Override
     public void setNotify(NotificationDTO notificationDTO) {
-        Notification notification = (Notification) notificationDTO.toPO();
         try {
-            notification.setId(commonUtil.uuid());
-            String notificationId = commonUtil.randomCode();
-            notification.setNotificationId(notificationId);
-            notification.setNotificationId(notificationId);
-            notification.setStatus(false);
-            notification.setCreateTime(new Date());
-            notification.setCreateUser(notificationDTO.getNotifier());
-            notification.setUpdateTime(new Date());
-            notification.setUpdateUser(notificationDTO.getNotifier());
-            notification.setDelFlag(false);
-            notificationDao.insert(notification);
+            Optional<BasePO> optional = notificationDTO.toPO();
+            if (optional.isPresent()) {
+                Notification notification = (Notification) optional.get();
+                notification.setId(commonUtil.uuid());
+                String notificationId = commonUtil.randomCode();
+                notification.setNotificationId(notificationId);
+                notification.setNotificationId(notificationId);
+                notification.setStatus(false);
+                notification.setCreateTime(new Date());
+                notification.setCreateUser(notificationDTO.getNotifier());
+                notification.setUpdateTime(new Date());
+                notification.setUpdateUser(notificationDTO.getNotifier());
+                notification.setDelFlag(false);
+                notificationDao.insert(notification);
+            }
         } catch (Exception e) {
             log.error("NotificationSev setNotify errorMsg: {}", e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -54,11 +56,16 @@ public class NotificationSevImpl implements NotificationSev {
 
     @Override
     public List<Notification> receive(NotificationDTO notificationDTO) {
-        Notification notification = (Notification) notificationDTO.toPO();
         List<Notification> notificationList = new ArrayList<>();
         try {
-            List<Notification> notificationDBList = notificationDao.select(notification);
-            notificationList.addAll(notificationDBList);
+            Optional<BasePO> optional = notificationDTO.toPO();
+            if (optional.isPresent()) {
+                Notification notification = (Notification) optional.get();
+                List<Notification> notificationDBList = notificationDao.select(notification);
+                if (!notificationDBList.isEmpty()) {
+                    notificationList.addAll(notificationDBList);
+                }
+            }
         } catch (Exception e) {
             log.error("NotificationSev receive errorMsg: {}", e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();

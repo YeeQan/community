@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
+ * 字典管理 Dao
+ *
  * @author yeeq
  * @date 2021/8/8
  */

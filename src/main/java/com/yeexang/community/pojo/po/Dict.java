@@ -5,6 +5,8 @@ import lombok.Data;
 import java.util.Date;
 
 /**
+ * 字典 PO
+ *
  * @author yeeq
  * @date 2021/8/8
  */

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
+ * 全局异常处理 Advice
+ *
  * @author yeeq
  * @date 2021/8/12
  */
@@ -18,8 +20,7 @@ public class ExceptionAdv {
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public ResponseEntity<?> exceptionHandler(Exception e) {
-        log.error("ExceptionAdv exceptionHandler Exception: {}, errorMsg: {}", e.toString(), e.getMessage());
-        e.printStackTrace();
+        log.error("ExceptionAdv exceptionHandler errorMsg: {}", e.getMessage(), e);
         return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
     }
 }

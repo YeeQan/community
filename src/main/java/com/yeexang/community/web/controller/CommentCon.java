@@ -3,6 +3,7 @@ package com.yeexang.community.web.controller;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
+import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.CommentDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.dto.UserDTO;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("comment")
-@Api(tags = "评论服务接口")
+@Api(tags = "评论管理 Controller")
 public class CommentCon {
 
     @Autowired
@@ -60,14 +62,20 @@ public class CommentCon {
 
         List<CommentDTO> commentDTOList = commentList.stream()
                 .map(comment -> {
-                    CommentDTO dto = (CommentDTO) comment.toDTO();
-                    UserDTO param = new UserDTO();
-                    param.setAccount(dto.getCreateUser());
-                    User user = userSev.getUser(param).get(0);
-                    dto.setCreateUsername(user.getUsername());
+                    CommentDTO dto = null;
+                    Optional<BaseDTO> optional = comment.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (CommentDTO) optional.get();
+                        UserDTO param = new UserDTO();
+                        param.setAccount(dto.getCreateUser());
+                        List<User> userList = userSev.getUser(param);
+                        if (!userList.isEmpty()) {
+                            User user = userList.get(0);
+                            dto.setCreateUsername(user.getUsername());
+                        }
+                    }
                     return dto;
                 }).collect(Collectors.toList());
-
         return new ResponseEntity<>(commentDTOList);
     }
 
@@ -100,11 +108,18 @@ public class CommentCon {
 
         List<CommentDTO> commentDTOList = commentList.stream()
                 .map(comment -> {
-                    CommentDTO dto = (CommentDTO) comment.toDTO();
-                    UserDTO param = new UserDTO();
-                    param.setAccount(dto.getCreateUser());
-                    User user = userSev.getUser(param).get(0);
-                    dto.setCreateUsername(user.getUsername());
+                    CommentDTO dto = null;
+                    Optional<BaseDTO> optional = comment.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (CommentDTO) optional.get();
+                        UserDTO param = new UserDTO();
+                        param.setAccount(dto.getCreateUser());
+                        List<User> userList = userSev.getUser(param);
+                        if (!userList.isEmpty()) {
+                            User user = userList.get(0);
+                            dto.setCreateUsername(user.getUsername());
+                        }
+                    }
                     return dto;
                 }).collect(Collectors.toList());
 
@@ -133,11 +148,18 @@ public class CommentCon {
 
         List<CommentDTO> commentDTOList = commentList.stream()
                 .map(comment -> {
-                    CommentDTO dto = (CommentDTO) comment.toDTO();
-                    UserDTO param = new UserDTO();
-                    param.setAccount(dto.getCreateUser());
-                    User user = userSev.getUser(param).get(0);
-                    dto.setCreateUsername(user.getUsername());
+                    CommentDTO dto = null;
+                    Optional<BaseDTO> optional = comment.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (CommentDTO) optional.get();
+                        UserDTO param = new UserDTO();
+                        param.setAccount(dto.getCreateUser());
+                        List<User> userList = userSev.getUser(param);
+                        if (!userList.isEmpty()) {
+                            User user = userList.get(0);
+                            dto.setCreateUsername(user.getUsername());
+                        }
+                    }
                     return dto;
                 }).collect(Collectors.toList());
 

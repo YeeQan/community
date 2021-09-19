@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 通用响应类
+ *
  * @author yeeq
  * @date 2021/7/23
  */
@@ -18,12 +20,24 @@ import java.util.List;
 @NoArgsConstructor
 public class ResponseEntity<T> {
 
+    /**
+     * 响应码
+     */
     private String code;
 
+    /**
+     * 详细信息
+     */
     private String description;
 
+    /**
+     * 返回数据
+     */
     private List<T> data;
 
+    /**
+     * 通知
+     */
     private List<NotificationDTO> notificationDTOList;
 
     public ResponseEntity(ServerStatusCode serverStatusCode) {

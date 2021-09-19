@@ -3,6 +3,7 @@ package com.yeexang.community.web.controller;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
+import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.SectionDTO;
 import com.yeexang.community.pojo.po.Section;
 import com.yeexang.community.web.service.SectionSev;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -25,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("section")
-@Api(tags = "分区服务接口")
+@Api(tags = "专栏管理 Controller")
 public class SectionCon {
 
     @Autowired
@@ -50,7 +52,14 @@ public class SectionCon {
         }
 
         List<SectionDTO> sectionDTOList = sectionList.stream()
-                .map(section -> (SectionDTO) section.toDTO()).collect(Collectors.toList());
+                .map(section -> {
+                    SectionDTO dto = null;
+                    Optional<BaseDTO> optional = section.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (SectionDTO) optional.get();
+                    }
+                    return dto;
+                }).collect(Collectors.toList());
 
         return new ResponseEntity<>(sectionDTOList);
     }

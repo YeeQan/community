@@ -1,6 +1,8 @@
 package com.yeexang.community.common;
 
 /**
+ * 服务状态码工具类
+ *
  * @author yeeq
  * @date 2021/7/24
  */

@@ -4,15 +4,20 @@ import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.CommentDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 /**
+ * 评论 PO
+ *
  * @author yeeq
  * @date 2021/7/19
  */
 @Data
+@Slf4j
 @EqualsAndHashCode(callSuper = false)
 public class Comment extends BasePO {
 
@@ -77,16 +82,22 @@ public class Comment extends BasePO {
     private Boolean delFlag;
 
     @Override
-    public BaseDTO toDTO() {
-        CommentDTO commentDTO = new CommentDTO();
-        commentDTO.setCommentId(commentId);
-        commentDTO.setParentId(parentId);
-        commentDTO.setCommentContent(commentContent);
-        commentDTO.setCommentCount(commentCount);
-        commentDTO.setLikeCount(likeCount);
-        commentDTO.setCommentType(commentType);
-        commentDTO.setCreateUser(createUser);
-        commentDTO.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime));
-        return commentDTO;
+    public Optional<BaseDTO> toDTO() {
+        CommentDTO commentDTO;
+        try {
+            commentDTO = new CommentDTO();
+            commentDTO.setCommentId(commentId);
+            commentDTO.setParentId(parentId);
+            commentDTO.setCommentContent(commentContent);
+            commentDTO.setCommentCount(commentCount);
+            commentDTO.setLikeCount(likeCount);
+            commentDTO.setCommentType(commentType);
+            commentDTO.setCreateUser(createUser);
+            commentDTO.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime));
+        } catch (Exception e) {
+            log.error("Comment toDTO errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
+        return Optional.of(commentDTO);
     }
 }

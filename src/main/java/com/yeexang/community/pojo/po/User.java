@@ -6,14 +6,19 @@ import io.swagger.models.auth.In;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
+ * 用户 PO
+ *
  * @author yeeq
  * @date 2021/7/19
  */
 @Data
+@Slf4j
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public class User extends BasePO {
@@ -64,12 +69,18 @@ public class User extends BasePO {
     private Boolean delFlag;
 
     @Override
-    public BaseDTO toDTO() {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setAccount(account);
-        userDTO.setUsername(username);
-        userDTO.setPassword(password);
-        return userDTO;
+    public Optional<BaseDTO> toDTO() {
+        UserDTO userDTO;
+        try {
+            userDTO = new UserDTO();
+            userDTO.setAccount(account);
+            userDTO.setUsername(username);
+            userDTO.setPassword(password);
+        } catch (Exception e) {
+            log.error("User toDTO errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
+        return Optional.of(userDTO);
     }
 
     public User(String account, String username, String password) {

@@ -6,7 +6,7 @@ import com.yeexang.community.pojo.po.User;
 import java.util.List;
 
 /**
- * 用户服务 Service
+ * 用户管理 Service
  *
  * @author yeeq
  * @date 2021/7/23

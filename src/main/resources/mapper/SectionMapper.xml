@@ -28,7 +28,7 @@
         <if test="id != null and id != ''">
             AND s.id = #{id}
         </if>
-        <if test="sectionId != null and sectionId != ''">
+        <if test="sectionId != null and sectionId != '' and sectionId != '#new'">
             AND s.section_id = #{sectionId}
         </if>
         <if test="sectionName != null and sectionName != ''">

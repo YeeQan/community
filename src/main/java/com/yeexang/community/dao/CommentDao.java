@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
+ * 评论管理 Dao
+ *
  * @author yeeq
  * @date 2021/7/20
  */
@@ -19,7 +21,19 @@ public interface CommentDao {
 
     void update(Comment comment);
 
+    /**
+     * 点赞数加一
+     * @param commentId commentId
+     */
+    void updateLikeCountIncrease(@Param("commentId") String commentId);
+
+    /**
+     * 评论数加一
+     * @param commentId commentId
+     */
+    void updateCommentCountIncrease(@Param("commentId") String commentId);
+
     List<Comment> select(Comment comment);
 
-    void updateLikeCountIncrease(@Param("commentId") String commentId);
+
 }

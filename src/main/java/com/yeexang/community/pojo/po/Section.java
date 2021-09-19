@@ -4,14 +4,19 @@ import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.SectionDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
+ * 专栏 PO
+ *
  * @author yeeq
  * @date 2021/7/19
  */
 @Data
+@Slf4j
 @EqualsAndHashCode(callSuper = false)
 public class Section extends BasePO {
 
@@ -56,10 +61,16 @@ public class Section extends BasePO {
     private Boolean delFlag;
 
     @Override
-    public BaseDTO toDTO() {
-        SectionDTO sectionDTO = new SectionDTO();
-        sectionDTO.setSectionId(sectionId);
-        sectionDTO.setSectionName(sectionName);
-        return sectionDTO;
+    public Optional<BaseDTO> toDTO() {
+        SectionDTO sectionDTO;
+        try {
+            sectionDTO = new SectionDTO();
+            sectionDTO.setSectionId(sectionId);
+            sectionDTO.setSectionName(sectionName);
+        } catch (Exception e) {
+            log.error("Section toDTO errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
+        return Optional.of(sectionDTO);
     }
 }

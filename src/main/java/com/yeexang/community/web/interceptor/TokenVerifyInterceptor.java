@@ -18,8 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Optional;
 
 /**
+ * token 拦截器
+ *
  * @author yeeq
  * @date 2021/7/23
  */
@@ -27,6 +30,9 @@ import java.util.List;
 @Component
 public class TokenVerifyInterceptor implements HandlerInterceptor {
 
+    /**
+     * token 校验白名单
+     */
     @Value("#{'${interceptor.token-white-request-uri:}'.empty ? null : '${interceptor.token-white-request-uri:}'.split(',')}")
     private List<String> tokenWhiteRequestUris;
 
@@ -38,7 +44,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
 
         log.info("TokenVerifyInterceptor preHandle start");
 
-        PrintWriter out = null;
+        PrintWriter out;
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=utf-8");
         try {
@@ -69,14 +75,15 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
                 return false;
             }
             // 校验 token
-            jwtUtil.verifyJwt(token);
-            // 从加密 token 中获取信息
-            DecodedJWT tokenInfo = jwtUtil.getTokenInfo(token);
-            String account = tokenInfo.getClaim("account").asString();
-            // 将 token 中的 account 放到 request 里面，转发到业务
-            request.setAttribute("account", account);
+            Optional<DecodedJWT> optional = jwtUtil.getTokenInfo(token);
+            if (optional.isPresent()) {
+                DecodedJWT decodedJWT = optional.get();
+                String account = decodedJWT.getClaim(CommonField.ACCOUNT).asString();
+                // 将 token 中的 account 放到 request 里面，转发到业务
+                request.setAttribute(CommonField.ACCOUNT, account);
+            }
         } catch (Exception e) {
-            log.error("TokenVerifyInterceptor preHandle error: {}", e.getMessage());
+            log.error("TokenVerifyInterceptor preHandle error: {}", e.getMessage(), e);
             // 验证失败，返回 401 状态码
             ResponseEntity<?> responseEntity = new ResponseEntity<>(ServerStatusCode.UNKNOWN);
             String json = JSON.toJSONString(responseEntity);

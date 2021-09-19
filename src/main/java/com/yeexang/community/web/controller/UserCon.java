@@ -7,6 +7,7 @@ import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.CookieUtil;
 import com.yeexang.community.common.util.DictUtil;
 import com.yeexang.community.common.util.JwtUtil;
+import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.UserDTO;
 import com.yeexang.community.pojo.po.Dict;
 import com.yeexang.community.pojo.po.User;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("user")
-@Api(tags = "用户服务接口")
+@Api(tags = "用户管理 Controller")
 public class UserCon {
 
     @Autowired
@@ -96,13 +97,26 @@ public class UserCon {
         }
 
         List<UserDTO> userDTOList = userList.stream()
-                .map(user -> (UserDTO) user.toDTO()).collect(Collectors.toList());
+                .map(user -> {
+                    UserDTO dto = null;
+                    Optional<BaseDTO> optional = user.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (UserDTO) optional.get();
+                    }
+                    return dto;
+                }).collect(Collectors.toList());
 
         Map<String, String> payloadMap = new HashMap<>(2);
         payloadMap.put(CommonField.ACCOUNT, userDTO.getAccount());
-        String token = jwtUtil.getToken(payloadMap);
-        Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 7);
-        response.addCookie(cookie);
+        Optional<String> optionalToken = jwtUtil.getToken(payloadMap);
+        if (optionalToken.isPresent()) {
+            String token = optionalToken.get();
+            Optional<Cookie> optionalCookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 7);
+            if (optionalCookie.isPresent()) {
+                Cookie cookie = optionalCookie.get();
+                response.addCookie(cookie);
+            }
+        }
 
         return new ResponseEntity<>(userDTOList);
     }
@@ -138,14 +152,26 @@ public class UserCon {
         }
 
         List<UserDTO> userDTOList = userList.stream()
-                .map(user -> (UserDTO) user.toDTO()).collect(Collectors.toList());
+                .map(user -> {
+                    UserDTO dto = null;
+                    Optional<BaseDTO> optional = user.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (UserDTO) optional.get();
+                    }
+                    return dto;
+                }).collect(Collectors.toList());
 
         Map<String, String> payloadMap = new HashMap<>(2);
         payloadMap.put(CommonField.ACCOUNT, userDTO.getAccount());
-        String token = jwtUtil.getToken(payloadMap);
-        Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 7);
-        response.addCookie(cookie);
-
+        Optional<String> optionalToken = jwtUtil.getToken(payloadMap);
+        if (optionalToken.isPresent()) {
+            String token = optionalToken.get();
+            Optional<Cookie> optionalCookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 7);
+            if (optionalCookie.isPresent()) {
+                Cookie cookie = optionalCookie.get();
+                response.addCookie(cookie);
+            }
+        }
         return new ResponseEntity<>(userDTOList);
     }
 }

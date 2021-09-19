@@ -1,6 +1,8 @@
 package com.yeexang.community.common;
 
 /**
+ * 常量工具类
+ *
  * @author yeeq
  * @date 2021/7/23
  */

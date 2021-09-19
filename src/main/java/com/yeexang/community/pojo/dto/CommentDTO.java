@@ -9,8 +9,11 @@ import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 
 /**
+ * 评论 DTO
+ *
  * @author yeeq
  * @date 2021/8/1
  */
@@ -30,24 +33,26 @@ public class CommentDTO extends BaseDTO {
     private String createTime;
 
     @Override
-    public BasePO toPO() {
-        Comment comment = new Comment();
-        comment.setCommentId(commentId);
-        comment.setParentId(parentId);
-        comment.setCommentContent(commentContent);
-        comment.setCommentCount(commentCount);
-        comment.setLikeCount(likeCount);
-        comment.setCommentType(commentType);
-        comment.setCreateUser(createUser);
-        if (StringUtils.isEmpty(createTime)) {
-            comment.setCreateTime(null);
-        } else {
-            try {
+    public Optional<BasePO> toPO() {
+        Comment comment;
+        try {
+            comment = new Comment();
+            comment.setCommentId(commentId);
+            comment.setParentId(parentId);
+            comment.setCommentContent(commentContent);
+            comment.setCommentCount(commentCount);
+            comment.setLikeCount(likeCount);
+            comment.setCommentType(commentType);
+            comment.setCreateUser(createUser);
+            if (StringUtils.isEmpty(createTime)) {
+                comment.setCreateTime(null);
+            } else {
                 comment.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createTime));
-            } catch (ParseException e) {
-                log.error("CommentDTO toPO errorMsg: {}", e.getMessage());
             }
+        } catch (Exception e) {
+            log.error("CommentDTO toPO errorMsg: {}", e.getMessage());
+            return Optional.empty();
         }
-        return comment;
+        return Optional.of(comment);
     }
 }
