@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -172,6 +173,35 @@ public class UserCon {
                 response.addCookie(cookie);
             }
         }
+        return new ResponseEntity<>(userDTOList);
+    }
+
+    @PostMapping("userInfo")
+    @ApiOperation(value = "用户顶部栏信息")
+    public ResponseEntity<UserDTO> userInfo(HttpServletRequest request) {
+
+        String account = request.getAttribute(CommonField.ACCOUNT).toString();
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setAccount(account);
+
+        // 获取用户信息
+        List<User> userList = userSev.getUser(userDTO);
+        // 用户不存在
+        if (userList.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.ACCOUNT_NOT_EXIST);
+        }
+
+        List<UserDTO> userDTOList = userList.stream()
+                .map(user -> {
+                    UserDTO dto = null;
+                    Optional<BaseDTO> optional = user.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (UserDTO) optional.get();
+                    }
+                    return dto;
+                }).collect(Collectors.toList());
+
         return new ResponseEntity<>(userDTOList);
     }
 }
