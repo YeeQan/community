@@ -31,6 +31,7 @@ public class CookieUtil {
             cookie.setHttpOnly(true);
             cookie.setMaxAge(time);
             cookie.setPath("/");
+            cookie.setSecure(false);
         } catch (Exception e) {
             log.error("CookieUtil getCookie errorMsg: {}", e.getMessage(), e);
             return Optional.empty();
