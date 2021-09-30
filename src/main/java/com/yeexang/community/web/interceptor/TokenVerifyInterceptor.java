@@ -2,10 +2,13 @@ package com.yeexang.community.web.interceptor;
 
 import com.alibaba.fastjson.JSON;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.yeexang.community.common.CommonField;
+import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.JwtUtil;
+import com.yeexang.community.pojo.dto.UserDTO;
+import com.yeexang.community.pojo.po.User;
+import com.yeexang.community.web.service.UserSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +20,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +42,9 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private UserSev userSev;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
@@ -51,6 +56,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
         try {
             // 获取请求的 URI 路径
             String requestUri = request.getRequestURI();
+            log.info("TokenVerifyInterceptor preHandle request url: {}", requestUri);
             // 如果请求的 URI 在白名单中，则跳过 token 验证
             if (tokenWhiteRequestUris != null && !tokenWhiteRequestUris.isEmpty()) {
                 for (String whiteRequestUri : tokenWhiteRequestUris) {
@@ -80,8 +86,22 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
             if (optional.isPresent()) {
                 DecodedJWT decodedJWT = optional.get();
                 String account = decodedJWT.getClaim(CommonField.ACCOUNT).asString();
+                List<User> userList = userSev.getUser(new UserDTO(account, null, null));
+                if (userList.isEmpty()) {
+                    ResponseEntity<?> responseEntity = new ResponseEntity<>(ServerStatusCode.UNAUTHORIZED);
+                    String json = JSON.toJSONString(responseEntity);
+                    out = response.getWriter();
+                    out.append(json);
+                    return false;
+                }
                 // 将 token 中的 account 放到 request 里面，转发到业务
                 request.setAttribute(CommonField.ACCOUNT, account);
+            } else {
+                ResponseEntity<?> responseEntity = new ResponseEntity<>(ServerStatusCode.UNAUTHORIZED);
+                String json = JSON.toJSONString(responseEntity);
+                out = response.getWriter();
+                out.append(json);
+                return false;
             }
         } catch (Exception e) {
             log.error("TokenVerifyInterceptor preHandle error: {}", e.getMessage(), e);

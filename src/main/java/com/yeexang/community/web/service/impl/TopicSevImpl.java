@@ -2,7 +2,7 @@ package com.yeexang.community.web.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.yeexang.community.common.CommonField;
+import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.dao.TopicDao;
 import com.yeexang.community.pojo.dto.NotificationDTO;
@@ -14,6 +14,7 @@ import com.yeexang.community.web.service.TopicSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.Optional;
  */
 @Slf4j
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class TopicSevImpl implements TopicSev {
 
     @Autowired

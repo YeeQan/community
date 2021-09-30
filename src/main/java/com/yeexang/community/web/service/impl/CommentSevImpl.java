@@ -1,6 +1,6 @@
 package com.yeexang.community.web.service.impl;
 
-import com.yeexang.community.common.CommonField;
+import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.dao.CommentDao;
 import com.yeexang.community.dao.TopicDao;
@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 

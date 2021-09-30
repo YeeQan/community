@@ -1,7 +1,7 @@
 package com.yeexang.community.web.controller;
 
 import com.github.pagehelper.PageInfo;
-import com.yeexang.community.common.CommonField;
+import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
@@ -67,7 +67,7 @@ public class TopicCon {
 
         PageInfo pageInfo = topicSev.getPage(pageNum, pageSize, topicDTO);
 
-        if (pageInfo != null) {
+        if (pageInfo != null && pageInfo.getTotal() > 0) {
             List<Topic> topicList = pageInfo.getList();
             List<TopicDTO> topicDTOList = topicList.stream()
                     .map(topic -> {

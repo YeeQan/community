@@ -1,6 +1,6 @@
 package com.yeexang.community.web.advice;
 
-import com.yeexang.community.common.CommonField;
+import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.pojo.dto.*;
 import com.yeexang.community.pojo.po.Comment;

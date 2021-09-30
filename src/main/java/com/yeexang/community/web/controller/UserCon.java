@@ -1,6 +1,6 @@
 package com.yeexang.community.web.controller;
 
-import com.yeexang.community.common.CommonField;
+import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
@@ -9,12 +9,10 @@ import com.yeexang.community.common.util.DictUtil;
 import com.yeexang.community.common.util.JwtUtil;
 import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.UserDTO;
-import com.yeexang.community.pojo.po.Dict;
 import com.yeexang.community.pojo.po.User;
 import com.yeexang.community.web.service.UserSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -47,9 +45,6 @@ public class UserCon {
 
     @Autowired
     private CookieUtil cookieUtil;
-
-    @Autowired
-    private DictUtil dictUtil;
 
     @PostMapping("register")
     @ApiOperation(value = "用户注册")
@@ -176,12 +171,11 @@ public class UserCon {
         return new ResponseEntity<>(userDTOList);
     }
 
-    @PostMapping("userInfo")
-    @ApiOperation(value = "用户顶部栏信息")
-    public ResponseEntity<UserDTO> userInfo(HttpServletRequest request) {
+    @PostMapping("loginInfo")
+    @ApiOperation(value = "登录状态信息")
+    public ResponseEntity<UserDTO> loginInfo(HttpServletRequest request) {
 
         String account = request.getAttribute(CommonField.ACCOUNT).toString();
-
         UserDTO userDTO = new UserDTO();
         userDTO.setAccount(account);
 

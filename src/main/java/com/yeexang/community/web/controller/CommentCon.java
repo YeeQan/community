@@ -45,7 +45,7 @@ public class CommentCon {
 
     @PostMapping("list")
     @ApiOperation(value = "获取评论列表")
-    public ResponseEntity<CommentDTO> list(@RequestBody RequestEntity<CommentDTO> requestEntity, HttpServletRequest request) {
+    public ResponseEntity<CommentDTO> list(@RequestBody RequestEntity<CommentDTO> requestEntity) {
 
         CommentDTO commentDTO;
         List<CommentDTO> data = requestEntity.getData();

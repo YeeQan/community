@@ -190,6 +190,9 @@
         <where>
             <include refid="where_condition"/>
         </where>
+        <if test="section == '#new'">
+            ORDER BY t.create_time DESC
+        </if>
     </select>
 
 </mapper>

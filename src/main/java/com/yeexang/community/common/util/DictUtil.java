@@ -23,7 +23,7 @@ public class DictUtil {
     @Autowired
     private DictDao dictDao;
 
-    public List<Dict> getDictList(String type) {
+    public List<Dict> getDictByType(String type) {
         List<Dict> dictList = new ArrayList<>();
         try {
             Dict dict = new Dict();

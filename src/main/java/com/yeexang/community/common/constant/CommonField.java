@@ -1,4 +1,4 @@
-package com.yeexang.community.common;
+package com.yeexang.community.common.constant;
 
 /**
  * 常量工具类
