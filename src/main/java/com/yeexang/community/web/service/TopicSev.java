@@ -45,4 +45,11 @@ public interface TopicSev {
      * @return List<Topic>
      */
     List<Topic> like(TopicDTO topicDTO, String account);
+
+    /**
+     * 获取帖子列表
+     * @param topicDTO topicDTO
+     * @return List<Topic>
+     */
+    List<Topic> getList(TopicDTO topicDTO);
 }

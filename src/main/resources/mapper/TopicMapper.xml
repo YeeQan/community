@@ -195,4 +195,11 @@
         </if>
     </select>
 
+    <select id="selectByUserAccount" resultType="com.yeexang.community.pojo.po.Topic">
+        select <include refid="y_c_topic"/> from y_c_topic t
+        <where>
+            t.create_user = #{account}
+        </where>
+    </select>
+
 </mapper>

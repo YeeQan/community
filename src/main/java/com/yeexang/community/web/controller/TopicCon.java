@@ -84,6 +84,37 @@ public class TopicCon {
         return new ResponseEntity<>(pageInfo);
     }
 
+    @PostMapping("list")
+    @ApiOperation(value = "获取帖子列表")
+    public ResponseEntity<TopicDTO> list(@RequestBody RequestEntity<TopicDTO> requestEntity) {
+
+        TopicDTO topicDTO;
+        List<TopicDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty()) {
+            topicDTO = new TopicDTO();
+        } else {
+            topicDTO = data.get(0);
+        }
+
+        List<Topic> topicList = topicSev.getList(topicDTO);
+
+        if (topicList.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
+        }
+
+        List<TopicDTO> topicDTOList = topicList.stream()
+            .map(topic -> {
+                TopicDTO dto = null;
+                Optional<BaseDTO> optional = topic.toDTO();
+                if (optional.isPresent()) {
+                    dto = (TopicDTO) optional.get();
+                }
+                return dto;
+            }).collect(Collectors.toList());
+
+        return new ResponseEntity<>(topicDTOList);
+    }
+
     @PostMapping("visit")
     @ApiOperation(value = "访问帖子")
     public ResponseEntity<TopicDTO> visit(@RequestBody RequestEntity<TopicDTO> requestEntity) {

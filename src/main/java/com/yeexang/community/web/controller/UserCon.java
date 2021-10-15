@@ -1,5 +1,6 @@
 package com.yeexang.community.web.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
@@ -8,7 +9,9 @@ import com.yeexang.community.common.util.CookieUtil;
 import com.yeexang.community.common.util.DictUtil;
 import com.yeexang.community.common.util.JwtUtil;
 import com.yeexang.community.pojo.dto.BaseDTO;
+import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.dto.UserDTO;
+import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.pojo.po.User;
 import com.yeexang.community.web.service.UserSev;
 import io.swagger.annotations.Api;
@@ -197,5 +200,36 @@ public class UserCon {
                 }).collect(Collectors.toList());
 
         return new ResponseEntity<>(userDTOList);
+    }
+
+    @PostMapping("topicList")
+    @ApiOperation(value = "该用户发布的帖子")
+    public ResponseEntity<TopicDTO> topicList(HttpServletRequest request) {
+
+        String account = request.getAttribute(CommonField.ACCOUNT).toString();
+
+        // 获取该用户发布的帖子
+        List<Topic> topicList = userSev.getUserTopicList(account);
+
+        if (topicList.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
+        }
+
+        List<TopicDTO> topicDTOList = topicList.stream()
+                .map(topic -> {
+                    TopicDTO dto = null;
+                    Optional<BaseDTO> optional = topic.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (TopicDTO) optional.get();
+                        // 设置用户名
+                        UserDTO userDTO = new UserDTO();
+                        userDTO.setAccount(dto.getCreateUser());
+                        User user = userSev.getUser(userDTO).get(0);
+                        dto.setCreateUserName(user.getUsername());
+                    }
+                    return dto;
+                }).collect(Collectors.toList());
+
+        return new ResponseEntity<>(topicDTOList);
     }
 }

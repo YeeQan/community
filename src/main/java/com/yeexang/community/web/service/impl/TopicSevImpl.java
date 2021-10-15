@@ -141,4 +141,22 @@ public class TopicSevImpl implements TopicSev {
         }
         return topicList;
     }
+
+    @Override
+    public List<Topic> getList(TopicDTO topicDTO) {
+        List<Topic> topicList = new ArrayList<>();
+        try {
+            Optional<BasePO> optional = topicDTO.toPO();
+            if (optional.isPresent()) {
+                Topic topic = (Topic) optional.get();
+                List<Topic> topicDBList = topicDao.select(topic);
+                topicList.addAll(topicDBList);
+            }
+        } catch (Exception e) {
+            log.error("TopicSev getList errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ArrayList<>();
+        }
+        return topicList;
+    }
 }

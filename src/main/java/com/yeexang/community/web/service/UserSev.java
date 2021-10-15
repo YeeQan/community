@@ -1,6 +1,7 @@
 package com.yeexang.community.web.service;
 
 import com.yeexang.community.pojo.dto.UserDTO;
+import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.pojo.po.User;
 
 import java.util.List;
@@ -27,4 +28,11 @@ public interface UserSev {
      * @return List<User>
      */
     List<User> register(UserDTO userDTO);
+
+    /**
+     * 获取该用户发布的帖子
+     * @param account account
+     * @return List<Topic>
+     */
+    List<Topic> getUserTopicList(String account);
 }
