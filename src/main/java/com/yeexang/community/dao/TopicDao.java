@@ -28,4 +28,6 @@ public interface TopicDao {
     void updateCommentCountIncrease(@Param("topicId") String topicId);
 
     List<Topic> select(Topic topic);
+
+    List<Topic> selectByUserAccount(@Param("account") String account);
 }

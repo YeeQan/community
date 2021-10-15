@@ -1,5 +1,6 @@
 package com.yeexang.community.pojo.po;
 
+import com.yeexang.community.common.util.DateUtil;
 import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
 import lombok.Data;
@@ -118,6 +119,7 @@ public class Topic extends BasePO {
             topicDTO.setLastCommentTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(lastCommentTime));
             topicDTO.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime));
             topicDTO.setCreateUser(createUser);
+            topicDTO.setRelativeDate(DateUtil.relativeDateFormat(createTime));
         } catch (Exception e) {
             log.error("Topic toDTO errorMsg: {}", e.getMessage(), e);
             return Optional.empty();
