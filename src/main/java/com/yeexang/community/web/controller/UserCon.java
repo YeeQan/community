@@ -1,12 +1,10 @@
 package com.yeexang.community.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import com.yeexang.community.common.constant.CommonField;
-import com.yeexang.community.common.ServerStatusCode;
+import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.CookieUtil;
-import com.yeexang.community.common.util.DictUtil;
 import com.yeexang.community.common.util.JwtUtil;
 import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;

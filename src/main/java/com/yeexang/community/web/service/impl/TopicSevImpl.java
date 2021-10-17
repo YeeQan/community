@@ -52,7 +52,7 @@ public class TopicSevImpl implements TopicSev {
                 pageInfo = new PageInfo<>(list);
             }
         } catch (Exception e) {
-            log.error("TopicSev getPage errorMsg: {}", e.getMessage());
+            log.error("TopicSev getPage errorMsg: {}", e.getMessage(), e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return new PageInfo<>();
         }

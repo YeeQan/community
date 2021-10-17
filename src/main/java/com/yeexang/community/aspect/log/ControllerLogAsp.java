@@ -26,6 +26,10 @@ public class ControllerLogAsp {
 
     }
 
+    /**
+     * 执行 Controller 方法前打印日志
+     * @param joinPoint joinPoint
+     */
     @Before(value = "controllerMethod()", argNames = "joinPoint")
     public void LogRequestInfo(JoinPoint joinPoint) {
         Signature signature = joinPoint.getSignature();
@@ -56,6 +60,11 @@ public class ControllerLogAsp {
         log.info(sb.toString());
     }
 
+    /**
+     * Controller 方法执行完毕打印日志
+     * @param joinPoint joinPoint
+     * @param responseEntity 响应
+     */
     @AfterReturning(returning = "responseEntity", pointcut = "controllerMethod()")
     public void logResultInfo(JoinPoint joinPoint, ResponseEntity responseEntity) {
         Signature signature = joinPoint.getSignature();

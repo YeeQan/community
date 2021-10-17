@@ -1,14 +1,13 @@
 package com.yeexang.community.web.controller;
 
-import com.yeexang.community.common.ServerStatusCode;
+import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
+import com.yeexang.community.common.util.DateUtil;
 import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.CommentDTO;
-import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.dto.UserDTO;
 import com.yeexang.community.pojo.po.Comment;
-import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.pojo.po.User;
 import com.yeexang.community.web.service.CommentSev;
 import com.yeexang.community.web.service.UserSev;
@@ -23,8 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -56,9 +54,6 @@ public class CommentCon {
         }
 
         List<Comment> commentList = commentSev.getCommentList(commentDTO);
-        if (commentList.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
-        }
 
         List<CommentDTO> commentDTOList = commentList.stream()
                 .map(comment -> {
@@ -75,7 +70,9 @@ public class CommentCon {
                         }
                     }
                     return dto;
-                }).collect(Collectors.toList());
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         return new ResponseEntity<>(commentDTOList);
     }
 

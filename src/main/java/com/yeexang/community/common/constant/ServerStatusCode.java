@@ -1,4 +1,4 @@
-package com.yeexang.community.common;
+package com.yeexang.community.common.constant;
 
 /**
  * 服务状态码工具类
