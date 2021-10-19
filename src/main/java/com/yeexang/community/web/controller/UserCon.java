@@ -172,6 +172,20 @@ public class UserCon {
         return new ResponseEntity<>(userDTOList);
     }
 
+    @PostMapping("logout")
+    @ApiOperation(value = "用户登出")
+    public ResponseEntity<String> logout(HttpServletResponse response) {
+        // 设置 Cookie 失效
+        Optional<Cookie> optionalCookie = cookieUtil.getCookie(CommonField.TOKEN, null, 0);
+        if (optionalCookie.isPresent()) {
+            Cookie cookie = optionalCookie.get();
+            response.addCookie(cookie);
+            return new ResponseEntity<>(ServerStatusCode.SUCCESS);
+        } else {
+            return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
+        }
+    }
+
     @PostMapping("loginInfo")
     @ApiOperation(value = "登录状态信息")
     public ResponseEntity<UserDTO> loginInfo(HttpServletRequest request) {
