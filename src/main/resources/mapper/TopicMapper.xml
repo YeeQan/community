@@ -190,9 +190,7 @@
         <where>
             <include refid="where_condition"/>
         </where>
-        <if test="section == '#new'">
-            ORDER BY t.create_time DESC
-        </if>
+        order by t.create_time DESC
     </select>
 
     <select id="selectByUserAccount" resultType="com.yeexang.community.pojo.po.Topic">

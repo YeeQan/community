@@ -1,4 +1,4 @@
-package com.yeexang.community.common;
+package com.yeexang.community.common.constant;
 
 /**
  * 服务状态码工具类
@@ -35,7 +35,8 @@ public enum ServerStatusCode {
     REQUEST_DATA_EMPTY("4018", "请求数据不能为空"),
     RESPONSE_DATA_EMPTY("4019", "响应数据为空"),
     UNAUTHORIZED("4020", "请先完成登录操作"),
-    TOKEN_DISABLED("4021", "登录超时，请重新登录")
+    TOKEN_DISABLED("4021", "登录超时，请重新登录"),
+    PASSWORD_ERROR("4024", "密码错误")
     ;
 
     private final String code;

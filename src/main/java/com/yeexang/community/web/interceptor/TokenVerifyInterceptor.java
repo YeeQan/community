@@ -3,7 +3,7 @@ package com.yeexang.community.web.interceptor;
 import com.alibaba.fastjson.JSON;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.yeexang.community.common.constant.CommonField;
-import com.yeexang.community.common.ServerStatusCode;
+import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.JwtUtil;
 import com.yeexang.community.pojo.dto.UserDTO;

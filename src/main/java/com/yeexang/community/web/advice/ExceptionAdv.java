@@ -1,6 +1,6 @@
 package com.yeexang.community.web.advice;
 
-import com.yeexang.community.common.ServerStatusCode;
+import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;

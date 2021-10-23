@@ -36,9 +36,6 @@
         <if test="username != null and username != ''">
             AND u.username = #{username}
         </if>
-        <if test="password != null and password != ''">
-            AND u.password = #{password}
-        </if>
         <if test="createTime != null">
             AND u.create_time = #{createTime}
         </if>

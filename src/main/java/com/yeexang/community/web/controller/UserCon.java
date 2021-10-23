@@ -1,12 +1,10 @@
 package com.yeexang.community.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import com.yeexang.community.common.constant.CommonField;
-import com.yeexang.community.common.ServerStatusCode;
+import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.CookieUtil;
-import com.yeexang.community.common.util.DictUtil;
 import com.yeexang.community.common.util.JwtUtil;
 import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
@@ -18,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -149,6 +149,12 @@ public class UserCon {
         if (userList.isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_NOT_EXIST);
         }
+        // 校验密码
+        User userDB = userList.get(0);
+        if (!userDB.getPassword()
+                .equals(DigestUtils.md5DigestAsHex(userDTO.getPassword().getBytes(StandardCharsets.UTF_8)))) {
+            return new ResponseEntity<>(ServerStatusCode.PASSWORD_ERROR);
+        }
 
         List<UserDTO> userDTOList = userList.stream()
                 .map(user -> {
@@ -172,6 +178,20 @@ public class UserCon {
             }
         }
         return new ResponseEntity<>(userDTOList);
+    }
+
+    @PostMapping("logout")
+    @ApiOperation(value = "用户登出")
+    public ResponseEntity<String> logout(HttpServletResponse response) {
+        // 设置 Cookie 失效
+        Optional<Cookie> optionalCookie = cookieUtil.getCookie(CommonField.TOKEN, null, 0);
+        if (optionalCookie.isPresent()) {
+            Cookie cookie = optionalCookie.get();
+            response.addCookie(cookie);
+            return new ResponseEntity<>(ServerStatusCode.SUCCESS);
+        } else {
+            return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
+        }
     }
 
     @PostMapping("loginInfo")

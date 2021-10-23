@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.util.DigestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -65,6 +67,10 @@ public class UserSevImpl implements UserSev {
                 // 避免重复注册
                 synchronized (this) {
                     user.setId(commonUtil.uuid());
+                    // 对用户密码做 MD5 加密
+                    String pwd = userDTO.getPassword();
+                    String pwdMD5 = DigestUtils.md5DigestAsHex(pwd.getBytes(StandardCharsets.UTF_8));
+                    user.setPassword(pwdMD5);
                     user.setCreateTime(new Date());
                     user.setCreateUser(user.getAccount());
                     user.setUpdateTime(new Date());

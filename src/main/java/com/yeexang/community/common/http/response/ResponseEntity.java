@@ -1,6 +1,6 @@
 package com.yeexang.community.common.http.response;
 
-import com.yeexang.community.common.ServerStatusCode;
+import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.pojo.dto.NotificationDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;

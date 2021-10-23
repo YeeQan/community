@@ -2,7 +2,7 @@ package com.yeexang.community.web.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.yeexang.community.common.constant.CommonField;
-import com.yeexang.community.common.ServerStatusCode;
+import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.pojo.dto.*;
