@@ -48,14 +48,12 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        log.info("TokenVerifyInterceptor preHandle start");
-
         PrintWriter out;
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=utf-8");
         try {
-            // 获取请求的 URI 路径
             String requestUri = request.getRequestURI();
+            // 获取请求的 URI 路径
             log.info("TokenVerifyInterceptor preHandle request url: {}", requestUri);
             // 如果请求的 URI 在白名单中，则跳过 token 验证
             if (tokenWhiteRequestUris != null && !tokenWhiteRequestUris.isEmpty()) {
