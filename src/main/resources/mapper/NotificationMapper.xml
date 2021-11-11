@@ -54,21 +54,13 @@
         <if test="status != null">
             AND n.status = #{status}
         </if>
-        <if test="createTime != null">
-            AND n.create_time = #{createTime}
-        </if>
         <if test="createUser != null and createUser != ''">
             AND n.create_user = #{createUser}
-        </if>
-        <if test="updateTime != null">
-            AND n.update_time = #{updateTime}
         </if>
         <if test="updateUser != null and updateUser != ''">
             AND n.update_user = #{updateUser}
         </if>
-        <if test="delFlag != null">
-            AND n.del_flag = #{delFlag}
-        </if>
+        AND n.del_flag = 0
     </sql>
 
     <sql id="set_condition">
@@ -99,9 +91,6 @@
         <if test="updateUser != null and updateUser != ''">
             n.update_user = #{updateUser}
         </if>
-        <if test="delFlag != null">
-            n.del_flag = #{delFlag}
-        </if>
     </sql>
 
     <insert id="insert" parameterType="com.yeexang.community.pojo.po.Notification">
@@ -109,29 +98,19 @@
     </insert>
 
     <delete id="delete" parameterType="com.yeexang.community.pojo.po.Notification">
-        delete from y_c_notification n
+        update from y_c_notification n set del_flag = 1
         <where>
-            <if test="id != null and id != ''">
-                AND n.id = #{id}
-            </if>
-            <if test="notificationId != null and notificationId != ''">
-                AND n.notification_id = #{notificationId}
-            </if>
+            <include refid="where_condition"/>
         </where>
     </delete>
 
     <update id="update" parameterType="com.yeexang.community.pojo.po.Notification">
-        update y_c_notification n
+        update y_c_notification n set del_flag = 1
         <set>
             <include refid="set_condition"/>
         </set>
         <where>
-            <if test="id != null and id != ''">
-                AND n.id = #{id}
-            </if>
-            <if test="notificationId != null and notificationId != ''">
-                AND n.notification_id = #{notificationId}
-            </if>
+            <include refid="where_condition"/>
         </where>
     </update>
 

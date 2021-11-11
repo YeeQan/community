@@ -2,10 +2,7 @@ package com.yeexang.community.common.util;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
 
 /**
  * 时间工具类
@@ -28,31 +25,13 @@ public class DateUtil {
     private static final String ONE_MONTH_AGO = "月前";
     private static final String ONE_YEAR_AGO = "年前";
 
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    /**
-     * 将日期格式的字符串转换为日期实例（yyyy-MM-dd HH:mm:ss）
-     *
-     * @param dateStr dateStr
-     * @return Optional<Date>
-     */
-    public static Optional<Date> strToDate(String dateStr) {
-        Date date = null;
-        try {
-            date = SDF.parse(dateStr);
-        } catch (ParseException e) {
-            log.error("DateUtil strToDate errorMsg: {}", e.getMessage(), e);
-        }
-        return Optional.ofNullable(date);
-    }
-
     /**
      * 获取当前相对时间
      *
      * @param date date
      * @return relativeDate
      */
-    public static String relativeDateFormat (Date date) {
+    public static String relativeDateFormat(Date date) {
         long delta = System.currentTimeMillis() - date.getTime();
         if (ONE_MINUTE > delta) {
             long seconds = toSeconds(delta);

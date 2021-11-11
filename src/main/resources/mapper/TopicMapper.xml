@@ -50,10 +50,7 @@
         <if test="topicTitle != null and topicTitle != ''">
             AND t.topic_title = #{topicTitle}
         </if>
-        <if test="topicContent != null and topicContent != ''">
-            AND t.topic_content = #{topicContent}
-        </if>
-        <if test="section != null and section != '' and section != '#new'">
+        <if test="section != null and section != '' and section != '#all'">
             AND t.section = #{section}
         </if>
         <if test="essentialStatus != null">
@@ -62,24 +59,13 @@
         <if test="recommendedStatus != null">
             AND t.recommended_status = #{recommendedStatus}
         </if>
-        <if test="lastCommentTime != null">
-            AND t.last_comment_time = #{lastCommentTime}
-        </if>
-        <if test="createTime != null">
-            AND t.create_time = #{createTime}
-        </if>
         <if test="createUser != null and createUser != ''">
             AND t.create_user = #{createUser}
-        </if>
-        <if test="updateTime != null">
-            AND t.update_time = #{updateTime}
         </if>
         <if test="updateUser != null and updateUser != ''">
             AND t.update_user = #{updateUser}
         </if>
-        <if test="delFlag != null">
-            AND t.del_flag = #{delFlag}
-        </if>
+        AND t.del_flag = 0
     </sql>
 
     <sql id="set_condition">
@@ -122,9 +108,6 @@
         <if test="updateUser != null and updateUser != ''">
             t.update_user = #{updateUser},
         </if>
-        <if test="delFlag != null">
-            t.del_flag = #{delFlag}
-        </if>
     </sql>
 
     <insert id="insert" parameterType="com.yeexang.community.pojo.po.Topic">
@@ -132,14 +115,9 @@
     </insert>
 
     <delete id="delete" parameterType="com.yeexang.community.pojo.po.Topic">
-        delete from y_c_topic t
+        update from y_c_topic t set del_flag = 1
         <where>
-            <if test="id != null and id != ''">
-                AND t.id = #{id}
-            </if>
-            <if test="topicId != null and topicId != ''">
-                AND t.topic_id = #{topicId}
-            </if>
+            <include refid="where_condition"/>
         </where>
     </delete>
 
@@ -149,12 +127,7 @@
             <include refid="set_condition"/>
         </set>
         <where>
-            <if test="id != null and id != ''">
-                AND t.id = #{id}
-            </if>
-            <if test="topicId != null and topicId != ''">
-                AND t.topic_id = #{topicId}
-            </if>
+            <include refid="where_condition"/>
         </where>
     </update>
 
@@ -176,7 +149,7 @@
         </where>
     </update>
 
-    <update id="updateCommentCountIncrease">
+    <update id="updateCommentCountIncrease" parameterType="string">
         update y_c_topic t set t.comment_count = t.comment_count + 1
         <where>
             <if test="topicId != null and topicId != ''">
@@ -193,7 +166,7 @@
         order by t.create_time DESC
     </select>
 
-    <select id="selectByUserAccount" resultType="com.yeexang.community.pojo.po.Topic">
+    <select id="selectByUserAccount" parameterType="string" resultType="com.yeexang.community.pojo.po.Topic">
         select <include refid="y_c_topic"/> from y_c_topic t
         <where>
             t.create_user = #{account}

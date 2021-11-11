@@ -36,6 +36,7 @@ public enum ServerStatusCode {
     RESPONSE_DATA_EMPTY("4019", "响应数据为空"),
     UNAUTHORIZED("4020", "请先完成登录操作"),
     TOKEN_DISABLED("4021", "登录超时，请重新登录"),
+    FILE_UPLOAD_FAILED("4022", "文件上传失败"),
     PASSWORD_ERROR("4024", "密码错误")
     ;
 

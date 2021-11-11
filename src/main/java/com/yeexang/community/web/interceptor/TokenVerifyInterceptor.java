@@ -84,7 +84,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
             if (optional.isPresent()) {
                 DecodedJWT decodedJWT = optional.get();
                 String account = decodedJWT.getClaim(CommonField.ACCOUNT).asString();
-                List<User> userList = userSev.getUser(new UserDTO(account, null, null));
+                List<User> userList = userSev.getUser(new UserDTO(account, null, null, null));
                 if (userList.isEmpty()) {
                     ResponseEntity<?> responseEntity = new ResponseEntity<>(ServerStatusCode.UNAUTHORIZED);
                     String json = JSON.toJSONString(responseEntity);

@@ -1,10 +1,14 @@
 package com.yeexang.community.web.service.impl;
 
+import com.yeexang.community.common.constant.CommonField;
+import com.yeexang.community.common.constant.DictField;
 import com.yeexang.community.common.util.CommonUtil;
+import com.yeexang.community.common.util.DictUtil;
 import com.yeexang.community.dao.TopicDao;
 import com.yeexang.community.dao.UserDao;
 import com.yeexang.community.pojo.dto.UserDTO;
 import com.yeexang.community.pojo.po.BasePO;
+import com.yeexang.community.pojo.po.Dict;
 import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.pojo.po.User;
 import com.yeexang.community.web.service.UserSev;
@@ -39,6 +43,9 @@ public class UserSevImpl implements UserSev {
     @Autowired
     private TopicDao topicDao;
 
+    @Autowired
+    private DictUtil dictUtil;
+
     @Override
     public List<User> getUser(UserDTO userDTO) {
         List<User> userList = new ArrayList<>();
@@ -58,6 +65,26 @@ public class UserSevImpl implements UserSev {
     }
 
     @Override
+    public void saveUser(UserDTO userDTO) {
+        try {
+            Optional<BasePO> optional = userDTO.toPO();
+            if (optional.isPresent()) {
+                User user = (User) optional.get();
+                List<User> userDBList = userDao.select(user);
+                // 没有数据，则插入数据，否则更新数据
+                if (userDBList == null || userDBList.isEmpty()) {
+                    userDao.insert(user);
+                } else {
+                    userDao.update(user);
+                }
+            }
+        } catch (Exception e) {
+            log.error("UserSev saveUser errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+    }
+
+    @Override
     public List<User> register(UserDTO userDTO) {
         List<User> userList = new ArrayList<>();
         try {
@@ -71,6 +98,12 @@ public class UserSevImpl implements UserSev {
                     String pwd = userDTO.getPassword();
                     String pwdMD5 = DigestUtils.md5DigestAsHex(pwd.getBytes(StandardCharsets.UTF_8));
                     user.setPassword(pwdMD5);
+                    List<Dict> dictList = dictUtil.getDictByType(DictField.USER_DEFAULT_HEAD_PORTRAIT);
+                    // 随机抽取一张默认头像
+                    if (!dictList.isEmpty()) {
+                        Dict dict = dictList.get((int) (Math.random() * dictList.size()));
+                        user.setHeadPortrait(dict.getValue());
+                    }
                     user.setCreateTime(new Date());
                     user.setCreateUser(user.getAccount());
                     user.setUpdateTime(new Date());

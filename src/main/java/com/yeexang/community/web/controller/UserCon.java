@@ -3,7 +3,9 @@ package com.yeexang.community.web.controller;
 import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
+import com.yeexang.community.common.http.response.AliyunOssResult;
 import com.yeexang.community.common.http.response.ResponseEntity;
+import com.yeexang.community.common.util.AliyunOssUtil;
 import com.yeexang.community.common.util.CookieUtil;
 import com.yeexang.community.common.util.JwtUtil;
 import com.yeexang.community.pojo.dto.BaseDTO;
@@ -18,16 +20,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -48,6 +51,9 @@ public class UserCon {
 
     @Autowired
     private CookieUtil cookieUtil;
+
+    @Autowired
+    private AliyunOssUtil aliyunOssUtil;
 
     @PostMapping("register")
     @ApiOperation(value = "用户注册")
@@ -80,12 +86,12 @@ public class UserCon {
         }
 
         // 账号已存在
-        if (!userSev.getUser(new UserDTO(userDTO.getAccount(), null, null)).isEmpty()) {
+        if (!userSev.getUser(new UserDTO(userDTO.getAccount(), null, null, null)).isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.ACCOUNT_EXIST);
         }
 
         // 昵称已存在
-        if (!userSev.getUser(new UserDTO(null, userDTO.getUsername(), null)).isEmpty()) {
+        if (!userSev.getUser(new UserDTO(null, userDTO.getUsername(), null, null)).isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.USERNAME_EXIST);
         }
 
@@ -246,10 +252,31 @@ public class UserCon {
                         userDTO.setAccount(dto.getCreateUser());
                         User user = userSev.getUser(userDTO).get(0);
                         dto.setCreateUserName(user.getUsername());
+                        dto.setHeadPortrait(user.getHeadPortrait());
                     }
                     return dto;
                 }).collect(Collectors.toList());
 
         return new ResponseEntity<>(topicDTOList);
+    }
+
+    @PostMapping("upload/headPortrait")
+    @ApiOperation(value = "上传用户头像")
+    public ResponseEntity<?> uploadHeadPortrait(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+
+        String account = request.getAttribute(CommonField.ACCOUNT).toString();
+
+        // 上传阿里云 oss
+        AliyunOssResult aliyunOssResult = aliyunOssUtil.uploadHeadPortrait(file, account);
+        if (aliyunOssResult.isSuccess()) {
+            // 更新用户头像信息
+            UserDTO userDTO = new UserDTO();
+            userDTO.setAccount(account);
+            userDTO.setHeadPortrait(aliyunOssResult.getUrl());
+            userSev.saveUser(userDTO);
+            return new ResponseEntity<>(ServerStatusCode.SUCCESS);
+        } else {
+            return new ResponseEntity<>(ServerStatusCode.FILE_UPLOAD_FAILED);
+        }
     }
 }

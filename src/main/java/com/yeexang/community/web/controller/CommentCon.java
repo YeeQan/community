@@ -67,6 +67,7 @@ public class CommentCon {
                         if (!userList.isEmpty()) {
                             User user = userList.get(0);
                             dto.setCreateUsername(user.getUsername());
+                            dto.setHeadPortrait(user.getHeadPortrait());
                         }
                     }
                     return dto;
@@ -115,6 +116,7 @@ public class CommentCon {
                         if (!userList.isEmpty()) {
                             User user = userList.get(0);
                             dto.setCreateUsername(user.getUsername());
+                            dto.setHeadPortrait(user.getHeadPortrait());
                         }
                     }
                     return dto;
@@ -155,6 +157,7 @@ public class CommentCon {
                         if (!userList.isEmpty()) {
                             User user = userList.get(0);
                             dto.setCreateUsername(user.getUsername());
+                            dto.setHeadPortrait(user.getHeadPortrait());
                         }
                     }
                     return dto;

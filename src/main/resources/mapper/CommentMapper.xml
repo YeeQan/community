@@ -48,21 +48,13 @@
         <if test="commentType != null and commentType != ''">
             AND c.comment_type = #{commentType}
         </if>
-        <if test="createTime != null">
-            AND c.create_time = #{createTime}
-        </if>
         <if test="createUser != null and createUser != ''">
             AND c.create_user = #{createUser}
-        </if>
-        <if test="updateTime != null">
-            AND c.update_time = #{updateTime}
         </if>
         <if test="updateUser != null and updateUser != ''">
             AND c.update_user = #{updateUser}
         </if>
-        <if test="delFlag != null">
-            AND c.del_flag = #{delFlag}
-        </if>
+        AND c.del_flag = 0
     </sql>
 
     <sql id="set_condition">
@@ -90,9 +82,6 @@
         <if test="updateUser != null and updateUser != ''">
             c.update_user = #{updateUser}
         </if>
-        <if test="delFlag != null">
-            c.del_flag = #{delFlag}
-        </if>
     </sql>
 
     <insert id="insert" parameterType="com.yeexang.community.pojo.po.Comment">
@@ -100,14 +89,9 @@
     </insert>
 
     <delete id="delete" parameterType="com.yeexang.community.pojo.po.Comment">
-        delete from y_c_comment c
+        update from y_c_comment c set del_flag = 1
         <where>
-            <if test="id != null and id != ''">
-                AND c.id = #{id}
-            </if>
-            <if test="commentId != null and commentId != ''">
-                AND c.comment_id = #{commentId}
-            </if>
+            <include refid="where_condition"/>
         </where>
     </delete>
 
@@ -117,12 +101,7 @@
             <include refid="set_condition"/>
         </set>
         <where>
-            <if test="id != null and id != ''">
-                AND c.id = #{id}
-            </if>
-            <if test="commentId != null and commentId != ''">
-                AND c.comment_id = #{commentId}
-            </if>
+            <include refid="where_condition"/>
         </where>
     </update>
 

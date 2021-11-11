@@ -44,6 +44,11 @@ public class User extends BasePO {
     private String password;
 
     /**
+     * 用户头像 AliyunOSS url
+     */
+    private String headPortrait;
+
+    /**
      * 创建时间
      */
     private Date createTime;
@@ -76,6 +81,7 @@ public class User extends BasePO {
             userDTO.setAccount(account);
             userDTO.setUsername(username);
             userDTO.setPassword(password);
+            userDTO.setHeadPortrait(headPortrait);
         } catch (Exception e) {
             log.error("User toDTO errorMsg: {}", e.getMessage(), e);
             return Optional.empty();

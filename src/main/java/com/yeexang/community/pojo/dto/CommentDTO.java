@@ -31,6 +31,7 @@ public class CommentDTO extends BaseDTO {
     private String createUser;
     private String createUsername;
     private String createTime;
+    private String headPortrait;
 
     @Override
     public Optional<BasePO> toPO() {

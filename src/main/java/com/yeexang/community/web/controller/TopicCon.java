@@ -75,6 +75,11 @@ public class TopicCon {
                         Optional<BaseDTO> optional = topic.toDTO();
                         if (optional.isPresent()) {
                             dto = (TopicDTO) optional.get();
+                            // 设置用户头像
+                            UserDTO userDTO = new UserDTO();
+                            userDTO.setAccount(dto.getCreateUser());
+                            User user = userSev.getUser(userDTO).get(0);
+                            dto.setHeadPortrait(user.getHeadPortrait());
                         }
                         return dto;
                     }).collect(Collectors.toList());
@@ -103,14 +108,19 @@ public class TopicCon {
         }
 
         List<TopicDTO> topicDTOList = topicList.stream()
-            .map(topic -> {
-                TopicDTO dto = null;
-                Optional<BaseDTO> optional = topic.toDTO();
-                if (optional.isPresent()) {
-                    dto = (TopicDTO) optional.get();
-                }
-                return dto;
-            }).collect(Collectors.toList());
+                .map(topic -> {
+                    TopicDTO dto = null;
+                    Optional<BaseDTO> optional = topic.toDTO();
+                    if (optional.isPresent()) {
+                        dto = (TopicDTO) optional.get();
+                        // 设置用户头像
+                        UserDTO userDTO = new UserDTO();
+                        userDTO.setAccount(dto.getCreateUser());
+                        User user = userSev.getUser(userDTO).get(0);
+                        dto.setHeadPortrait(user.getHeadPortrait());
+                    }
+                    return dto;
+                }).collect(Collectors.toList());
 
         return new ResponseEntity<>(topicDTOList);
     }
@@ -144,11 +154,12 @@ public class TopicCon {
         }
 
         topicDTOList.forEach(dto -> {
-            // 设置用户名
+            // 设置用户名和头像
             UserDTO userDTO = new UserDTO();
             userDTO.setAccount(dto.getCreateUser());
             User user = userSev.getUser(userDTO).get(0);
             dto.setCreateUserName(user.getUsername());
+            dto.setHeadPortrait(user.getHeadPortrait());
             // 设置评论
             CommentDTO commentDTO = new CommentDTO();
             commentDTO.setParentId(dto.getTopicId());
@@ -166,6 +177,7 @@ public class TopicCon {
                             if (!userList.isEmpty()) {
                                 User user1 = userList.get(0);
                                 cdto.setCreateUsername(user1.getUsername());
+                                cdto.setHeadPortrait(user1.getHeadPortrait());
                             }
                         }
                         return cdto;

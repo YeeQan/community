@@ -22,6 +22,12 @@ public interface UserSev {
     List<User> getUser(UserDTO userDTO);
 
     /**
+     * 保存用户信息
+     * @param userDTO userDTO
+     */
+    void saveUser(UserDTO userDTO);
+
+    /**
      * 用户注册
      *
      * @param userDTO userDTO

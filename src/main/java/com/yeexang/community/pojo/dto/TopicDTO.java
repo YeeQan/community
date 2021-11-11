@@ -37,6 +37,7 @@ public class TopicDTO extends BaseDTO {
     private String createUser;
     private String createUserName;
     private String relativeDate;
+    private String headPortrait;
 
     private List<CommentDTO> commentDTOList;
 
