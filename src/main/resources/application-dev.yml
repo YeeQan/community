@@ -42,6 +42,6 @@ pagehelper:
 aliyun:
   oss:
     endpoint: oss-cn-shenzhen.aliyuncs.com
-    accessKeyId: LTAI5tMd7SjJnkKaMSarpUuN
-    accessKeySecret: axBtFZW5JHC3KmIZvJfNWVu2ZYBi6y
+    accessKeyId: *
+    accessKeySecret: *
     bucketName: comubucket
