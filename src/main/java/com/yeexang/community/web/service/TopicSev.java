@@ -31,6 +31,13 @@ public interface TopicSev {
     List<Topic> getTopic(TopicDTO topicDTO);
 
     /**
+     * 访问帖子
+     * @param topicDTO topicDTO
+     * @return List<Topic>
+     */
+    List<Topic> visit(TopicDTO topicDTO, String  ipAddr);
+
+    /**
      * 发布帖子
      * @param topicDTO topicDTO
      * @param account account

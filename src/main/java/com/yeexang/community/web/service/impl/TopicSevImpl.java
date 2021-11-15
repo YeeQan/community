@@ -3,7 +3,10 @@ package com.yeexang.community.web.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.yeexang.community.common.constant.CommonField;
+import com.yeexang.community.common.redis.RedisKey;
+import com.yeexang.community.common.redis.RedisUtil;
 import com.yeexang.community.common.util.CommonUtil;
+import com.yeexang.community.common.util.IpUtil;
 import com.yeexang.community.dao.TopicDao;
 import com.yeexang.community.pojo.dto.NotificationDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,6 +43,12 @@ public class TopicSevImpl implements TopicSev {
 
     @Autowired
     private CommonUtil commonUtil;
+
+    @Autowired
+    private RedisUtil redisUtil;
+
+    @Autowired
+    private IpUtil ipUtil;
 
     @Override
     public PageInfo<Topic> getPage(Integer pageNum, Integer pageSize, TopicDTO topicDTO) {
@@ -68,10 +78,39 @@ public class TopicSevImpl implements TopicSev {
                 Topic topic = (Topic) optional.get();
                 List<Topic> topicDBList = topicDao.select(topic);
                 topicList.addAll(topicDBList);
-                topicDao.updateVisitCountIncrease(topicDTO.getTopicId());
             }
         } catch (Exception e) {
             log.error("TopicSev getTopic errorMsg: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ArrayList<>();
+        }
+        return topicList;
+    }
+
+    @Override
+    public List<Topic> visit(TopicDTO topicDTO, String ipAddr) {
+        List<Topic> topicList = new ArrayList<>();
+        try {
+            Optional<BasePO> optional = topicDTO.toPO();
+            if (optional.isPresent()) {
+                Topic topic = (Topic) optional.get();
+                List<Topic> topicDBList = topicDao.select(topic);
+                topicList.addAll(topicDBList);
+                // 同一 ip 一小时以内访问，只算一次浏览次数
+                if (!StringUtils.isEmpty(ipAddr)) {
+                    Optional<String> op = redisUtil.getValue(RedisKey.TOPIC_VISIT_COUNT,
+                            ipAddr + "_" + topicDTO.getTopicId());
+                    // 缓存值已经过期，有效访问，浏览次数加一，并重新设置
+                    if (op.isEmpty()) {
+                        topicDao.updateVisitCountIncrease(topicDTO.getTopicId());
+                        redisUtil.setValue(RedisKey.TOPIC_VISIT_COUNT,
+                                ipAddr + "_" + topicDTO.getTopicId(),
+                                    CommonField.TOPIC_VISIT_COUNT_CONSTANT);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("TopicSev visit errorMsg: {}", e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return new ArrayList<>();
         }

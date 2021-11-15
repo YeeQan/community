@@ -5,6 +5,7 @@ import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
+import com.yeexang.community.common.util.IpUtil;
 import com.yeexang.community.pojo.dto.*;
 import com.yeexang.community.pojo.po.Comment;
 import com.yeexang.community.pojo.po.Topic;
@@ -16,6 +17,8 @@ import com.yeexang.community.web.service.UserSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.net.IPv6Utils;
+import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,6 +52,9 @@ public class TopicCon {
 
     @Autowired
     private UserSev userSev;
+
+    @Autowired
+    private IpUtil ipUtil;
 
     @PostMapping("page")
     @ApiOperation(value = "获取帖子分页")
@@ -127,7 +133,8 @@ public class TopicCon {
 
     @PostMapping("visit")
     @ApiOperation(value = "访问帖子")
-    public ResponseEntity<TopicDTO> visit(@RequestBody RequestEntity<TopicDTO> requestEntity) {
+    public ResponseEntity<TopicDTO> visit(@RequestBody RequestEntity<TopicDTO> requestEntity,
+                                          HttpServletRequest request) {
 
         TopicDTO topicDTO;
         List<TopicDTO> data = requestEntity.getData();
@@ -137,7 +144,7 @@ public class TopicCon {
             topicDTO = data.get(0);
         }
 
-        List<Topic> topicList = topicSev.getTopic(topicDTO);
+        List<Topic> topicList = topicSev.visit(topicDTO, ipUtil.getIpAddr(request));
 
         List<TopicDTO> topicDTOList = topicList.stream()
                 .map(topic -> {

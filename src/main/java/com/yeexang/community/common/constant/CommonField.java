@@ -14,6 +14,11 @@ public class CommonField {
     public static final String TOKEN = "token";
 
     /**
+     * topic_visit_count 常量
+     */
+    public static final String TOPIC_VISIT_COUNT_CONSTANT = "topic_visit_count_constant";
+
+    /**
      * 用户账户
      */
     public static final String ACCOUNT = "account";
