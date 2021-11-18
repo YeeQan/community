@@ -33,12 +33,6 @@ import java.util.Optional;
 @Component
 public class TokenVerifyInterceptor implements HandlerInterceptor {
 
-    /**
-     * token 校验白名单
-     */
-    @Value("#{'${interceptor.token-white-request-uri:}'.empty ? null : '${interceptor.token-white-request-uri:}'.split(',')}")
-    private List<String> tokenWhiteRequestUris;
-
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -55,14 +49,6 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
             String requestUri = request.getRequestURI();
             // 获取请求的 URI 路径
             log.info("TokenVerifyInterceptor preHandle request url: {}", requestUri);
-            // 如果请求的 URI 在白名单中，则跳过 token 验证
-            if (tokenWhiteRequestUris != null && !tokenWhiteRequestUris.isEmpty()) {
-                for (String whiteRequestUri : tokenWhiteRequestUris) {
-                    if (requestUri.equals(whiteRequestUri)) {
-                        return true;
-                    }
-                }
-            }
             Cookie[] cookies = request.getCookies();
             String token = null;
             if (cookies != null && cookies.length != 0) {

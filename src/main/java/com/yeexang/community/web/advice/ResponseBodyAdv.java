@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
  * @author yeeq
  * @date 2021/8/4
  */
+/*
 @ControllerAdvice
 public class ResponseBodyAdv implements ResponseBodyAdvice<ResponseEntity<?>> {
 
@@ -61,7 +62,9 @@ public class ResponseBodyAdv implements ResponseBodyAdvice<ResponseEntity<?>> {
         Object account = request.getAttribute(CommonField.ACCOUNT);
         if (account != null && !StringUtils.isEmpty(account.toString())) {
             String accountStr = account.toString();
-            /* 用户通知处理 */
+            */
+/* 用户通知处理 *//*
+
             NotificationDTO param = new NotificationDTO();
             param.setReceiver(accountStr);
             List<Notification> notificationList = notificationSev.receive(param);
@@ -119,4 +122,4 @@ public class ResponseBodyAdv implements ResponseBodyAdvice<ResponseEntity<?>> {
         }
         return responseEntity;
     }
-}
+}*/

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeexang.community.dao.TopicDao">
+
+    <sql id="y_c_topic">
+        t.id,
+        t.topic_id,
+        t.topic_title,
+        t.topic_content,
+        t.section,
+        t.comment_count,
+        t.view_count,
+        t.like_count,
+        t.essential_status,
+        t.recommended_status,
+        t.create_time,
+        t.last_comment_time,
+        t.create_user,
+        t.update_time,
+        t.update_user,
+        t.del_flag
+    </sql>
+
+    <sql id="Topic">
+        #{id},
+        #{topicId},
+        #{topicTitle},
+        #{topicContent},
+        #{section},
+        #{commentCount},
+        #{viewCount},
+        #{likeCount},
+        #{essentialStatus},
+        #{recommendedStatus},
+        #{lastCommentTime},
+        #{createTime},
+        #{createUser},
+        #{updateTime},
+        #{updateUser},
+        #{delFlag}
+    </sql>
+
+    <sql id="where_condition">
+        <if test="id != null and id != ''">
+            AND t.id = #{id}
+        </if>
+        <if test="topicId != null and topicId != ''">
+            AND t.topic_id = #{topicId}
+        </if>
+        <if test="topicTitle != null and topicTitle != ''">
+            AND t.topic_title = #{topicTitle}
+        </if>
+        <if test="section != null and section != '' and section != '#all'">
+            AND t.section = #{section}
+        </if>
+        <if test="essentialStatus != null">
+            AND t.essential_status = #{essentialStatus}
+        </if>
+        <if test="recommendedStatus != null">
+            AND t.recommended_status = #{recommendedStatus}
+        </if>
+        <if test="createUser != null and createUser != ''">
+            AND t.create_user = #{createUser}
+        </if>
+        <if test="updateUser != null and updateUser != ''">
+            AND t.update_user = #{updateUser}
+        </if>
+        AND t.del_flag = 0
+    </sql>
+
+    <sql id="set_condition">
+        <if test="topicTitle != null and topicTitle != ''">
+            t.topic_title = #{topicTitle},
+        </if>
+        <if test="topicContent != null and topicContent != ''">
+            t.topic_content = #{topicContent},
+        </if>
+        <if test="section != null and section != ''">
+            t.section = #{section},
+        </if>
+        <if test="commentCount != null and commentCount >= 0">
+            t.comment_count = #{commentCount},
+        </if>
+        <if test="viewCount != null and viewCount >= 0">
+            t.view_count = #{viewCount},
+        </if>
+        <if test="likeCount != null and likeCount >= 0">
+            t.like_count = #{likeCount},
+        </if>
+        <if test="essentialStatus != null">
+            t.essential_status = #{essentialStatus},
+        </if>
+        <if test="recommendedStatus != null">
+            t.recommended_status = #{recommendedStatus},
+        </if>
+        <if test="lastCommentTime != null">
+            t.last_comment_time = #{lastCommentTime},
+        </if>
+        <if test="createTime != null">
+            t.create_time = #{createTime},
+        </if>
+        <if test="createUser != null and createUser != ''">
+            t.create_user = #{createUser},
+        </if>
+        <if test="updateTime != null">
+            t.update_time = #{updateTime},
+        </if>
+        <if test="updateUser != null and updateUser != ''">
+            t.update_user = #{updateUser},
+        </if>
+    </sql>
+
+    <insert id="insert" parameterType="com.yeexang.community.pojo.po.Topic">
+        insert into y_c_topic values (<include refid="Topic"/>)
+    </insert>
+
+    <delete id="delete" parameterType="com.yeexang.community.pojo.po.Topic">
+        update from y_c_topic t set del_flag = 1
+        <where>
+            <include refid="where_condition"/>
+        </where>
+    </delete>
+
+    <update id="update" parameterType="com.yeexang.community.pojo.po.Topic">
+        update y_c_topic t
+        <set>
+            <include refid="set_condition"/>
+        </set>
+        <where>
+            <include refid="where_condition"/>
+        </where>
+    </update>
+
+    <update id="updateLikeCountIncrease" parameterType="string">
+        update y_c_topic t set t.like_count = t.like_count + 1
+        <where>
+            <if test="topicId != null and topicId != ''">
+                AND t.topic_id = #{topicId}
+            </if>
+        </where>
+    </update>
+
+    <update id="updateVisitCountIncrease" parameterType="string">
+        update y_c_topic t set t.view_count = t.view_count + 1
+        <where>
+            <if test="topicId != null and topicId != ''">
+                AND t.topic_id = #{topicId}
+            </if>
+        </where>
+    </update>
+
+    <update id="updateCommentCountIncrease" parameterType="string">
+        update y_c_topic t set t.comment_count = t.comment_count + 1
+        <where>
+            <if test="topicId != null and topicId != ''">
+                AND t.topic_id = #{topicId}
+            </if>
+        </where>
+    </update>
+
+    <select id="select" parameterType="com.yeexang.community.pojo.po.Topic" resultType="com.yeexang.community.pojo.po.Topic">
+        select <include refid="y_c_topic"/> from y_c_topic t
+        <where>
+            <include refid="where_condition"/>
+        </where>
+        order by t.create_time DESC
+    </select>
+
+    <select id="selectByUserAccount" parameterType="string" resultType="com.yeexang.community.pojo.po.Topic">
+        select <include refid="y_c_topic"/> from y_c_topic t
+        <where>
+            t.create_user = #{account}
+        </where>
+    </select>
+
+</mapper>

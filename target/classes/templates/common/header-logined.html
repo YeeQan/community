@@ -1,0 +1,41 @@
+<!doctype html>
+
+<!-- 导航栏 -->
+<div class="container-fluid bg-white shadow-sm">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-auto mr-lg-auto">
+                <nav class="navbar navbar-light">
+                    <a class="navbar-brand" href="/community">
+                        <span class="text-secondary font-weight-bold">异想社区</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="col-lg-1 text-center align-self-center">
+                <a href="comment">
+                    <span class="text-black-50">通知</span></a>
+            </div>
+            <div class="col-lg-1 text-center align-self-center">
+                <a href="publish">
+                    <span class="text-black-50">发帖</span></a>
+            </div>
+            <div class="dropdown col-lg-1 text-center align-self-center">
+                <a class="dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown">
+                    <span class="text-black-50" id="loginUsername"></span>
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a class="dropdown-item" href="homepage">
+                        <span class="text-black-50">个人中心</span>
+                    </a>
+                    <a class="dropdown-item" href="javascript:void(0)" id="logout">
+                        <span class="text-black-50">退出</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $.initLoginedHeader()
+</script>

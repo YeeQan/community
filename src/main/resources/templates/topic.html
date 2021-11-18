@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <title>帖子-异想社区</title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap-grid.min.css" />
+  <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap-reboot.min.css" />
+  <link rel="stylesheet" href="/community/css/community.css" />
+  <link rel="stylesheet" href="/community/bootstrap-4.6.0/icons-1.5.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/community/css/editormd.min.css">
+  <link rel="stylesheet" href="/community/css/editormd.preview.min.css">
+  <link rel="stylesheet" href="/community/css/jquery-confirm.css">
+</head>
+
+<body>
+
+  <header id="header"></header>
+
+  <!-- 主体部分 -->
+  <div class="container mt-lg-5">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="container-fluid">
+          <!-- 帖子信息 -->
+          <div class="row">
+            <div class="col-lg-12 shadow-sm bg-white rounded">
+              <!-- 标题信息 -->
+              <div class="col-lg-12 mt-lg-3">
+                <h4 id="topic-title"></h4>
+                <span class="text-black-50 small" id="topic-info"></span>
+              </div>
+              <!-- 帖子内容 -->
+              <div class="col-lg-12" id="topic-content"></div>
+              <div class="col-lg-12 mb-lg-3">
+                <span>
+                  <i class="bi bi-hand-thumbs-up-fill"></i>&nbsp;&nbsp;
+                  <span id="like-count"></span>
+                </span>
+              </div>  
+            </div>
+          </div>
+          <!-- 评论内容 -->
+          <div class="row mt-lg-3">
+            <!-- 评论数 -->
+            <div class="col-lg-12 bg-white shadow-sm rounded" id="comment-list">
+              <div class="row border border-top-0 border-left-0 border-right-0 community-ele-border-color-grey">
+                <div class="col-lg-12 my-lg-3">
+                  <span id="comment-count"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 输入回复 -->
+          <div class="row mt-lg-3">
+            <div class="col-lg-12 bg-white shadow-sm rounded">
+              <div class="row mx-lg-4 my-lg-5">
+                <form class="w-100">
+                  <div class="form-group">
+                    <textarea class="form-control" id="firstReplyInput" rows="3" style="resize: none"></textarea>
+                  </div>
+                  <button type="button" class="btn btn-primary pull-right" id="publishFirstComment">提交</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+<footer id="footer"></footer>
+
+<script src="/community/js/jquery-3.6.0.js"></script>
+<script src="/community/js/jquery.cookie.js"></script>
+<script src="/community/bootstrap-4.6.0/js/bootstrap.bundle.min.js"></script>
+<script src="/community/bootstrap-4.6.0/js/bootstrap.min.js"></script>
+<script src="/community/js/editormd.min.js"></script>
+<script src="/community/js/community.js"></script>
+<script src="/community/js/community.js"></script>
+<script src="/community/js/jquery-confirm.js"></script>
+<script src="/community/editor.md/lib/marked.min.js"></script>
+<script src="/community/editor.md/lib/prettify.min.js"></script>
+<script src="/community/editor.md/lib/raphael.min.js"></script>
+<script src="/community/editor.md/lib/underscore.min.js"></script>
+<script src="/community/editor.md/lib/sequence-diagram.min.js"></script>
+<script src="/community/editor.md/lib/flowchart.min.js"></script>
+<script src="/community/editor.md/lib/jquery.flowchart.min.js"></script>
+
+<script>
+  $.initTop()
+  $.initFooter()
+  var split = $(location).attr('href').split("/");
+  $.initTopic(split[split.length - 1])
+</script>
+
+</html>
