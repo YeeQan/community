@@ -25,13 +25,9 @@ public class CommentDTO extends BaseDTO {
     private String commentId;
     private String parentId;
     private String commentContent;
-    private Integer commentCount;
-    private Integer likeCount;
-    private String commentType;
     private String createUser;
-    private String createUsername;
-    private String createTime;
-    private String headPortrait;
+    private String updateUser;
+    private String commentType;
 
     @Override
     public Optional<BasePO> toPO() {
@@ -41,17 +37,11 @@ public class CommentDTO extends BaseDTO {
             comment.setCommentId(commentId);
             comment.setParentId(parentId);
             comment.setCommentContent(commentContent);
-            comment.setCommentCount(commentCount);
-            comment.setLikeCount(likeCount);
-            comment.setCommentType(commentType);
             comment.setCreateUser(createUser);
-            if (StringUtils.isEmpty(createTime)) {
-                comment.setCreateTime(null);
-            } else {
-                comment.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createTime));
-            }
+            comment.setUpdateUser(updateUser);
+            comment.setCommentType(commentType);
         } catch (Exception e) {
-            log.error("CommentDTO toPO errorMsg: {}", e.getMessage());
+            log.error("CommonDTO toPO errorMsg: {}", e.getMessage(), e);
             return Optional.empty();
         }
         return Optional.of(comment);

@@ -6,12 +6,12 @@ import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.JwtUtil;
-import com.yeexang.community.pojo.dto.UserDTO;
+import com.yeexang.community.dao.UserDao;
 import com.yeexang.community.pojo.po.User;
+import com.yeexang.community.pojo.vo.UserVO;
 import com.yeexang.community.web.service.UserSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -20,7 +20,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -70,8 +69,8 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
             if (optional.isPresent()) {
                 DecodedJWT decodedJWT = optional.get();
                 String account = decodedJWT.getClaim(CommonField.ACCOUNT).asString();
-                List<User> userList = userSev.getUser(new UserDTO(account, null, null, null));
-                if (userList.isEmpty()) {
+                Optional<UserVO> op = userSev.getUserVOByAccount(account);
+                if (op.isEmpty()) {
                     ResponseEntity<?> responseEntity = new ResponseEntity<>(ServerStatusCode.UNAUTHORIZED);
                     String json = JSON.toJSONString(responseEntity);
                     out = response.getWriter();
@@ -88,7 +87,10 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
                 return false;
             }
         } catch (Exception e) {
-            log.error("TokenVerifyInterceptor preHandle error: {}", e.getMessage(), e);
+            log.error("{} {} errorMsg: {}",
+                    this.getClass().getName(),
+                    Thread.currentThread().getStackTrace()[1].getMethodName(),
+                    e.getMessage(), e);
             // 验证失败，返回 401 状态码
             ResponseEntity<?> responseEntity = new ResponseEntity<>(ServerStatusCode.UNKNOWN);
             String json = JSON.toJSONString(responseEntity);

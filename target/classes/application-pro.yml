@@ -18,11 +18,11 @@ spring:
     host: 127.0.0.1
     port: 6379
 
-mybatis:
-  configuration:
-    map-underscore-to-camel-case: true  # 开启驼峰标识
+mybatis-plus:
   mapper-locations: classpath:/mapper/*.xml   # 扫描映射配置文件
   type-aliases-package: com.yeexang.community.entity  # 别名
+  configuration:
+    map-underscore-to-camel-case: true  # 驼峰标识
 
 logging:
   level:
@@ -39,7 +39,7 @@ pagehelper:
 # 阿里云 oss 参数
 aliyun:
   oss:
-    endpoint: oss-cn-shenzhen.aliyuncs.com
+    endpoint: aaaaaaaaaaaaa
     accessKeyId: aaaaaaaaaa
     accessKeySecret: aaaaaaaaaaaaa
     bucketName: comubucket

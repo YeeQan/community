@@ -1,24 +1,12 @@
 package com.yeexang.community.dao;
 
-import com.yeexang.community.pojo.po.Notification;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
-
 /**
  * 通知管理 Dao
  *
  * @author yeeq
  * @date 2021/7/20
  */
-@Repository
-public interface NotificationDao {
+/*@Repository
+public interface NotificationDao extends BaseMapper<Notification> {
 
-    void insert(Notification notification);
-
-    void delete(Notification notification);
-
-    void update(Notification notification);
-
-    List<Notification> select(Notification notification);
-}
+}*/

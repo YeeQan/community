@@ -2,8 +2,11 @@ package com.yeexang.community.web.service;
 
 import com.yeexang.community.pojo.dto.CommentDTO;
 import com.yeexang.community.pojo.po.Comment;
+import com.yeexang.community.pojo.po.Topic;
+import com.yeexang.community.pojo.vo.CommentVO;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 评论管理 Service
@@ -14,19 +17,28 @@ import java.util.List;
 public interface CommentSev {
 
     /**
-     * 获取评论列表
+     * 获取一级评论
+     *
      * @param commentDTO commentDTO
-     * @return List<Comment>
+     * @return List<CommentVO>
      */
-    List<Comment> getCommentList(CommentDTO commentDTO);
+    List<CommentVO> getFirstLevelComment(CommentDTO commentDTO);
+
+    /**
+     * 获取二级评论
+     *
+     * @param commentDTO commentDTO
+     * @return List<CommentVO>
+     */
+    List<CommentVO> getSecondLevelComment(CommentDTO commentDTO);
 
     /**
      * 发布评论
+     *
      * @param commentDTO commentDTO
-     * @param account account
-     * @return List<Comment>
+     * @return Optional<Comment>
      */
-    List<Comment> publish(CommentDTO commentDTO, String account);
+    Optional<CommentVO> publish(CommentDTO commentDTO);
 
     /**
      * 点赞
@@ -34,5 +46,5 @@ public interface CommentSev {
      * @param account account
      * @return List<Comment>
      */
-    List<Comment> like(CommentDTO commentDTO, String account);
+    /*List<Comment> like(CommentDTO commentDTO, String account);*/
 }

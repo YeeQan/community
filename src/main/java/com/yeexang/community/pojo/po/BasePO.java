@@ -1,6 +1,6 @@
 package com.yeexang.community.pojo.po;
 
-import com.yeexang.community.pojo.dto.BaseDTO;
+import com.yeexang.community.pojo.vo.BaseVO;
 
 import java.util.Optional;
 
@@ -13,8 +13,8 @@ import java.util.Optional;
 public abstract class BasePO {
 
     /**
-     * PO 转换为 DTO
+     * PO 转换为 VO
      * @return BaseDTO
      */
-    public abstract Optional<BaseDTO> toDTO();
+    public abstract Optional<BaseVO> toVO();
 }

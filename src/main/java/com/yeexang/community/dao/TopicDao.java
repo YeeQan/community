@@ -1,6 +1,8 @@
 package com.yeexang.community.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yeexang.community.pojo.po.Topic;
+import com.yeexang.community.pojo.po.User;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -12,22 +14,6 @@ import java.util.List;
  * @author yeeq
  * @date 2021/7/20
  */
-@Repository
-public interface TopicDao {
+public interface TopicDao extends BaseMapper<Topic> {
 
-    void insert(Topic topic);
-
-    void delete(Topic topic);
-
-    void update(Topic topic);
-
-    void updateLikeCountIncrease(@Param("topicId") String topicId);
-
-    void updateVisitCountIncrease(@Param("topicId") String topicId);
-
-    void updateCommentCountIncrease(@Param("topicId") String topicId);
-
-    List<Topic> select(Topic topic);
-
-    List<Topic> selectByUserAccount(@Param("account") String account);
 }

@@ -1,5 +1,6 @@
 package com.yeexang.community.common.http.request;
 
+import com.yeexang.community.common.filter.Filter;
 import lombok.Data;
 
 import java.util.List;
@@ -22,6 +23,11 @@ public class RequestEntity<T> {
      * 单页数量
      */
     private Integer pageSize;
+
+    /**
+     * 筛选器
+     */
+    private Filter filter;
 
     /**
      * 请求参数

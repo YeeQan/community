@@ -1,7 +1,14 @@
 package com.yeexang.community.web.service.impl;
 
-import com.yeexang.community.common.constant.CommonField;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yeexang.community.common.constant.DictField;
+import com.yeexang.community.common.constant.ServerStatusCode;
+import com.yeexang.community.common.http.response.AliyunOssResult;
+import com.yeexang.community.common.http.response.ResponseEntity;
+import com.yeexang.community.common.http.response.SevFuncResult;
+import com.yeexang.community.common.redis.RedisKey;
+import com.yeexang.community.common.util.AliyunOssUtil;
 import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.common.util.DictUtil;
 import com.yeexang.community.dao.TopicDao;
@@ -11,6 +18,10 @@ import com.yeexang.community.pojo.po.BasePO;
 import com.yeexang.community.pojo.po.Dict;
 import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.pojo.po.User;
+import com.yeexang.community.pojo.vo.BaseVO;
+import com.yeexang.community.pojo.vo.TopicVO;
+import com.yeexang.community.pojo.vo.UserVO;
+import com.yeexang.community.web.service.impl.base.BaseSev;
 import com.yeexang.community.web.service.UserSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +29,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author yeeq
@@ -32,64 +42,56 @@ import java.util.Optional;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class UserSevImpl implements UserSev {
+public class UserSevImpl extends BaseSev<User, String> implements UserSev {
 
     @Autowired
     private UserDao userDao;
 
     @Autowired
-    private CommonUtil commonUtil;
+    private TopicDao topicDao;
 
     @Autowired
-    private TopicDao topicDao;
+    private CommonUtil commonUtil;
 
     @Autowired
     private DictUtil dictUtil;
 
+    @Autowired
+    private AliyunOssUtil aliyunOssUtil;
+
     @Override
-    public List<User> getUser(UserDTO userDTO) {
-        List<User> userList = new ArrayList<>();
-        try {
-            Optional<BasePO> optional = userDTO.toPO();
-            if (optional.isPresent()) {
-                User user = (User) optional.get();
-                List<User> userDBList = userDao.select(user);
-                userList.addAll(userDBList);
-            }
-        } catch (Exception e) {
-            log.error("UserSev getUser errorMsg: {}", e.getMessage());
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return new ArrayList<>();
-        }
-        return userList;
+    protected RedisKey getRedisKey() {
+        return RedisKey.USER;
     }
 
     @Override
-    public void saveUser(UserDTO userDTO) {
-        try {
-            Optional<BasePO> optional = userDTO.toPO();
-            if (optional.isPresent()) {
-                User user = (User) optional.get();
-                List<User> userDBList = userDao.select(user);
-                // 没有数据，则插入数据，否则更新数据
-                if (userDBList == null || userDBList.isEmpty()) {
-                    userDao.insert(user);
-                } else {
-                    userDao.update(user);
-                }
-            }
-        } catch (Exception e) {
-            log.error("UserSev saveUser errorMsg: {}", e.getMessage());
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-        }
+    protected BaseMapper getBaseMapper() {
+        return userDao;
     }
 
     @Override
-    public List<User> register(UserDTO userDTO) {
-        List<User> userList = new ArrayList<>();
+    protected Class getEntityClass() {
+        return User.class;
+    }
+
+    @Override
+    public SevFuncResult register(UserDTO userDTO) {
+        SevFuncResult sevFuncResult;
         try {
+            // 账号已存在
+            if (selectById(userDTO.getAccount()) != null) {
+                return new SevFuncResult(false, "账号已存在", ServerStatusCode.ACCOUNT_EXIST);
+            }
+            // 昵称已存在
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("username", userDTO.getUsername());
+            User userDB = userDao.selectOne(queryWrapper);
+            if (userDB != null) {
+                return new SevFuncResult(false, "账号已存在", ServerStatusCode.USERNAME_EXIST);
+            }
             Optional<BasePO> optional = userDTO.toPO();
             if (optional.isPresent()) {
+                selectById(userDTO.getAccount());
                 User user = (User) optional.get();
                 // 避免重复注册
                 synchronized (this) {
@@ -109,33 +111,112 @@ public class UserSevImpl implements UserSev {
                     user.setUpdateTime(new Date());
                     user.setUpdateUser(user.getAccount());
                     user.setDelFlag(false);
-                    userDao.insert(user);
-
-                    User userParam = new User();
-                    userParam.setAccount(user.getAccount());
-                    List<User> userDBList = userDao.select(userParam);
-                    userList.addAll(userDBList);
+                    save(user, user.getAccount());
+                    sevFuncResult = new SevFuncResult(true, "成功", ServerStatusCode.SUCCESS);
                 }
+            } else {
+                return new SevFuncResult(false, "未知错误", ServerStatusCode.UNKNOWN);
             }
         } catch (Exception e) {
-            log.error("UserSev register errorMsg: {}", e.getMessage());
+            log.error("UserSev register errorMsg: {}", e.getMessage(), e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return new ArrayList<>();
+            return new SevFuncResult(false, "未知错误", ServerStatusCode.UNKNOWN);
         }
-        return userList;
+        return sevFuncResult;
     }
 
     @Override
-    public List<Topic> getUserTopicList(String account) {
-        List<Topic> topicList = new ArrayList<>();
+    public SevFuncResult login(UserDTO userDTO) {
+        SevFuncResult sevFuncResult;
         try {
-            List<Topic> topicDBList = topicDao.selectByUserAccount(account);
-            topicList.addAll(topicDBList);
+            // 获取用户信息，用户不存在则返回错误提示
+            User user = selectById(userDTO.getAccount());
+            if (user == null) {
+                sevFuncResult = new SevFuncResult(false, "用户不存在", ServerStatusCode.ACCOUNT_NOT_EXIST);
+            } else {
+                // 校验密码
+                if (!user.getPassword()
+                        .equals(DigestUtils.md5DigestAsHex(userDTO.getPassword().getBytes(StandardCharsets.UTF_8)))) {
+                    sevFuncResult = new SevFuncResult(false, "密码错误", ServerStatusCode.PASSWORD_ERROR);
+                } else {
+                    sevFuncResult = new SevFuncResult(true, "成功", ServerStatusCode.SUCCESS);
+                }
+            }
         } catch (Exception e) {
-            log.error("UserSev getUser errorMsg: {}", e.getMessage());
+            log.error("UserSev login errorMsg: {}", e.getMessage(), e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new SevFuncResult(false, "未知错误", ServerStatusCode.UNKNOWN);
+        }
+        return sevFuncResult;
+    }
+
+    @Override
+    public List<TopicVO> getTopicListByAccount(String account) {
+        List<TopicVO> topicVOList;
+        try {
+            User user = selectById(account);
+            QueryWrapper<Topic> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("create_user", account);
+            List<Topic> topicList = topicDao.selectList(queryWrapper);
+            topicVOList = topicList.stream()
+                    .map(topic -> {
+                        TopicVO vo = null;
+                        Optional<BaseVO> optional = topic.toVO();
+                        if (optional.isPresent()) {
+                            vo = (TopicVO) optional.get();
+                            // 设置用户名和头像
+                            vo.setCreateUserName(user.getUsername());
+                            vo.setHeadPortrait(user.getHeadPortrait());
+                        }
+                        return vo;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("UserSev getTopicListByAccount errorMsg: {}", e.getMessage(), e);
             return new ArrayList<>();
         }
-        return topicList;
+        return topicVOList;
+    }
+
+    @Override
+    public SevFuncResult uploadHeadPortrait(MultipartFile file, String account) {
+        SevFuncResult sevFuncResult;
+        try {
+            // 上传阿里云 oss
+            AliyunOssResult aliyunOssResult = aliyunOssUtil.uploadHeadPortrait(file, account);
+            if (aliyunOssResult.isSuccess()) {
+                // 更新用户头像信息
+                User user = new User();
+                user.setAccount(account);
+                user.setHeadPortrait(aliyunOssResult.getUrl());
+                save(user, account);
+                sevFuncResult = new SevFuncResult(true, "成功", ServerStatusCode.SUCCESS);
+            } else {
+                sevFuncResult = new SevFuncResult(true, "成功", ServerStatusCode.FILE_UPLOAD_FAILED);
+            }
+        } catch (Exception e) {
+            log.error("UserSev uploadHeadPortrait errorMsg: {}", e.getMessage(), e);
+            sevFuncResult = new SevFuncResult(true, "未知错误", ServerStatusCode.UNKNOWN);
+        }
+        return sevFuncResult;
+    }
+
+    @Override
+    public Optional<UserVO> getUserVOByAccount(String account) {
+        UserVO userVO = null;
+        try {
+            User user = selectById(account);
+            if (user != null) {
+                Optional<BaseVO> baseVOptional = user.toVO();
+                if (baseVOptional.isPresent()) {
+                    userVO = (UserVO) baseVOptional.get();
+                }
+            }
+        } catch (Exception e) {
+            log.error("UserSev getUserVOByAccount errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
+        return Optional.ofNullable(userVO);
     }
 }

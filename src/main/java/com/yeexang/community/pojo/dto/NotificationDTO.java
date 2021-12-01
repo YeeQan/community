@@ -1,22 +1,12 @@
 package com.yeexang.community.pojo.dto;
 
-import com.yeexang.community.pojo.po.BasePO;
-import com.yeexang.community.pojo.po.Notification;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
-
-import java.text.SimpleDateFormat;
-import java.util.Optional;
-
 /**
  * 通知 DTO
  *
  * @author yeeq
  * @date 2021/7/29
  */
-@Data
+/*@Data
 @Slf4j
 @EqualsAndHashCode(callSuper = false)
 public class NotificationDTO extends BaseDTO {
@@ -54,4 +44,4 @@ public class NotificationDTO extends BaseDTO {
         }
         return Optional.of(notification);
     }
-}
+}*/

@@ -1,6 +1,7 @@
 package com.yeexang.community.common.redis;
 
 import com.alibaba.fastjson.JSON;
+import com.yeexang.community.common.constant.CommonField;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -70,12 +71,35 @@ public class RedisUtil {
             Optional<String> optional = getValue(redisKey, id);
             if (optional.isPresent()) {
                 String value = optional.get();
-                parseObject = JSON.parseObject(value, clazz);
+                if (CommonField.REDIS_DEFAULT_VALUE.equals(value)) {
+                    parseObject = CommonField.REDIS_DEFAULT_VALUE;
+                } else {
+                    parseObject = JSON.parseObject(value, clazz);
+                }
             }
         } catch (Exception e) {
-            log.error("RedisUtil getValue getObjectValue: {}", e.getMessage(), e);
+            log.error("RedisUtil getObjectValue errorMsg: {}", e.getMessage(), e);
             return Optional.empty();
         }
         return Optional.ofNullable(parseObject);
+    }
+
+    /**
+     * 设置 Object-value
+     *
+     * @param redisKey redisKey
+     * @param id       id
+     * @param object   object
+     */
+    public void setObjectValue(RedisKey redisKey, String id, Object object) {
+        try {
+            if (redisKey.getTimeout() == null) {
+                template.opsForValue().set(redisKey.getKey(id), JSON.toJSONString(object));
+            } else {
+                template.opsForValue().set(redisKey.getKey(id), JSON.toJSONString(object), redisKey.getTimeout());
+            }
+        } catch (Exception e) {
+            log.error("RedisUtil setObjectValue errorMsg: {}", e.getMessage(), e);
+        }
     }
 }

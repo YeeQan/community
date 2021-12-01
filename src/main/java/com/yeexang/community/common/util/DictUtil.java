@@ -1,5 +1,6 @@
 package com.yeexang.community.common.util;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.yeexang.community.dao.DictDao;
 import com.yeexang.community.pojo.po.Dict;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +25,13 @@ public class DictUtil {
     private DictDao dictDao;
 
     public List<Dict> getDictByType(String type) {
-        List<Dict> dictList = new ArrayList<>();
+        List<Dict> dictList;
         try {
             Dict dict = new Dict();
             dict.setType(type);
-            dictList.addAll(dictDao.select(dict));
+            QueryWrapper<Dict> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("type", type);
+            dictList = dictDao.selectList(queryWrapper);
             dictList.sort(Comparator.comparingInt(Dict::getSortFlag));
         } catch (Exception e) {
             log.error("DictUtil getDictList errorMsg: {}", e.getMessage(), e);

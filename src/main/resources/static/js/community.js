@@ -11,11 +11,9 @@ jQuery.extend({
     var requestJson = {
       pageNum: 1,
       pageSize: 20,
-      data: [
-        {
-          section: "#all",
-        },
-      ],
+      filter: {
+        createTimeDesc: true
+      }
     };
     $.postPage(requestJson);
   },
@@ -29,6 +27,9 @@ jQuery.extend({
       var requestJson = {
         pageNum: 1,
         pageSize: 20,
+        filter: {
+          createTimeDesc: true
+        },
         data: [
           {
             section: $("#section-nav").attr("section-sign"),
@@ -42,10 +43,12 @@ jQuery.extend({
       var requestJson = {
         pageNum: 1,
         pageSize: 20,
+        filter: {
+          topicEssential: true
+        },
         data: [
           {
-            section: $("#section-nav").attr("section-sign"),
-            recommendedStatus: true
+            section: $("#section-nav").attr("section-sign")
           },
         ],
       };
@@ -94,6 +97,31 @@ jQuery.extend({
           });
         } else {
           var $nav = $("#section-nav");
+
+          var $span = $("<span/>", {
+            class: "text-black-50",
+            html: "全部"
+          });
+          var $a = $("<a/>", {
+            class: "nav-link",
+            href: "javascript:void(0)",
+          }).click(function () {
+            $("#section-nav").attr("section-sign", null)
+            var requestJson = {
+              pageNum: 1,
+              pageSize: 20
+            };
+            $.postPage(requestJson);
+          });
+
+          var $li = $("<li/>", {
+            class: "nav-item",
+          });
+
+          $a.append($span);
+          $li.append($a);
+          $nav.append($li);
+
           $.each(result.data, function (index, section) {
             var $span = $("<span/>", {
               class: "text-black-50",
@@ -150,13 +178,11 @@ jQuery.extend({
           var $selectSection = $("#selectSection");
 
           $.each(result.data, function (index, section) {
-            if (index !== 0) {
-              var $option = $("<option/>", {
-                value: section.sectionId,
-                html: section.sectionName,
-              });
-              $selectSection.append($option);
-            }
+            var $option = $("<option/>", {
+              value: section.sectionId,
+              html: section.sectionName,
+            });
+            $selectSection.append($option);
           });
         }
       }
@@ -825,10 +851,10 @@ jQuery.extend({
             $("#like-count").html(data.likeCount);
             $("#comment-count").html(data.commentCount + "&nbsp;个回复");
 
-            var commentDTOList = data.commentDTOList;
+            var commentVOList = data.commentVOList;
             var $commentList = $("#comment-list");
 
-            $.each(commentDTOList, function (index, commentDTO) {
+            $.each(commentVOList, function (index, commentDTO) {
               var $commentDiv = $("<div/>", {
                 class: "row mx-lg-2 my-lg-3",
               });
@@ -917,8 +943,7 @@ jQuery.extend({
                 var requestJson = {
                   data: [
                     {
-                      parentId: commentDTO.commentId,
-                      commentType: "2",
+                      parentId: commentDTO.commentId
                     },
                   ],
                 };
@@ -926,7 +951,7 @@ jQuery.extend({
                 $.ajax({
                   contentType: "application/json",
                   type: "POST",
-                  url: "/community/comment/list",
+                  url: "/community/comment/second/list",
                   dataType: "json",
                   data: JSON.stringify(requestJson),
                   success: function (result) {

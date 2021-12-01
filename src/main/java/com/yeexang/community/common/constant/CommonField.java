@@ -14,9 +14,19 @@ public class CommonField {
     public static final String TOKEN = "token";
 
     /**
+     * redis 默认值
+     */
+    public static final String REDIS_DEFAULT_VALUE = "#null";
+
+    /**
      * topic_visit_count 常量
      */
     public static final String TOPIC_VISIT_COUNT_CONSTANT = "topic_visit_count_constant";
+
+    /**
+     * topic 展示全部
+     */
+    public static final String TOPIC_ALL = "#all";
 
     /**
      * 用户账户

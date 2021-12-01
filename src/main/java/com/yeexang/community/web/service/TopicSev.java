@@ -1,10 +1,14 @@
 package com.yeexang.community.web.service;
 
 import com.github.pagehelper.PageInfo;
+import com.yeexang.community.common.filter.Filter;
 import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.po.Topic;
+import com.yeexang.community.pojo.vo.PageVO;
+import com.yeexang.community.pojo.vo.TopicVO;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 帖子管理 Service
@@ -15,48 +19,32 @@ import java.util.List;
 public interface TopicSev {
 
     /**
-     * 分页获取
-     * @param pageNum 页码
-     * @param pageSize 分页大小
-     * @param topicDTO 筛选条件
+     * 获取帖子信息
+     * @param pageNum pageNum
+     * @param pageSize pageSize
+     * @param topicDTO topicDTO
+     * @param filter filter
      * @return PageInfo<Topic>
      */
-    PageInfo<Topic> getPage(Integer pageNum, Integer pageSize, TopicDTO topicDTO);
-
-    /**
-     * 获取帖子
-     * @param topicDTO topicDTO
-     * @return List<Topic>
-     */
-    List<Topic> getTopic(TopicDTO topicDTO);
+    PageVO<TopicVO> getTopicList(Integer pageNum, Integer pageSize, TopicDTO topicDTO, Filter filter);
 
     /**
      * 访问帖子
-     * @param topicDTO topicDTO
-     * @return List<Topic>
+     * @param topicId topicId
+     * @return Optional<Topic>
      */
-    List<Topic> visit(TopicDTO topicDTO, String  ipAddr);
+    Optional<TopicVO> visit(String topicId, String ipAddr);
 
     /**
      * 发布帖子
      * @param topicDTO topicDTO
-     * @param account account
-     * @return List<Topic>
+     * @return Optional<Topic>
      */
-    List<Topic> publish(TopicDTO topicDTO, String account);
+    Optional<TopicVO> publish(TopicDTO topicDTO);
 
     /**
-     * 点赞
-     * @param topicDTO topicDTO
-     * @param account account
-     * @return List<Topic>
+     * 增加评论次数
+     * @param topicId topicId
      */
-    List<Topic> like(TopicDTO topicDTO, String account);
-
-    /**
-     * 获取帖子列表
-     * @param topicDTO topicDTO
-     * @return List<Topic>
-     */
-    List<Topic> getList(TopicDTO topicDTO);
+    void topicCommentCountIncrease(String topicId);
 }

@@ -1,5 +1,6 @@
 package com.yeexang.community.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yeexang.community.pojo.po.User;
 import org.springframework.stereotype.Repository;
 
@@ -11,14 +12,6 @@ import java.util.List;
  * @author yeeq
  * @date 2021/7/20
  */
-@Repository
-public interface UserDao {
+public interface UserDao extends BaseMapper<User> {
 
-    void insert(User user);
-
-    void delete(User user);
-
-    void update(User user);
-
-    List<User> select(User user);
 }

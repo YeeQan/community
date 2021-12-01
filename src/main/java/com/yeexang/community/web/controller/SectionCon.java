@@ -1,11 +1,9 @@
 package com.yeexang.community.web.controller;
 
-import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
-import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.SectionDTO;
-import com.yeexang.community.pojo.po.Section;
+import com.yeexang.community.pojo.vo.SectionVO;
 import com.yeexang.community.web.service.SectionSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -17,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author yeeq
@@ -35,32 +31,17 @@ public class SectionCon {
 
     @PostMapping("list")
     @ApiOperation(value = "获取分区列表")
-    public ResponseEntity<SectionDTO> list(@RequestBody(required = false) RequestEntity<SectionDTO> requestEntity) {
+    public ResponseEntity<SectionVO> list(@RequestBody(required = false) RequestEntity<SectionDTO> requestEntity) {
 
         SectionDTO sectionDTO;
-        if (requestEntity == null || requestEntity.getData() == null
-                || requestEntity.getData().isEmpty()) {
+        if (requestEntity == null || requestEntity.getData() == null || requestEntity.getData().isEmpty()) {
             sectionDTO = new SectionDTO();
         } else {
             sectionDTO = requestEntity.getData().get(0);
         }
 
-        List<Section> sectionList = sectionSev.getSection(sectionDTO);
+        List<SectionVO> sectionVOList = sectionSev.getSectionList(sectionDTO);
 
-        if (sectionList.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
-        }
-
-        List<SectionDTO> sectionDTOList = sectionList.stream()
-                .map(section -> {
-                    SectionDTO dto = null;
-                    Optional<BaseDTO> optional = section.toDTO();
-                    if (optional.isPresent()) {
-                        dto = (SectionDTO) optional.get();
-                    }
-                    return dto;
-                }).collect(Collectors.toList());
-
-        return new ResponseEntity<>(sectionDTOList);
+        return new ResponseEntity<>(sectionVOList);
     }
 }

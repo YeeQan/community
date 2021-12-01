@@ -19,8 +19,6 @@ import java.util.Optional;
 @Data
 @Slf4j
 @EqualsAndHashCode(callSuper = false)
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserDTO extends BaseDTO {
 
     private String account;

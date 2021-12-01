@@ -1,24 +1,19 @@
 package com.yeexang.community.web.controller;
 
-import com.github.pagehelper.PageInfo;
-import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.ServerStatusCode;
+import com.yeexang.community.common.filter.Filter;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.IpUtil;
-import com.yeexang.community.pojo.dto.*;
-import com.yeexang.community.pojo.po.Comment;
-import com.yeexang.community.pojo.po.Topic;
-import com.yeexang.community.pojo.po.User;
-import com.yeexang.community.web.service.CommentSev;
+import com.yeexang.community.pojo.dto.SectionDTO;
+import com.yeexang.community.pojo.dto.TopicDTO;
+import com.yeexang.community.pojo.vo.PageVO;
+import com.yeexang.community.pojo.vo.TopicVO;
 import com.yeexang.community.web.service.SectionSev;
 import com.yeexang.community.web.service.TopicSev;
-import com.yeexang.community.web.service.UserSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.net.IPv6Utils;
-import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author yeeq
@@ -48,164 +42,59 @@ public class TopicCon {
     private SectionSev sectionSev;
 
     @Autowired
-    private CommentSev commentSev;
-
-    @Autowired
-    private UserSev userSev;
-
-    @Autowired
     private IpUtil ipUtil;
 
     @PostMapping("page")
     @ApiOperation(value = "获取帖子分页")
-    public ResponseEntity<?> page(@RequestBody RequestEntity<TopicDTO> requestEntity) {
+    public ResponseEntity<PageVO> page(@RequestBody RequestEntity<TopicDTO> requestEntity) {
+
+        TopicDTO topicDTO;
+        List<TopicDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty()) {
+            topicDTO = new TopicDTO();
+        } else {
+            topicDTO = data.get(0);
+        }
 
         Integer pageNum = requestEntity.getPageNum();
         Integer pageSize = requestEntity.getPageSize();
+        Filter filter = requestEntity.getFilter();
+        PageVO<TopicVO> pageVO = topicSev.getTopicList(pageNum, pageSize, topicDTO, filter);
 
-        TopicDTO topicDTO;
-        List<TopicDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
-            topicDTO = new TopicDTO();
-        } else {
-            topicDTO = data.get(0);
-        }
-
-        PageInfo pageInfo = topicSev.getPage(pageNum, pageSize, topicDTO);
-
-        if (pageInfo != null && pageInfo.getTotal() > 0) {
-            List<Topic> topicList = pageInfo.getList();
-            List<TopicDTO> topicDTOList = topicList.stream()
-                    .map(topic -> {
-                        TopicDTO dto = null;
-                        Optional<BaseDTO> optional = topic.toDTO();
-                        if (optional.isPresent()) {
-                            dto = (TopicDTO) optional.get();
-                            // 设置用户头像
-                            UserDTO userDTO = new UserDTO();
-                            userDTO.setAccount(dto.getCreateUser());
-                            User user = userSev.getUser(userDTO).get(0);
-                            dto.setHeadPortrait(user.getHeadPortrait());
-                        }
-                        return dto;
-                    }).collect(Collectors.toList());
-            pageInfo.setList(topicDTOList);
-        }
-
-        return new ResponseEntity<>(pageInfo);
-    }
-
-    @PostMapping("list")
-    @ApiOperation(value = "获取帖子列表")
-    public ResponseEntity<TopicDTO> list(@RequestBody RequestEntity<TopicDTO> requestEntity) {
-
-        TopicDTO topicDTO;
-        List<TopicDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
-            topicDTO = new TopicDTO();
-        } else {
-            topicDTO = data.get(0);
-        }
-
-        List<Topic> topicList = topicSev.getList(topicDTO);
-
-        if (topicList.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
-        }
-
-        List<TopicDTO> topicDTOList = topicList.stream()
-                .map(topic -> {
-                    TopicDTO dto = null;
-                    Optional<BaseDTO> optional = topic.toDTO();
-                    if (optional.isPresent()) {
-                        dto = (TopicDTO) optional.get();
-                        // 设置用户头像
-                        UserDTO userDTO = new UserDTO();
-                        userDTO.setAccount(dto.getCreateUser());
-                        User user = userSev.getUser(userDTO).get(0);
-                        dto.setHeadPortrait(user.getHeadPortrait());
-                    }
-                    return dto;
-                }).collect(Collectors.toList());
-
-        return new ResponseEntity<>(topicDTOList);
+        return new ResponseEntity<>(pageVO);
     }
 
     @PostMapping("visit")
     @ApiOperation(value = "访问帖子")
-    public ResponseEntity<TopicDTO> visit(@RequestBody RequestEntity<TopicDTO> requestEntity,
+    public ResponseEntity<TopicVO> visit(@RequestBody RequestEntity<TopicDTO> requestEntity,
                                           HttpServletRequest request) {
 
         TopicDTO topicDTO;
         List<TopicDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
+        if (data == null || data.isEmpty() || data.get(0) == null) {
             return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
         } else {
             topicDTO = data.get(0);
         }
 
-        List<Topic> topicList = topicSev.visit(topicDTO, ipUtil.getIpAddr(request));
+        Optional<TopicVO> optional = topicSev.visit(topicDTO.getTopicId(), ipUtil.getIpAddr(request));
 
-        List<TopicDTO> topicDTOList = topicList.stream()
-                .map(topic -> {
-                    TopicDTO dto = null;
-                    Optional<BaseDTO> optional = topic.toDTO();
-                    if (optional.isPresent()) {
-                        dto = (TopicDTO) optional.get();
-                    }
-                    return dto;
-                }).collect(Collectors.toList());
-
-        if (topicDTOList.isEmpty()) {
+        if (optional.isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
         }
 
-        topicDTOList.forEach(dto -> {
-            // 设置用户名和头像
-            UserDTO userDTO = new UserDTO();
-            userDTO.setAccount(dto.getCreateUser());
-            User user = userSev.getUser(userDTO).get(0);
-            dto.setCreateUserName(user.getUsername());
-            dto.setHeadPortrait(user.getHeadPortrait());
-            // 设置评论
-            CommentDTO commentDTO = new CommentDTO();
-            commentDTO.setParentId(dto.getTopicId());
-            commentDTO.setCommentType(CommonField.FIRST_LEVEL_COMMENT);
-            List<Comment> commentList = commentSev.getCommentList(commentDTO);
-            List<CommentDTO> commentDTOList = commentList.stream()
-                    .map(comment -> {
-                        CommentDTO cdto = null;
-                        Optional<BaseDTO> optional = comment.toDTO();
-                        if (optional.isPresent()) {
-                            cdto = (CommentDTO) optional.get();
-                            UserDTO param = new UserDTO();
-                            param.setAccount(cdto.getCreateUser());
-                            List<User> userList = userSev.getUser(param);
-                            if (!userList.isEmpty()) {
-                                User user1 = userList.get(0);
-                                cdto.setCreateUsername(user1.getUsername());
-                                cdto.setHeadPortrait(user1.getHeadPortrait());
-                            }
-                        }
-                        return cdto;
-                    }).collect(Collectors.toList());
-            dto.setCommentDTOList(commentDTOList);
-        });
-
-
-
-        return new ResponseEntity<>(topicDTOList);
+        return new ResponseEntity<>(optional.get());
     }
 
     @PostMapping("publish")
     @ApiOperation(value = "发布帖子")
-    public ResponseEntity<TopicDTO> publish(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
+    public ResponseEntity<TopicVO> publish(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
 
         String account = request.getAttribute("account").toString();
 
         TopicDTO topicDTO;
         List<TopicDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
+        if (data == null || data.isEmpty() || data.get(0) == null) {
             return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
         } else {
             topicDTO = data.get(0);
@@ -229,37 +118,22 @@ public class TopicCon {
         }
         SectionDTO sectionDTO = new SectionDTO();
         sectionDTO.setSectionId(topicDTO.getSection());
-        if (sectionSev.getSection(sectionDTO).isEmpty()) {
+        if (sectionSev.getSectionList(sectionDTO).isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.SECTION_NOT_EXIST);
         }
 
-        // 发布
-        List<Topic> topicList = topicSev.publish(topicDTO, account);
-        if (topicList.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
+        topicDTO.setCreateUser(account);
+        topicDTO.setUpdateUser(account);
+        Optional<TopicVO> optional = topicSev.publish(topicDTO);
+
+        if (optional.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
         }
 
-        List<TopicDTO> topicDTOList = topicList.stream()
-                .map(topic -> {
-                    TopicDTO dto = null;
-                    Optional<BaseDTO> optional = topic.toDTO();
-                    if (optional.isPresent()) {
-                        dto = (TopicDTO) optional.get();
-                        UserDTO param = new UserDTO();
-                        param.setAccount(dto.getCreateUser());
-                        List<User> userList = userSev.getUser(param);
-                        if (!userList.isEmpty()) {
-                            String username = userList.get(0).getUsername();
-                            dto.setCreateUserName(username);
-                        }
-                    }
-                    return dto;
-                }).collect(Collectors.toList());
-
-        return new ResponseEntity<>(topicDTOList);
+        return new ResponseEntity<>(optional.get());
     }
 
-    @PostMapping("like")
+    /*@PostMapping("like")
     @ApiOperation(value = "点赞帖子")
     public ResponseEntity<TopicDTO> like(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
 
@@ -282,12 +156,12 @@ public class TopicCon {
         List<TopicDTO> topicDTOList = topicList.stream()
                 .map(topic -> {
                     TopicDTO dto = null;
-                    Optional<BaseDTO> optional = topic.toDTO();
+                    Optional<BaseDTO> optional = topic.toVO();
                     if (optional.isPresent()) {
                         dto = (TopicDTO) optional.get();
                         UserDTO param = new UserDTO();
                         param.setAccount(dto.getCreateUser());
-                        List<User> userList = userSev.getUser(param);
+                        List<User> userList = userSev.selectUser(param);
                         if (!userList.isEmpty()) {
                             String username = userList.get(0).getUsername();
                             dto.setCreateUserName(username);
@@ -297,5 +171,5 @@ public class TopicCon {
                 }).collect(Collectors.toList());
 
         return new ResponseEntity<>(topicDTOList);
-    }
+    }*/
 }

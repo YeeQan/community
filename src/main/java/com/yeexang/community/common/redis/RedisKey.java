@@ -13,8 +13,13 @@ import java.time.Duration;
 
 public enum RedisKey {
 
-    SECTION(null),
-    TOPIC_VISIT_COUNT(Duration.ofHours(1L));
+    USER(Duration.ofDays(7)),
+    SECTION(Duration.ofDays(7)),
+    TOPIC(Duration.ofDays(7)),
+    COMMENT(Duration.ofDays(7)),
+    TOPIC_VISIT_COUNT_LIMIT(Duration.ofHours(1L)),
+    TOPIC_LIKE_COUNT_LIMIT(null);
+
 
     /**
      * key 的 value 的 expire 时间,如果为 null，表示 value 永远不过期

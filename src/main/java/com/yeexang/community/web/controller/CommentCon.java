@@ -1,16 +1,12 @@
 package com.yeexang.community.web.controller;
 
+import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
-import com.yeexang.community.common.util.DateUtil;
-import com.yeexang.community.pojo.dto.BaseDTO;
 import com.yeexang.community.pojo.dto.CommentDTO;
-import com.yeexang.community.pojo.dto.UserDTO;
-import com.yeexang.community.pojo.po.Comment;
-import com.yeexang.community.pojo.po.User;
+import com.yeexang.community.pojo.vo.CommentVO;
 import com.yeexang.community.web.service.CommentSev;
-import com.yeexang.community.web.service.UserSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author yeeq
@@ -38,54 +34,49 @@ public class CommentCon {
     @Autowired
     private CommentSev commentSev;
 
-    @Autowired
-    private UserSev userSev;
-
-    @PostMapping("list")
-    @ApiOperation(value = "获取评论列表")
-    public ResponseEntity<CommentDTO> list(@RequestBody RequestEntity<CommentDTO> requestEntity) {
+    @PostMapping("first/list")
+    @ApiOperation(value = "获取一级评论列表")
+    public ResponseEntity<CommentVO> firstCommentList(@RequestBody RequestEntity<CommentDTO> requestEntity) {
 
         CommentDTO commentDTO;
         List<CommentDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
-            commentDTO = new CommentDTO();
+        if (data == null || data.isEmpty() || data.get(0) == null) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
         } else {
             commentDTO = data.get(0);
         }
 
-        List<Comment> commentList = commentSev.getCommentList(commentDTO);
+        List<CommentVO> commentVOList = commentSev.getFirstLevelComment(commentDTO);
 
-        List<CommentDTO> commentDTOList = commentList.stream()
-                .map(comment -> {
-                    CommentDTO dto = null;
-                    Optional<BaseDTO> optional = comment.toDTO();
-                    if (optional.isPresent()) {
-                        dto = (CommentDTO) optional.get();
-                        UserDTO param = new UserDTO();
-                        param.setAccount(dto.getCreateUser());
-                        List<User> userList = userSev.getUser(param);
-                        if (!userList.isEmpty()) {
-                            User user = userList.get(0);
-                            dto.setCreateUsername(user.getUsername());
-                            dto.setHeadPortrait(user.getHeadPortrait());
-                        }
-                    }
-                    return dto;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(commentDTOList);
+        return new ResponseEntity<>(commentVOList);
+    }
+
+    @PostMapping("second/list")
+    @ApiOperation(value = "获取二级评论列表")
+    public ResponseEntity<CommentVO> secondCommentList(@RequestBody RequestEntity<CommentDTO> requestEntity) {
+
+        CommentDTO commentDTO;
+        List<CommentDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty() || data.get(0) == null) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+        } else {
+            commentDTO = data.get(0);
+        }
+
+        List<CommentVO> commentVOList = commentSev.getSecondLevelComment(commentDTO);
+
+        return new ResponseEntity<>(commentVOList);
     }
 
     @PostMapping("publish")
     @ApiOperation(value = "发布评论")
-    public ResponseEntity<CommentDTO> publish(@RequestBody RequestEntity<CommentDTO> requestEntity, HttpServletRequest request) {
+    public ResponseEntity<CommentVO> publish(@RequestBody RequestEntity<CommentDTO> requestEntity, HttpServletRequest request) {
 
-        String account = request.getAttribute("account").toString();
+        String account = request.getAttribute(CommonField.ACCOUNT).toString();
 
         CommentDTO commentDTO;
         List<CommentDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
+        if (data == null || data.isEmpty() || data.get(0) == null) {
             return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
         } else {
             commentDTO = data.get(0);
@@ -99,33 +90,18 @@ public class CommentCon {
             return new ResponseEntity<>(ServerStatusCode.COMMENT_CONTENT_TOO_LONG);
         }
 
-        List<Comment> commentList = commentSev.publish(commentDTO, account);
-        if (commentList.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
+        commentDTO.setCreateUser(account);
+        commentDTO.setUpdateUser(account);
+        Optional<CommentVO> commentVOP = commentSev.publish(commentDTO);
+
+        if (commentVOP.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
         }
 
-        List<CommentDTO> commentDTOList = commentList.stream()
-                .map(comment -> {
-                    CommentDTO dto = null;
-                    Optional<BaseDTO> optional = comment.toDTO();
-                    if (optional.isPresent()) {
-                        dto = (CommentDTO) optional.get();
-                        UserDTO param = new UserDTO();
-                        param.setAccount(dto.getCreateUser());
-                        List<User> userList = userSev.getUser(param);
-                        if (!userList.isEmpty()) {
-                            User user = userList.get(0);
-                            dto.setCreateUsername(user.getUsername());
-                            dto.setHeadPortrait(user.getHeadPortrait());
-                        }
-                    }
-                    return dto;
-                }).collect(Collectors.toList());
-
-        return new ResponseEntity<>(commentDTOList);
+        return new ResponseEntity<>(commentVOP.get());
     }
 
-    @PostMapping("like")
+    /*@PostMapping("like")
     @ApiOperation(value = "点赞评论")
     public ResponseEntity<CommentDTO> like(@RequestBody RequestEntity<CommentDTO> requestEntity, HttpServletRequest request) {
 
@@ -148,12 +124,12 @@ public class CommentCon {
         List<CommentDTO> commentDTOList = commentList.stream()
                 .map(comment -> {
                     CommentDTO dto = null;
-                    Optional<BaseDTO> optional = comment.toDTO();
+                    Optional<BaseDTO> optional = comment.toVO();
                     if (optional.isPresent()) {
                         dto = (CommentDTO) optional.get();
                         UserDTO param = new UserDTO();
                         param.setAccount(dto.getCreateUser());
-                        List<User> userList = userSev.getUser(param);
+                        List<User> userList = userSev.selectUser(param);
                         if (!userList.isEmpty()) {
                             User user = userList.get(0);
                             dto.setCreateUsername(user.getUsername());
@@ -164,5 +140,5 @@ public class CommentCon {
                 }).collect(Collectors.toList());
 
         return new ResponseEntity<>(commentDTOList);
-    }
+    }*/
 }

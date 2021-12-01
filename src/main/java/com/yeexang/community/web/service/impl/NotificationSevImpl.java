@@ -1,21 +1,9 @@
 package com.yeexang.community.web.service.impl;
 
-import com.yeexang.community.common.util.CommonUtil;
-import com.yeexang.community.dao.NotificationDao;
-import com.yeexang.community.pojo.dto.NotificationDTO;
-import com.yeexang.community.pojo.po.BasePO;
-import com.yeexang.community.pojo.po.Notification;
 import com.yeexang.community.web.service.NotificationSev;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * @author yeeq
@@ -26,7 +14,7 @@ import java.util.Optional;
 @Transactional(rollbackFor = Exception.class)
 public class NotificationSevImpl implements NotificationSev {
 
-    @Autowired
+    /*@Autowired
     private NotificationDao notificationDao;
 
     @Autowired
@@ -74,5 +62,5 @@ public class NotificationSevImpl implements NotificationSev {
             return new ArrayList<>();
         }
         return notificationList;
-    }
+    }*/
 }
