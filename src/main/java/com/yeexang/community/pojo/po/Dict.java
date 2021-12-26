@@ -82,10 +82,4 @@ public class Dict {
      */
     @TableField("update_user")
     private String updateUser;
-
-    /**
-     * 删除标识
-     */
-    @TableField("del_flag")
-    private Boolean delFlag;
 }

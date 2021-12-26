@@ -23,8 +23,8 @@ public class TopicVO extends BaseVO {
     private Boolean recommendedStatus;
     private String createTime;
     private String createUserName;
-    private String relativeDate;
     private String headPortrait;
+    private Boolean likeStatus;
 
     private List<CommentVO> commentVOList;
 }

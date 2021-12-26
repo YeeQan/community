@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 字典工具类
@@ -27,16 +28,27 @@ public class DictUtil {
     public List<Dict> getDictByType(String type) {
         List<Dict> dictList;
         try {
-            Dict dict = new Dict();
-            dict.setType(type);
             QueryWrapper<Dict> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("type", type);
             dictList = dictDao.selectList(queryWrapper);
             dictList.sort(Comparator.comparingInt(Dict::getSortFlag));
         } catch (Exception e) {
-            log.error("DictUtil getDictList errorMsg: {}", e.getMessage(), e);
+            log.error("DictUtil getDictByType errorMsg: {}", e.getMessage(), e);
             return new ArrayList<>();
         }
         return dictList;
+    }
+
+    public Optional<Dict> getDictByLabel(String label) {
+        Dict dict;
+        try {
+            QueryWrapper<Dict> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("label", label);
+            dict = dictDao.selectOne(queryWrapper);
+        } catch (Exception e) {
+            log.error("DictUtil getDictByLabel errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
+        return Optional.of(dict);
     }
 }

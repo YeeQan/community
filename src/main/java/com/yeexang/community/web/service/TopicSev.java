@@ -1,13 +1,10 @@
 package com.yeexang.community.web.service;
 
-import com.github.pagehelper.PageInfo;
 import com.yeexang.community.common.filter.Filter;
 import com.yeexang.community.pojo.dto.TopicDTO;
-import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.pojo.vo.PageVO;
 import com.yeexang.community.pojo.vo.TopicVO;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,10 +17,11 @@ public interface TopicSev {
 
     /**
      * 获取帖子信息
-     * @param pageNum pageNum
+     *
+     * @param pageNum  pageNum
      * @param pageSize pageSize
      * @param topicDTO topicDTO
-     * @param filter filter
+     * @param filter   filter
      * @return PageInfo<Topic>
      */
     PageVO<TopicVO> getTopicList(Integer pageNum, Integer pageSize, TopicDTO topicDTO, Filter filter);
@@ -31,9 +29,11 @@ public interface TopicSev {
     /**
      * 访问帖子
      * @param topicId topicId
+     * @param ipAddr ipAddr
+     * @param account account
      * @return Optional<Topic>
      */
-    Optional<TopicVO> visit(String topicId, String ipAddr);
+    Optional<TopicVO> visit(String topicId, String ipAddr, String account);
 
     /**
      * 发布帖子
@@ -47,4 +47,11 @@ public interface TopicSev {
      * @param topicId topicId
      */
     void topicCommentCountIncrease(String topicId);
+
+    /**
+     * 点赞
+     * @param topicDTO topicDTO
+     * @param account account
+     */
+    void like(TopicDTO topicDTO, String account);
 }

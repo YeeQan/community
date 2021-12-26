@@ -2,7 +2,6 @@ package com.yeexang.community.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.redis.RedisKey;
 import com.yeexang.community.dao.SectionDao;
 import com.yeexang.community.pojo.dto.SectionDTO;

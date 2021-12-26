@@ -1,5 +1,6 @@
 package com.yeexang.community.web.controller;
 
+import com.yeexang.community.common.annotation.RateLimiterAnnotation;
 import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
@@ -8,7 +9,9 @@ import com.yeexang.community.common.http.response.SevFuncResult;
 import com.yeexang.community.common.util.CookieUtil;
 import com.yeexang.community.common.util.JwtUtil;
 import com.yeexang.community.pojo.dto.UserDTO;
-import com.yeexang.community.pojo.vo.TopicVO;
+import com.yeexang.community.pojo.dto.UserHomepageDTO;
+import com.yeexang.community.pojo.po.UserHomepage;
+import com.yeexang.community.pojo.vo.UserHomepageVO;
 import com.yeexang.community.pojo.vo.UserVO;
 import com.yeexang.community.web.service.UserSev;
 import io.swagger.annotations.Api;
@@ -108,7 +111,7 @@ public class UserCon {
 
         UserDTO userDTO;
         List<UserDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
+        if (data == null || data.isEmpty() || data.get(0) == null) {
             return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
         } else {
             userDTO = data.get(0);
@@ -154,20 +157,21 @@ public class UserCon {
 
     @PostMapping("logout")
     @ApiOperation(value = "用户登出")
+    @RateLimiterAnnotation(permitsPerSecond = 1.0)
     public ResponseEntity<String> logout(HttpServletResponse response) {
         // 设置 Cookie 失效
         Optional<Cookie> optionalCookie = cookieUtil.getCookie(CommonField.TOKEN, null, 0);
-        if (optionalCookie.isPresent()) {
-            Cookie cookie = optionalCookie.get();
-            response.addCookie(cookie);
-            return new ResponseEntity<>(ServerStatusCode.SUCCESS);
-        } else {
+        if (optionalCookie.isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
         }
+        Cookie cookie = optionalCookie.get();
+        response.addCookie(cookie);
+        return new ResponseEntity<>(ServerStatusCode.SUCCESS);
     }
 
     @PostMapping("loginInfo")
     @ApiOperation(value = "登录状态信息")
+    @RateLimiterAnnotation(permitsPerSecond = 1.0)
     public ResponseEntity<UserVO> loginInfo(HttpServletRequest request) {
 
         String account = request.getAttribute(CommonField.ACCOUNT).toString();
@@ -182,20 +186,35 @@ public class UserCon {
         return new ResponseEntity<>(optional.get());
     }
 
-    @PostMapping("topicList")
-    @ApiOperation(value = "该用户发布的帖子")
-    public ResponseEntity<TopicVO> topicList(HttpServletRequest request) {
+    @PostMapping("person")
+    @ApiOperation(value = "用户个人主页")
+    @RateLimiterAnnotation(permitsPerSecond = 1.0)
+    public ResponseEntity<UserHomepageVO> homepage(@RequestBody RequestEntity<UserHomepageDTO> requestEntity, HttpServletRequest request) {
+
+        UserHomepageDTO userHomepageDTO;
+        List<UserHomepageDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty()
+                || data.get(0) == null || StringUtils.isEmpty(data.get(0).getHomepageId())) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+        } else {
+            userHomepageDTO = data.get(0);
+        }
 
         String account = request.getAttribute(CommonField.ACCOUNT).toString();
 
-        // 获取该用户发布的帖子
-        List<TopicVO> topicVOList = userSev.getTopicListByAccount(account);
+        // 加载该用户的个人主页
+        Optional<UserHomepageVO> optional = userSev.loadHomepage(account, userHomepageDTO.getHomepageId());
 
-        return new ResponseEntity<>(topicVOList);
+        if (optional.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+        }
+
+        return new ResponseEntity<>(optional.get());
     }
 
     @PostMapping("upload/headPortrait")
     @ApiOperation(value = "上传用户头像")
+    @RateLimiterAnnotation(permitsPerSecond = 1.0)
     public ResponseEntity<?> uploadHeadPortrait(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
 
         String account = request.getAttribute(CommonField.ACCOUNT).toString();

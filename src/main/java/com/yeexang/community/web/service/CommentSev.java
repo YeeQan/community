@@ -1,12 +1,9 @@
 package com.yeexang.community.web.service;
 
 import com.yeexang.community.pojo.dto.CommentDTO;
-import com.yeexang.community.pojo.po.Comment;
-import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.pojo.vo.CommentVO;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 评论管理 Service
@@ -36,15 +33,7 @@ public interface CommentSev {
      * 发布评论
      *
      * @param commentDTO commentDTO
-     * @return Optional<Comment>
-     */
-    Optional<CommentVO> publish(CommentDTO commentDTO);
-
-    /**
-     * 点赞
-     * @param commentDTO commentDTO
      * @param account account
-     * @return List<Comment>
      */
-    /*List<Comment> like(CommentDTO commentDTO, String account);*/
+    void publish(CommentDTO commentDTO, String account);
 }

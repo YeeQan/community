@@ -24,11 +24,6 @@ public class CommonField {
     public static final String TOPIC_VISIT_COUNT_CONSTANT = "topic_visit_count_constant";
 
     /**
-     * topic 展示全部
-     */
-    public static final String TOPIC_ALL = "#all";
-
-    /**
      * 用户账户
      */
     public static final String ACCOUNT = "account";
@@ -59,11 +54,6 @@ public class CommonField {
     public static final String NOTIFICATION_TYPE_LIKE_TOPIC = "3";
 
     /**
-     * 通知类型 —— 点赞评论
-     */
-    public static final String NOTIFICATION_TYPE_LIKE_COMMENT = "4";
-
-    /**
      * 账号必须由字母、数字、下划线组成，不能超过12位
      */
     public static final String ACCOUNT_FORMAT_REGULAR = "[a-zA-Z0-9_]{1,12}";
@@ -77,4 +67,24 @@ public class CommonField {
      * 密码格式必须由字母、数字、下划线组成，不能超过16位
      */
     public static final String PASSWORD_FORMAT_REGULAR = "[a-zA-Z0-9]{1,16}";
+
+    /**
+     * 用户动态类型 —— 发布帖子
+     */
+    public static final String USER_PUBLIC_TOPIC_DYNAMIC_TYPE = "1";
+
+    /**
+     * 用户动态类型 —— 发表评论
+     */
+    public static final String USER_PUBLIC_COMMENT_DYNAMIC_TYPE = "2";
+
+    /**
+     * 用户动态类型 —— 点赞帖子
+     */
+    public static final String USER_LIKE_TOPIC_DYNAMIC_TYPE = "3";
+
+    /**
+     * 用户动态类型 —— 用户注册
+     */
+    public static final String USER_REGISTER_DYNAMIC_TYPE = "4";
 }

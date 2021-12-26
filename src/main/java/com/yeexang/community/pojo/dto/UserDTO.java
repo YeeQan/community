@@ -2,10 +2,8 @@ package com.yeexang.community.pojo.dto;
 
 import com.yeexang.community.pojo.po.BasePO;
 import com.yeexang.community.pojo.po.User;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;

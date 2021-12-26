@@ -67,13 +67,8 @@ public abstract class BaseSev<Entity, ID> {
                     }
                 }
             }
-        }
-        if (rovOP.isPresent()) {
-            // 取出来的是默认值，返回空，表示不存在，否则返回值
-            Object valueObj = rovOP.get();
-            if (!CommonField.REDIS_DEFAULT_VALUE.equals(valueObj.toString())) {
-                entity = (Entity) valueObj;
-            }
+        } else {
+            entity = (Entity) rovOP.get();
         }
         return entity;
     }
@@ -93,7 +88,7 @@ public abstract class BaseSev<Entity, ID> {
             this.getBaseMapper().updateById(entity);
         }
         // 保存数据到 Redis 中
-        redisUtil.setObjectValue(getRedisKey(), id.toString(), entityDB);
+        redisUtil.setObjectValue(getRedisKey(), id.toString(), entity);
     }
 
     /**

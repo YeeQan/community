@@ -3,8 +3,6 @@ package com.yeexang.community.pojo.po;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yeexang.community.pojo.dto.BaseDTO;
-import com.yeexang.community.pojo.dto.SectionDTO;
 import com.yeexang.community.pojo.vo.BaseVO;
 import com.yeexang.community.pojo.vo.SectionVO;
 import lombok.Data;
@@ -67,12 +65,6 @@ public class Section extends BasePO {
      */
     @TableField("update_user")
     private String updateUser;
-
-    /**
-     * 删除标识
-     */
-    @TableField("del_flag")
-    private Boolean delFlag;
 
     @Override
     public Optional<BaseVO> toVO() {

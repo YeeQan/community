@@ -1,12 +1,12 @@
 package com.yeexang.community.common.filter;
 
-import lombok.Getter;
+import lombok.Data;
 
 /**
  * @author yeeq
  * @date 2021/11/30
  */
-@Getter
+@Data
 public class Filter {
 
     /**

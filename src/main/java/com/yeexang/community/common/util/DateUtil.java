@@ -1,6 +1,7 @@
 package com.yeexang.community.common.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
@@ -11,19 +12,20 @@ import java.util.Date;
  * @date 2021/10/11
  */
 @Slf4j
+@Component
 public class DateUtil {
 
-    private static final long ONE_MINUTE = 60000L;
-    private static final long ONE_HOUR = 3600000L;
-    private static final long ONE_DAY = 86400000L;
-    private static final long ONE_WEEK = 604800000L;
+    private final long ONE_MINUTE = 60000L;
+    private final long ONE_HOUR = 3600000L;
+    private final long ONE_DAY = 86400000L;
+    private final long ONE_WEEK = 604800000L;
 
-    private static final String ONE_SECOND_AGO = "秒前";
-    private static final String ONE_MINUTE_AGO = "分钟前";
-    private static final String ONE_HOUR_AGO = "小时前";
-    private static final String ONE_DAY_AGO = "天前";
-    private static final String ONE_MONTH_AGO = "月前";
-    private static final String ONE_YEAR_AGO = "年前";
+    private final String ONE_SECOND_AGO = "秒前";
+    private final String ONE_MINUTE_AGO = "分钟前";
+    private final String ONE_HOUR_AGO = "小时前";
+    private final String ONE_DAY_AGO = "天前";
+    private final String ONE_MONTH_AGO = "月前";
+    private final String ONE_YEAR_AGO = "年前";
 
     /**
      * 获取当前相对时间
@@ -31,7 +33,7 @@ public class DateUtil {
      * @param date date
      * @return relativeDate
      */
-    public static String relativeDateFormat(Date date) {
+    public String relativeDateFormat(Date date) {
         long delta = System.currentTimeMillis() - date.getTime();
         if (ONE_MINUTE > delta) {
             long seconds = toSeconds(delta);
@@ -61,27 +63,27 @@ public class DateUtil {
         }
     }
 
-    private static long toSeconds(long date) {
+    private long toSeconds(long date) {
         return date / 1000L;
     }
 
-    private static long toMinutes(long date) {
+    private long toMinutes(long date) {
         return toSeconds(date) / 60L;
     }
 
-    private static long toHours(long date) {
+    private long toHours(long date) {
         return toMinutes(date) / 60L;
     }
 
-    private static long toDays(long date) {
+    private long toDays(long date) {
         return toHours(date) / 24L;
     }
 
-    private static long toMonths(long date) {
+    private long toMonths(long date) {
         return toDays(date) / 30L;
     }
 
-    private static long toYears(long date) {
+    private long toYears(long date) {
         return toMonths(date) / 365L;
     }
 }

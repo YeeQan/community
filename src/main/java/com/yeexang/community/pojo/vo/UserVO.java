@@ -15,4 +15,5 @@ public class UserVO extends BaseVO {
 
     private String username;
     private String headPortrait;
+    private String homepageId;
 }

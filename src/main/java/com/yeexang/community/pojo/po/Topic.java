@@ -3,9 +3,6 @@ package com.yeexang.community.pojo.po;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yeexang.community.common.util.DateUtil;
-import com.yeexang.community.pojo.dto.BaseDTO;
-import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.vo.BaseVO;
 import com.yeexang.community.pojo.vo.TopicVO;
 import lombok.Data;
@@ -118,12 +115,6 @@ public class Topic extends BasePO {
     @TableField("update_user")
     private String updateUser;
 
-    /**
-     * 删除标识
-     */
-    @TableField("del_flag")
-    private Boolean delFlag;
-
     @Override
     public Optional<BaseVO> toVO() {
         TopicVO topicVO;
@@ -138,7 +129,6 @@ public class Topic extends BasePO {
             topicVO.setEssentialStatus(essentialStatus);
             topicVO.setRecommendedStatus(recommendedStatus);
             topicVO.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime));
-            topicVO.setRelativeDate(DateUtil.relativeDateFormat(createTime));
         } catch (Exception e) {
             log.error("Topic toVO errorMsg: {}", e.getMessage(), e);
             return Optional.empty();

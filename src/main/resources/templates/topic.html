@@ -36,9 +36,8 @@
               <!-- 帖子内容 -->
               <div class="col-lg-12" id="topic-content"></div>
               <div class="col-lg-12 mb-lg-3">
-                <span>
-                  <i class="bi bi-hand-thumbs-up-fill"></i>&nbsp;&nbsp;
-                  <span id="like-count"></span>
+                <span id="topic-like">
+                  <i class="bi bi-hand-thumbs-up-fill" id="topic-like-icon"></i>&nbsp;&nbsp;
                 </span>
               </div>  
             </div>
@@ -60,6 +59,7 @@
               <div class="row mx-lg-4 my-lg-5">
                 <form class="w-100">
                   <div class="form-group">
+                    <label for="firstReplyInput"></label>
                     <textarea class="form-control" id="firstReplyInput" rows="3" style="resize: none"></textarea>
                   </div>
                   <button type="button" class="btn btn-primary pull-right" id="publishFirstComment">提交</button>

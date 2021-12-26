@@ -50,6 +50,9 @@ public class RedisUtil {
         String value;
         try {
             value = template.opsForValue().get(redisKey.getKey(id));
+            if (CommonField.REDIS_DEFAULT_VALUE.equals(value)) {
+                return Optional.empty();
+            }
         } catch (Exception e) {
             log.error("RedisUtil getValue errorMsg: {}", e.getMessage(), e);
             return Optional.empty();
@@ -72,10 +75,9 @@ public class RedisUtil {
             if (optional.isPresent()) {
                 String value = optional.get();
                 if (CommonField.REDIS_DEFAULT_VALUE.equals(value)) {
-                    parseObject = CommonField.REDIS_DEFAULT_VALUE;
-                } else {
-                    parseObject = JSON.parseObject(value, clazz);
+                    return Optional.empty();
                 }
+                parseObject = JSON.parseObject(value, clazz);
             }
         } catch (Exception e) {
             log.error("RedisUtil getObjectValue errorMsg: {}", e.getMessage(), e);

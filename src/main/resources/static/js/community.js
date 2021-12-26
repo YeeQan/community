@@ -267,7 +267,10 @@ jQuery.extend({
             });
           } else {
             var loginUsername = result.data[0].username;
+            var headPortrait = result.data[0].headPortrait;
+            var homepageId = result.data[0].homepageId;
             $("#loginUsername").html(loginUsername);
+            $("#userHomepage").attr("href", "/community/homepage/" + homepageId)
           }
         }
       },
@@ -379,45 +382,107 @@ jQuery.extend({
   /**
    * 渲染个人主页帖子列表
    */
-  renderUserTopicList: function (dataList) {
-    $("#homepage-list").empty()
+  renderUserDynamicList: function (dataList) {
+    $("#dynamic-list").empty()
     $.each(dataList, function (index, data) {
-      var $topicDiv = $("<div/>", {
+      var $dynamicDiv = $("<div/>", {
         class: "row border border-bottom-0 border-left-0 border-right-0 community-ele-border-color-grey"
       })
-      var $topicContent = $("<div/>", {
+      var $dynamicContent = $("<div/>", {
         class: "col-lg-12 my-lg-3"
       })
-      var $topicMedia = $("<div/>", {
+      var $dynamicMedia = $("<div/>", {
         class: "media"
       })
       var $mediaImg = $("<img/>", {
         src: data.headPortrait,
         class: "mr-lg-3 rounded-circle community-ele-width-50px community-ele-height-50px"
       })
-      var $mediaBody = $("<div/>", {
-        class: "media-body"
-      }).append($("<h6/>", {
-        class: "font-weight-bold",
-        html: data.createUserName
-        }))
-        .append($("<p/>", {
-          class: "small text-black-50",
-          html: data.relativeDate
-        }))
-        .append($("<p/>", {
+
+      var $mediaBody
+      if (data.dynamicType === "1") {
+        $mediaBody = $("<div/>", {
+          class: "media-body"
+        }).append($("<h6/>", {
           class: "font-weight-bold",
-          html: data.topicTitle
+          html: data.createUsername
         }))
-        .append($("<p/>", {
-          html: data.topicContent
+            .append($("<p/>", {
+              class: "small text-black-50",
+              html: data.relativeDate
+            }))
+            .append($("<p/>", {
+              html: "发布了帖子&nbsp;"
+            }).append($("<span/>", {
+              class: "font-weight-bold",
+              html: data.targetName
+            })))
+            .append($("<p/>", {
+              html: data.dynamicContent
+            }));
+      } else if (data.dynamicType === "2") {
+        $mediaBody = $("<div/>", {
+          class: "media-body"
+        }).append($("<h6/>", {
+          class: "font-weight-bold",
+          html: data.createUsername
         }))
-  
-      $topicMedia.append($mediaImg).append($mediaBody)
-      var $topicInfo = $("<div/>", {
+            .append($("<p/>", {
+              class: "small text-black-50",
+              html: data.relativeDate
+            }))
+            .append($("<p/>", {
+              html: "发布了对&nbsp;"
+            }).append($("<span/>", {
+              class: "font-weight-bold",
+              html: data.targetName
+            })).append($("<span/>", {
+              html: "&nbsp;的评论"
+            })))
+            .append($("<p/>", {
+              html: data.dynamicContent
+            }));
+      } else if (data.dynamicType === "3") {
+        $mediaBody = $("<div/>", {
+          class: "media-body"
+        }).append($("<h6/>", {
+          class: "font-weight-bold",
+          html: data.createUsername
+        }))
+            .append($("<p/>", {
+              class: "small text-black-50",
+              html: data.relativeDate
+            }))
+            .append($("<p/>", {
+              html: "点赞了帖子&nbsp;"
+            }).append($("<span/>", {
+              class: "font-weight-bold",
+              html: data.targetName
+            })))
+            .append($("<p/>", {
+              html: data.dynamicContent
+            }));
+      } else if (data.dynamicType === "4") {
+        $mediaBody = $("<div/>", {
+          class: "media-body"
+        }).append($("<h6/>", {
+          class: "font-weight-bold",
+          html: data.createUsername
+        }))
+            .append($("<p/>", {
+              class: "small text-black-50",
+              html: data.relativeDate
+            }))
+            .append($("<p/>", {
+              html: data.dynamicContent
+            }));
+      }
+
+      $dynamicMedia.append($mediaImg).append($mediaBody)
+      var $dynamicInfo = $("<div/>", {
         class: "row border border-bottom-0 border-left-0 border-right-0 community-ele-border-color-grey"
       })
-      var $topicLike = $("<div/>", {
+      var $dynamicLike = $("<div/>", {
         class: "col-lg-4 text-center mt-lg-3 border border-top-0 border-left-0 border-bottom-0 community-ele-border-color-grey"
       }).append($("<a/>", {
         href: "javascript:void(0)",
@@ -427,7 +492,7 @@ jQuery.extend({
       })).append($("<span/>", {
         html: "&nbsp;&nbsp;赞" 
       })))
-      var $topicConment = $("<div/>", {
+      var $dynamicConment = $("<div/>", {
         class: "col-lg-4 text-center mt-lg-3 border border-top-0 border-left-0 border-bottom-0 community-ele-border-color-grey"
       }).append($("<a/>", {
         href: "javascript:void(0)",
@@ -437,31 +502,40 @@ jQuery.extend({
       })).append($("<span/>", {
         html: "&nbsp;&nbsp;评论" 
       })))
-      var $topicFavorite = $("<div/>", {
+      var $dynamicShare = $("<div/>", {
         class: "col-lg-4 text-center mt-lg-3"
       }).append($("<a/>", {
         href: "javascript:void(0)",
         class: "text-black-50 small"
       }).append($("<i/>", {
-        class: "bi bi-bookmark-star"
+        class: "bi bi-share"
       })).append($("<span/>", {
-        html: "&nbsp;&nbsp;收藏" 
+        html: "&nbsp;&nbsp;分享"
       })))
-      $topicInfo.append($topicLike).append($topicConment).append($topicFavorite)
-      $topicContent.append($topicMedia).append($topicInfo)
-      $topicDiv.append($topicContent)
-      $("#homepage-list").append($topicDiv)
+      $dynamicInfo.append($dynamicLike).append($dynamicConment).append($dynamicShare)
+      $dynamicContent.append($dynamicMedia).append($dynamicInfo)
+      $dynamicDiv.append($dynamicContent)
+      $("#dynamic-list").append($dynamicDiv)
     })
   },
 
   /**
-   * 获取个人主页帖子列表
+   * 初始化个人主页
    */
-  postUserTopicList: function() {
+  initHomepage: function (homepageId) {
+    var requestJson = {
+      data: [
+        {
+          homepageId: homepageId,
+        },
+      ],
+    };
     $.ajax({
       contentType: "application/json",
       type: "POST",
-      url: "/community/user/topicList",
+      url: "/community/user/person",
+      dataType: "json",
+      data: JSON.stringify(requestJson),
       success: function (result) {
         if (result == null) {
           $.alert({
@@ -475,20 +549,13 @@ jQuery.extend({
               content: result.description,
             });
           } else {
-            $.renderUserTopicList(result.data)
+            var data = result.data[0]
+            $("#homepageHeadPortrait").attr("src", data.headPortrait)
+            $("#homepageUsername").html(data.username)
+            $.renderUserDynamicList(data.userDynamicVOList)
           }
         }
       },
-    })
-  },
-
-  /**
-   * 初始化个人主页
-   */
-  initHomepage: function () {
-    $.postUserTopicList()
-    $("#user-topic").click(function () {
-      $.postUserTopicList()
     })
   },
 
@@ -808,14 +875,6 @@ jQuery.extend({
             $("#topic-title").html(data.topicTitle);
             $("#topic-info")
               .append(
-                $("<a/>", {
-                  href: "javascript:void(0)",
-                }).append("<span/>", {
-                  class: "text-black-50",
-                  html: "编辑",
-                })
-              )
-              .append(
                 $("<span/>", {
                   html: "作者：" + data.createUserName + "&nbsp;&nbsp;&nbsp;",
                 })
@@ -825,6 +884,11 @@ jQuery.extend({
                   html: data.commentCount + "&nbsp;个回复&nbsp;&nbsp;&nbsp;",
                 })
               )
+              .append(
+                $("<span/>", {
+                  html: data.likeCount + "&nbsp;次点赞&nbsp;&nbsp;&nbsp;",
+                })
+                )
               .append(
                 $("<span/>", {
                   html: data.viewCount + "&nbsp;次浏览&nbsp;&nbsp;&nbsp;",
@@ -848,13 +912,44 @@ jQuery.extend({
               sequenceDiagram: true, // 默认不解析
             });
 
-            $("#like-count").html(data.likeCount);
+            if (data.likeStatus === true) {
+              $("#topic-like-icon").attr("class", "bi bi-hand-thumbs-up-fill");
+            } else {
+              $("#topic-like-icon").attr("class", "bi bi-hand-thumbs-up");
+            }
+            $("#topic-like").click( function () {
+              $.ajax({
+                contentType: "application/json",
+                type: "POST",
+                url: "/community/topic/like",
+                dataType: "json",
+                data: JSON.stringify(requestJson),
+                success: function (result) {
+                  if (result == null) {
+                    $.alert({
+                      title: "出错啦!",
+                      content: "请稍后再试！",
+                    });
+                  } else {
+                    if (result.code !== "2000") {
+                      $.alert({
+                        content: result.description,
+                      });
+                    } else if ($("#topic-like-icon").attr("class") === "bi bi-hand-thumbs-up") {
+                      $("#topic-like-icon").attr("class", "bi bi-hand-thumbs-up-fill");
+                    } else {
+                      $("#topic-like-icon").attr("class", "bi bi-hand-thumbs-up");
+                    }
+                  }
+                }
+              })
+            });
             $("#comment-count").html(data.commentCount + "&nbsp;个回复");
 
             var commentVOList = data.commentVOList;
             var $commentList = $("#comment-list");
 
-            $.each(commentVOList, function (index, commentDTO) {
+            $.each(commentVOList, function (index, commentVO) {
               var $commentDiv = $("<div/>", {
                 class: "row mx-lg-2 my-lg-3",
               });
@@ -863,7 +958,7 @@ jQuery.extend({
                   "media w-100",
               });
               var $img = $("<img/>", {
-                src: commentDTO.headPortrait,
+                src: commentVO.headPortrait,
                 class:
                   "mr-lg-3 rounded-circle community-ele-width-50px community-ele-height-50px",
               });
@@ -878,7 +973,7 @@ jQuery.extend({
                 }).append(
                   $("<span/>", {
                     class: "font-weight-bold text-dark",
-                    html: commentDTO.createUsername,
+                    html: commentVO.createUsername,
                   })
                 )
               );
@@ -886,7 +981,7 @@ jQuery.extend({
                 class: "mt-lg-1",
               }).append(
                 $("<span/>", {
-                  html: commentDTO.commentContent,
+                  html: commentVO.commentContent,
                 })
               );
               var $commentInfo = $("<div/>", {
@@ -899,21 +994,12 @@ jQuery.extend({
               var $commentCount = $("<span/>", {
                 html:
                   "&nbsp;&nbsp;" +
-                  commentDTO.commentCount +
-                  "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
-              });
-              var $likeIcon = $("<i/>", {
-                class: "bi bi-hand-thumbs-up-fill",
-              });
-              var $likeCount = $("<span/>", {
-                html:
-                  "&nbsp;&nbsp;" +
-                  commentDTO.likeCount +
+                  commentVO.commentCount +
                   "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
               });
               var $createTime = $("<span/>", {
                 class: "pull-right",
-                html: commentDTO.createTime,
+                html: commentVO.createTime,
               });
 
               var $secondCommentDiv = $("<div/>", {
@@ -926,8 +1012,6 @@ jQuery.extend({
               $commentInfo
                 .append($commentIcon)
                 .append($commentCount)
-                .append($likeIcon)
-                .append($likeCount)
                 .append($createTime);
               $mediaBody
                 .append($commentCreater)
@@ -943,7 +1027,7 @@ jQuery.extend({
                 var requestJson = {
                   data: [
                     {
-                      parentId: commentDTO.commentId
+                      parentId: commentVO.commentId
                     },
                   ],
                 };
@@ -971,7 +1055,7 @@ jQuery.extend({
                         var secondCommentDTOList = result.data;
                         $commentCount.html(
                           "&nbsp;&nbsp;" +
-                            commentDTO.commentCount +
+                            commentVO.commentCount +
                             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
                         );
                         $secondCommentDiv.empty();
@@ -1047,7 +1131,7 @@ jQuery.extend({
                       var requestJson = {
                         data: [
                           {
-                            parentId: commentDTO.commentId,
+                            parentId: commentVO.commentId,
                             commentContent: $("#secondReplyInput").val(),
                             commentType: "2",
                           },

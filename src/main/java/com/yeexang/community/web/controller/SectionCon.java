@@ -1,5 +1,6 @@
 package com.yeexang.community.web.controller;
 
+import com.yeexang.community.common.annotation.RateLimiterAnnotation;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.pojo.dto.SectionDTO;
@@ -31,6 +32,7 @@ public class SectionCon {
 
     @PostMapping("list")
     @ApiOperation(value = "获取分区列表")
+    @RateLimiterAnnotation(permitsPerSecond = 2.0)
     public ResponseEntity<SectionVO> list(@RequestBody(required = false) RequestEntity<SectionDTO> requestEntity) {
 
         SectionDTO sectionDTO;

@@ -1,21 +1,21 @@
 package com.yeexang.community.web.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.redis.RedisKey;
+import com.yeexang.community.common.task.UserPubComDynamicTask;
 import com.yeexang.community.common.util.CommonUtil;
+import com.yeexang.community.common.util.ThreadUtil;
 import com.yeexang.community.dao.CommentDao;
 import com.yeexang.community.pojo.dto.CommentDTO;
 import com.yeexang.community.pojo.po.BasePO;
 import com.yeexang.community.pojo.po.Comment;
 import com.yeexang.community.pojo.po.User;
+import com.yeexang.community.pojo.po.ext.CommentExt;
 import com.yeexang.community.pojo.vo.BaseVO;
 import com.yeexang.community.pojo.vo.CommentVO;
-import com.yeexang.community.pojo.vo.UserVO;
 import com.yeexang.community.web.service.CommentSev;
 import com.yeexang.community.web.service.TopicSev;
-import com.yeexang.community.web.service.UserSev;
 import com.yeexang.community.web.service.impl.base.BaseSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +43,10 @@ public class CommentSevImpl extends BaseSev<Comment, String> implements CommentS
     private CommonUtil commonUtil;
 
     @Autowired
-    private UserSev userSev;
+    private TopicSev topicSev;
 
     @Autowired
-    private TopicSev topicSev;
+    private ThreadUtil threadUtil;
 
     @Override
     protected RedisKey getRedisKey() {
@@ -65,34 +65,27 @@ public class CommentSevImpl extends BaseSev<Comment, String> implements CommentS
 
     @Override
     public List<CommentVO> getFirstLevelComment(CommentDTO commentDTO) {
-        List<CommentVO> commentVOList = new ArrayList<>();
+        List<CommentVO> commentVOList;
         try {
-            Optional<BasePO> basePOptional = commentDTO.toPO();
-            if (basePOptional.isPresent()) {
-                Comment comment = (Comment) basePOptional.get();
-                comment.setParentId(commentDTO.getParentId());
-                comment.setCommentType(CommonField.FIRST_LEVEL_COMMENT);
-                QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
-                queryWrapper.setEntity(comment);
-                List<Comment> commentList = commentDao.selectList(queryWrapper);
-                commentVOList = commentList.stream()
-                        .map(po -> {
-                            CommentVO vo = null;
-                            Optional<BaseVO> optional = po.toVO();
-                            if (optional.isPresent()) {
-                                vo = (CommentVO) optional.get();
-                                Optional<UserVO> userOP = userSev.getUserVOByAccount(po.getCreateUser());
-                                if (userOP.isPresent()) {
-                                    UserVO userVO = userOP.get();
-                                    vo.setCreateUsername(userVO.getUsername());
-                                    vo.setHeadPortrait(userVO.getHeadPortrait());
-                                }
+            List<CommentExt> commentExtList
+                    = commentDao.selectCommentListByParentIdAndType(commentDTO.getParentId(), CommonField.FIRST_LEVEL_COMMENT);
+            commentVOList = commentExtList.stream()
+                    .map(commentExt -> {
+                        Comment comment = commentExt.getComment();
+                        User user = commentExt.getUser();
+                        CommentVO commentVO = null;
+                        Optional<BaseVO> optional = comment.toVO();
+                        if (optional.isPresent()) {
+                            commentVO = (CommentVO) optional.get();
+                            if (user != null) {
+                                commentVO.setCreateUsername(user.getUsername());
+                                commentVO.setHeadPortrait(user.getHeadPortrait());
                             }
-                            return vo;
-                        })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-            }
+                        }
+                        return commentVO;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("CommentSev getFirstLevelComment errorMsg: {}", e.getMessage(), e);
             return new ArrayList<>();
@@ -102,34 +95,27 @@ public class CommentSevImpl extends BaseSev<Comment, String> implements CommentS
 
     @Override
     public List<CommentVO> getSecondLevelComment(CommentDTO commentDTO) {
-        List<CommentVO> commentVOList = new ArrayList<>();
+        List<CommentVO> commentVOList;
         try {
-            Optional<BasePO> basePOptional = commentDTO.toPO();
-            if (basePOptional.isPresent()) {
-                Comment comment = (Comment) basePOptional.get();
-                comment.setParentId(commentDTO.getParentId());
-                comment.setCommentType(CommonField.SECOND_LEVEL_COMMENT);
-                QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
-                queryWrapper.setEntity(comment);
-                List<Comment> commentList = commentDao.selectList(queryWrapper);
-                commentVOList = commentList.stream()
-                        .map(po -> {
-                            CommentVO vo = null;
-                            Optional<BaseVO> optional = po.toVO();
-                            if (optional.isPresent()) {
-                                vo = (CommentVO) optional.get();
-                                Optional<UserVO> userOP = userSev.getUserVOByAccount(po.getCreateUser());
-                                if (userOP.isPresent()) {
-                                    UserVO userVO = userOP.get();
-                                    vo.setCreateUsername(userVO.getUsername());
-                                    vo.setHeadPortrait(userVO.getHeadPortrait());
-                                }
+            List<CommentExt> commentExtList
+                    = commentDao.selectCommentListByParentIdAndType(commentDTO.getParentId(), CommonField.SECOND_LEVEL_COMMENT);
+            commentVOList = commentExtList.stream()
+                    .map(commentExt -> {
+                        Comment comment = commentExt.getComment();
+                        User user = commentExt.getUser();
+                        CommentVO commentVO = null;
+                        Optional<BaseVO> optional = comment.toVO();
+                        if (optional.isPresent()) {
+                            commentVO = (CommentVO) optional.get();
+                            if (user != null) {
+                                commentVO.setCreateUsername(user.getUsername());
+                                commentVO.setHeadPortrait(user.getHeadPortrait());
                             }
-                            return vo;
-                        })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-            }
+                        }
+                        return commentVO;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("CommentSev getSecondLevelComment errorMsg: {}", e.getMessage(), e);
             return new ArrayList<>();
@@ -138,8 +124,7 @@ public class CommentSevImpl extends BaseSev<Comment, String> implements CommentS
     }
 
     @Override
-    public Optional<CommentVO> publish(CommentDTO commentDTO) {
-        CommentVO commentVO = null;
+    public void publish(CommentDTO commentDTO, String account) {
         try {
             Optional<BasePO> optional = commentDTO.toPO();
             if (optional.isPresent()) {
@@ -151,7 +136,8 @@ public class CommentSevImpl extends BaseSev<Comment, String> implements CommentS
                 comment.setLikeCount(0);
                 comment.setCreateTime(new Date());
                 comment.setUpdateTime(new Date());
-                comment.setDelFlag(false);
+                comment.setCreateUser(account);
+                comment.setUpdateUser(account);
 
                 save(comment, comment.getCommentId());
 
@@ -168,24 +154,14 @@ public class CommentSevImpl extends BaseSev<Comment, String> implements CommentS
                         topicId = parent.getParentId();
                     }
                     topicSev.topicCommentCountIncrease(topicId);
-                    Optional<BaseVO> commentVOP = comment.toVO();
-                    if (commentVOP.isPresent()) {
-                        commentVO = (CommentVO) commentVOP.get();
-                        Optional<UserVO> userOP = userSev.getUserVOByAccount(comment.getCreateUser());
-                        if (userOP.isPresent()) {
-                            UserVO userVO = userOP.get();
-                            commentVO.setCreateUsername(userVO.getUsername());
-                            commentVO.setHeadPortrait(userVO.getHeadPortrait());
-                        }
-                    }
+                    // 异步保存动态
+                    threadUtil.execute(new UserPubComDynamicTask(comment));
                 }
             }
         } catch (Exception e) {
             log.error("CommentSev publish errorMsg: {}", e.getMessage(), e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return Optional.empty();
         }
-        return Optional.ofNullable(commentVO);
     }
 
     /**

@@ -2,4 +2,50 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.yeexang.community.dao.CommentDao">
 
+    <resultMap id="user_comment_map" type="com.yeexang.community.pojo.po.ext.CommentExt">
+        <association property="comment" javaType="com.yeexang.community.pojo.po.Comment">
+            <id property="commentId" column="comment_id"/>
+            <result property="id" column="id"/>
+            <result property="parentId" column="parent_id"/>
+            <result property="commentContent" column="comment_content"/>
+            <result property="commentCount" column="comment_count"/>
+            <result property="likeCount" column="like_count"/>
+            <result property="commentType" column="comment_type"/>
+            <result property="createTime" column="create_time"/>
+            <result property="createUser" column="create_user"/>
+            <result property="updateTime" column="update_time"/>
+            <result property="updateUser" column="update_user"/>
+        </association>
+        <association property="user" javaType="com.yeexang.community.pojo.po.User">
+            <id property="account" column="account"/>
+            <result property="id" column="id"/>
+            <result property="username" column="username"/>
+            <result property="password" column="password"/>
+            <result property="headPortrait" column="head_portrait"/>
+            <result property="createTime" column="create_time"/>
+            <result property="createUser" column="create_user"/>
+            <result property="updateTime" column="update_time"/>
+            <result property="updateUser" column="update_user"/>
+        </association>
+    </resultMap>
+
+    <select id="selectCommentListByParentIdAndType" resultType="com.yeexang.community.pojo.po.ext.CommentExt">
+        select
+            c.id,
+            c.comment_id,
+            c.parent_id,
+            c.comment_content,
+            c.comment_count,
+            c.like_count,
+            c.comment_type,
+            c.create_time,
+            c.create_user,
+            c.update_time,
+            c.update_user
+        from y_c_comment c
+        left join y_c_user u on c.create_user
+        where c.parent_id = #{parentId} and c.comment_type = #{commentType}
+        order by c.create_time desc
+    </select>
+
 </mapper>

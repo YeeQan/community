@@ -8,15 +8,20 @@ import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.filter.Filter;
 import com.yeexang.community.common.redis.RedisKey;
 import com.yeexang.community.common.redis.RedisUtil;
+import com.yeexang.community.common.task.UserLikeTopDynamicTask;
+import com.yeexang.community.common.task.UserPubTopDynamicTask;
 import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.common.util.FilterUtil;
+import com.yeexang.community.common.util.ThreadUtil;
 import com.yeexang.community.dao.TopicDao;
+import com.yeexang.community.dao.UserDynamicDao;
 import com.yeexang.community.pojo.dto.CommentDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.po.BasePO;
 import com.yeexang.community.pojo.po.Topic;
 import com.yeexang.community.pojo.vo.*;
 import com.yeexang.community.web.service.CommentSev;
+import com.yeexang.community.web.service.TopicLikeSev;
 import com.yeexang.community.web.service.TopicSev;
 import com.yeexang.community.web.service.UserSev;
 import com.yeexang.community.web.service.impl.base.BaseSev;
@@ -52,6 +57,9 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
     private TopicDao topicDao;
 
     @Autowired
+    private UserDynamicDao userDynamicDao;
+
+    @Autowired
     private CommonUtil commonUtil;
 
     @Autowired
@@ -59,6 +67,12 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
 
     @Autowired
     private FilterUtil filterUtil;
+
+    @Autowired
+    private TopicLikeSev topicLikeSev;
+
+    @Autowired
+    private ThreadUtil threadUtil;
 
     @Override
     protected RedisKey getRedisKey() {
@@ -125,7 +139,7 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
     }
 
     @Override
-    public Optional<TopicVO> visit(String topicId, String ipAddr) {
+    public Optional<TopicVO> visit(String topicId, String ipAddr, String account) {
         TopicVO topicVO = null;
         try {
             Topic topic = selectById(topicId);
@@ -146,6 +160,13 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
                         commentDTO.setParentId(topic.getTopicId());
                         List<CommentVO> firstLevelComment = commentSev.getFirstLevelComment(commentDTO);
                         topicVO.setCommentVOList(firstLevelComment);
+                        // 点赞状态
+                        if (account != null) {
+                            boolean likeStatus = topicLikeSev.getTopicLikeStatus(topicId, account);
+                            topicVO.setLikeStatus(likeStatus);
+                        } else {
+                            topicVO.setLikeStatus(false);
+                        }
                     }
                 }
             }
@@ -175,7 +196,6 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
                 topic.setLastCommentTime(new Date());
                 topic.setCreateTime(new Date());
                 topic.setUpdateTime(new Date());
-                topic.setDelFlag(false);
 
                 save(topic, topic.getTopicId());
                 topic = selectById(topicId);
@@ -184,11 +204,14 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
                 if (topicVOP.isPresent()) {
                     topicVO = (TopicVO) topicVOP.get();
                     Optional<UserVO> userVOP = userSev.getUserVOByAccount(topic.getCreateUser());
+
                     if (userVOP.isPresent()) {
                         UserVO userVO = userVOP.get();
                         topicVO.setCreateUserName(userVO.getUsername());
                         topicVO.setHeadPortrait(userVO.getHeadPortrait());
                     }
+                    // 异步保存动态
+                    threadUtil.execute(new UserPubTopDynamicTask(topic));
                 }
             }
         } catch (Exception e) {
@@ -198,39 +221,6 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
         }
         return Optional.ofNullable(topicVO);
     }
-
-    /*@Override
-    public List<Topic> like(TopicDTO topicDTO, String account) {
-        String topicId = topicDTO.getTopicId();
-        List<Topic> topicList = new ArrayList<>();
-        try {
-            topicDao.updateLikeCountIncrease(topicId);
-
-            Topic topicParam = new Topic();
-            topicParam.setTopicId(topicId);
-            List<Topic> topicDBList = topicDao.select(topicParam);
-            if (!topicDBList.isEmpty()) {
-                topicList.addAll(topicDBList);
-                Topic topicDB = topicDBList.get(0);
-                NotificationDTO notificationDTO = new NotificationDTO();
-                notificationDTO.setNotifier(account);
-                notificationDTO.setReceiver(topicDB.getCreateUser());
-                notificationDTO.setOuterId(topicDB.getTopicId());
-                notificationDTO.setNotificationType(CommonField.NOTIFICATION_TYPE_LIKE_TOPIC);
-                notificationSev.setNotify(notificationDTO);
-            }
-        } catch (Exception e) {
-            log.error("TopicSev like errorMsg: {}", e.getMessage());
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return new ArrayList<>();
-        }
-        return topicList;
-    }*/
-
-    /*@Override
-    public void topicCommentCountIncrease(List<Topic> topicList) {
-
-    }*/
 
     /**
      * 更新帖子评论次数
@@ -249,6 +239,33 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
             }
         } catch (Exception e) {
             log.error("TopicSev topicCommentCountIncrease errorMsg: {}", e.getMessage(), e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+    }
+
+    @Override
+    public void like(TopicDTO topicDTO, String account) {
+        try {
+            // 增加点赞数
+            Topic topic = selectById(topicDTO.getTopicId());
+            if (topic != null) {
+                boolean likeStatus = topicLikeSev.getTopicLikeStatus(topic.getTopicId(), account);
+                if (likeStatus) {
+                    topic.setLikeCount(topic.getLikeCount() - 1);
+                } else {
+                    topic.setLikeCount(topic.getLikeCount() + 1);
+                }
+                save(topic, topic.getTopicId());
+                // 异步保存动态
+                if (topicLikeSev.getTopicLikeOne(topic.getTopicId(), account).isEmpty()) {
+                    threadUtil.execute(new UserLikeTopDynamicTask(topic));
+                }
+                // 保存点赞记录
+                topicLikeSev.saveTopicLikeStatus(topic.getTopicId(), account);
+            }
+        } catch (Exception e) {
+            log.error("TopicSev like errorMsg: {}", e.getMessage(), e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }
 

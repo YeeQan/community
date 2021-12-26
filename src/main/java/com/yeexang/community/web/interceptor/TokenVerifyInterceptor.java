@@ -87,10 +87,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
                 return false;
             }
         } catch (Exception e) {
-            log.error("{} {} errorMsg: {}",
-                    this.getClass().getName(),
-                    Thread.currentThread().getStackTrace()[1].getMethodName(),
-                    e.getMessage(), e);
+            log.error("TokenVerifyInterceptor preHandle errorMsg: {}", e.getMessage(), e);
             // 验证失败，返回 401 状态码
             ResponseEntity<?> responseEntity = new ResponseEntity<>(ServerStatusCode.UNKNOWN);
             String json = JSON.toJSONString(responseEntity);

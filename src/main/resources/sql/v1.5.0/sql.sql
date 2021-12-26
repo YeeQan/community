@@ -11,7 +11,7 @@
  Target Server Version : 80018
  File Encoding         : 65001
 
- Date: 01/12/2021 15:57:48
+ Date: 26/12/2021 15:05:53
 */
 
 SET NAMES utf8mb4;
@@ -33,9 +33,12 @@ CREATE TABLE `y_c_comment`  (
   `create_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者，一般用account标识',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者，一般用account标识',
-  `del_flag` tinyint(1) NULL DEFAULT NULL COMMENT '逻辑删除标识，0为不删除，1为删除',
   PRIMARY KEY (`comment_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '评论表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of y_c_comment
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for y_c_dict
@@ -53,47 +56,16 @@ CREATE TABLE `y_c_dict`  (
   `create_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者，一般用account标识',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者，一般用account标识',
-  `del_flag` tinyint(1) NULL DEFAULT NULL COMMENT '逻辑删除标识，0为不删除，1为删除',
   PRIMARY KEY (`dict_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
--- Table structure for y_c_notification
+-- Records of y_c_dict
 -- ----------------------------
-DROP TABLE IF EXISTS `y_c_notification`;
-CREATE TABLE `y_c_notification`  (
-  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'id',
-  `notification_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '通知id',
-  `notifier` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '通知者',
-  `receiver` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '接收者',
-  `outer_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '通知所属id',
-  `notification_type` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '通知类型，1为评论帖子，2为回复评论',
-  `status` tinyint(1) NULL DEFAULT NULL COMMENT '状态，0为未读，1为已读',
-  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-  `create_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者，一般用account标识',
-  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-  `update_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者，一般用account标识',
-  `del_flag` tinyint(1) NULL DEFAULT NULL COMMENT '逻辑删除标识，0为不删除，1为删除',
-  PRIMARY KEY (`notification_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '通知表' ROW_FORMAT = DYNAMIC;
-
--- ----------------------------
--- Table structure for y_c_parameter
--- ----------------------------
-DROP TABLE IF EXISTS `y_c_parameter`;
-CREATE TABLE `y_c_parameter`  (
-  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'id',
-  `parameter_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '参数id',
-  `parameter_key` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '标签',
-  `parameter_value` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '值',
-  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '描述',
-  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-  `create_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者，一般用account标识',
-  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-  `update_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者，一般用account标识',
-  `del_flag` tinyint(1) NULL DEFAULT NULL COMMENT '逻辑删除标识，0为不删除，1为删除',
-  PRIMARY KEY (`parameter_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+INSERT INTO `y_c_dict` VALUES ('1', '1', 'user__head_portrait_monkey', 'https://comubucket.oss-cn-shenzhen.aliyuncs.com/static/headPortrait/default/yellow_monkey.jpg\r\n', 'user_default_head_portrait', '用户默认头像', 1, '2021-11-26 16:32:14', '123456', '2021-11-26 16:34:59', '123456');
+INSERT INTO `y_c_dict` VALUES ('2', '2', 'user_sex_male', '1', 'user_sex', '用户性别男', 1, '2021-12-18 12:52:26', '123456', '2021-12-18 12:52:33', '123456');
+INSERT INTO `y_c_dict` VALUES ('3', '3', 'user_sex_female', '0', 'user_sex', '用户性别女', 2, '2021-12-18 12:53:27', '123456', '2021-12-18 12:53:32', '123456');
+INSERT INTO `y_c_dict` VALUES ('4', '4', 'user_sex_unknown', '2', 'user_sex', '用户性别未知', 3, '2021-12-18 12:55:08', '123456', '2021-12-18 12:55:39', '123456');
 
 -- ----------------------------
 -- Table structure for y_c_section
@@ -107,9 +79,15 @@ CREATE TABLE `y_c_section`  (
   `create_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者，一般用account标识',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者，一般用account标识',
-  `del_flag` tinyint(1) NULL DEFAULT NULL COMMENT '逻辑删除标识，0为不删除，1为删除',
   PRIMARY KEY (`section_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '分区表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of y_c_section
+-- ----------------------------
+INSERT INTO `y_c_section` VALUES ('21aff85ed7774f10b763909oa767h9kw', '000001', '灌水', '2021-11-29 16:58:16', '123456_abc', '2021-11-29 16:58:29', '123456_abc');
+INSERT INTO `y_c_section` VALUES ('9iaff85ed7774f10b763909oa767h9kw', '000002', '技术', '2021-11-29 17:00:05', '123456_abc', '2021-11-29 17:00:17', '123456_abc');
+INSERT INTO `y_c_section` VALUES ('21aff85ed7774f10b76399oaa767h9kw', '000003', '工作', '2021-11-29 17:01:13', '123456_abc', '2021-11-29 17:01:23', '123456_abc');
 
 -- ----------------------------
 -- Table structure for y_c_topic
@@ -131,9 +109,28 @@ CREATE TABLE `y_c_topic`  (
   `create_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者，一般用account标识',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者，一般用account标识',
-  `del_flag` tinyint(1) NULL DEFAULT NULL COMMENT '逻辑删除标识，0为不删除，1为删除',
   PRIMARY KEY (`topic_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '帖子表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of y_c_topic
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for y_c_topic_like
+-- ----------------------------
+DROP TABLE IF EXISTS `y_c_topic_like`;
+CREATE TABLE `y_c_topic_like`  (
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'id',
+  `topic_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '帖子id',
+  `account` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT 'user账号',
+  `like_flag` tinyint(1) NOT NULL COMMENT '是否已经点赞',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of y_c_topic_like
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for y_c_user
@@ -149,8 +146,71 @@ CREATE TABLE `y_c_user`  (
   `create_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者，一般用account标识',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `update_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者，一般用account标识',
-  `del_flag` tinyint(1) NULL DEFAULT NULL COMMENT '逻辑删除标识，0为不删除，1为删除',
   PRIMARY KEY (`account`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of y_c_user
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for y_c_user_dynamic
+-- ----------------------------
+DROP TABLE IF EXISTS `y_c_user_dynamic`;
+CREATE TABLE `y_c_user_dynamic`  (
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'id',
+  `dynamic_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '动态id',
+  `account` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '用户id',
+  `target_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '目标id',
+  `dynamic_type` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '动态类型',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`dynamic_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of y_c_user_dynamic
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for y_c_user_homepage
+-- ----------------------------
+DROP TABLE IF EXISTS `y_c_user_homepage`;
+CREATE TABLE `y_c_user_homepage`  (
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'id',
+  `homepage_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '个人主页id',
+  `account` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '账号',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者',
+  PRIMARY KEY (`homepage_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of y_c_user_homepage
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for y_c_user_info
+-- ----------------------------
+DROP TABLE IF EXISTS `y_c_user_info`;
+CREATE TABLE `y_c_user_info`  (
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'id',
+  `account` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '账号',
+  `introduction` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '个人介绍',
+  `sex` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '性别',
+  `company` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '公司',
+  `position` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '职位',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `create_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者，一般用account标识',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_user` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者，一般用account标识',
+  PRIMARY KEY (`account`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of y_c_user_info
+-- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;

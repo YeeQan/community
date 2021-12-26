@@ -2,35 +2,33 @@ package com.yeexang.community.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.DictField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.response.AliyunOssResult;
-import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.http.response.SevFuncResult;
 import com.yeexang.community.common.redis.RedisKey;
-import com.yeexang.community.common.util.AliyunOssUtil;
-import com.yeexang.community.common.util.CommonUtil;
-import com.yeexang.community.common.util.DictUtil;
-import com.yeexang.community.dao.TopicDao;
-import com.yeexang.community.dao.UserDao;
+import com.yeexang.community.common.task.UserPubTopDynamicTask;
+import com.yeexang.community.common.task.UserRegisterTask;
+import com.yeexang.community.common.util.*;
+import com.yeexang.community.dao.*;
 import com.yeexang.community.pojo.dto.UserDTO;
-import com.yeexang.community.pojo.po.BasePO;
-import com.yeexang.community.pojo.po.Dict;
-import com.yeexang.community.pojo.po.Topic;
-import com.yeexang.community.pojo.po.User;
-import com.yeexang.community.pojo.vo.BaseVO;
-import com.yeexang.community.pojo.vo.TopicVO;
-import com.yeexang.community.pojo.vo.UserVO;
-import com.yeexang.community.web.service.impl.base.BaseSev;
+import com.yeexang.community.pojo.dto.UserInfoDTO;
+import com.yeexang.community.pojo.po.*;
+import com.yeexang.community.pojo.po.ext.UserHomepageExt;
+import com.yeexang.community.pojo.vo.*;
 import com.yeexang.community.web.service.UserSev;
+import com.yeexang.community.web.service.impl.base.BaseSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,7 +46,16 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
     private UserDao userDao;
 
     @Autowired
+    private UserHomepageDao userHomepageDao;
+
+    @Autowired
+    private UserInfoDao userInfoDao;
+
+    @Autowired
     private TopicDao topicDao;
+
+    @Autowired
+    private CommentDao commentDao;
 
     @Autowired
     private CommonUtil commonUtil;
@@ -58,6 +65,12 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
 
     @Autowired
     private AliyunOssUtil aliyunOssUtil;
+
+    @Autowired
+    private DateUtil dateUtil;
+
+    @Autowired
+    private ThreadUtil threadUtil;
 
     @Override
     protected RedisKey getRedisKey() {
@@ -89,10 +102,9 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
             if (userDB != null) {
                 return new SevFuncResult(false, "账号已存在", ServerStatusCode.USERNAME_EXIST);
             }
-            Optional<BasePO> optional = userDTO.toPO();
-            if (optional.isPresent()) {
-                selectById(userDTO.getAccount());
-                User user = (User) optional.get();
+            Optional<BasePO> userPOP = userDTO.toPO();
+            if (userPOP.isPresent()) {
+                User user = (User) userPOP.get();
                 // 避免重复注册
                 synchronized (this) {
                     user.setId(commonUtil.uuid());
@@ -110,8 +122,37 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
                     user.setCreateUser(user.getAccount());
                     user.setUpdateTime(new Date());
                     user.setUpdateUser(user.getAccount());
-                    user.setDelFlag(false);
                     save(user, user.getAccount());
+                    // 保存用户个人资料
+                    UserInfo userInfo = new UserInfo();
+                    userInfo.setId(commonUtil.uuid());
+                    userInfo.setAccount(user.getAccount());
+                    Optional<Dict> dictOptional = dictUtil.getDictByLabel(DictField.USER_SEX_UNKNOWN);
+                    if (dictOptional.isPresent()) {
+                        Dict dict = dictOptional.get();
+                        userInfo.setSex(dict.getValue());
+                    } else {
+                        userInfo.setSex("2");
+                    }
+                    userInfo.setAccount(user.getAccount());
+                    userInfo.setCreateTime(new Date());
+                    userInfo.setCreateUser(user.getAccount());
+                    userInfo.setUpdateTime(new Date());
+                    userInfo.setUpdateUser(user.getAccount());
+                    userInfoDao.insert(userInfo);
+                    // 创建个人主页
+                    UserHomepage userHomepage = new UserHomepage();
+                    userHomepage.setId(commonUtil.uuid());
+                    userHomepage.setHomepageId(commonUtil.randomCode());
+                    userHomepage.setAccount(user.getAccount());
+                    userHomepage.setCreateTime(new Date());
+                    userHomepage.setCreateUser(user.getAccount());
+                    userHomepage.setUpdateTime(new Date());
+                    userHomepage.setUpdateUser(user.getAccount());
+                    userHomepageDao.insert(userHomepage);
+                    // 异步保存动态
+                    threadUtil.execute(new UserRegisterTask(user));
+                    // 返回结果
                     sevFuncResult = new SevFuncResult(true, "成功", ServerStatusCode.SUCCESS);
                 }
             } else {
@@ -151,32 +192,85 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
     }
 
     @Override
-    public List<TopicVO> getTopicListByAccount(String account) {
-        List<TopicVO> topicVOList;
+    public Optional<UserHomepageVO> loadHomepage(@Nonnull String account, @NonNull String homepageId) {
+        UserHomepageVO userHomepageVO = null;
         try {
-            User user = selectById(account);
-            QueryWrapper<Topic> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("create_user", account);
-            List<Topic> topicList = topicDao.selectList(queryWrapper);
-            topicVOList = topicList.stream()
-                    .map(topic -> {
-                        TopicVO vo = null;
-                        Optional<BaseVO> optional = topic.toVO();
-                        if (optional.isPresent()) {
-                            vo = (TopicVO) optional.get();
-                            // 设置用户名和头像
-                            vo.setCreateUserName(user.getUsername());
-                            vo.setHeadPortrait(user.getHeadPortrait());
+            UserHomepageExt userHomepageExt = userHomepageDao.selectUserHomepage(homepageId);
+            if (userHomepageExt == null) {
+                return Optional.empty();
+            }
+
+            UserHomepage userHomepage = userHomepageExt.getUserHomepage();
+            User user = userHomepageExt.getUser();
+            UserInfo userInfo = userHomepageExt.getUserInfo();
+            List<UserDynamicVO> userDynamicVOList = userHomepageExt.getUserDynamicList()
+                    .stream()
+                    .sorted((d1, d2) -> {
+                        if (d1.getCreateTime().after(d2.getCreateTime())) {
+                            return -1;
+                        } else if (d1.getCreateTime().before(d2.getCreateTime())) {
+                            return 1;
+                        } else {
+                            return 0;
                         }
-                        return vo;
+                    })
+                    .map(dynamic -> {
+                        UserDynamicVO userDynamicVO = null;
+                        Optional<BaseVO> userDynamicVOP = dynamic.toVO();
+                        if (userDynamicVOP.isPresent()) {
+                            userDynamicVO = (UserDynamicVO) userDynamicVOP.get();
+                            userDynamicVO.setCreateUsername(user.getUsername());
+                            userDynamicVO.setHeadPortrait(user.getHeadPortrait());
+                            userDynamicVO.setRelativeDate(dateUtil.relativeDateFormat(dynamic.getCreateTime()));
+                            String targetId = dynamic.getTargetId();
+                            if (CommonField.USER_PUBLIC_TOPIC_DYNAMIC_TYPE.equals(dynamic.getDynamicType())) {
+                                Topic topic = topicDao.selectById(targetId);
+                                if (topic != null) {
+                                    userDynamicVO.setTargetName(topic.getTopicTitle());
+                                    userDynamicVO.setDynamicContent(topic.getTopicContent());
+                                }
+                            } else if (CommonField.USER_PUBLIC_COMMENT_DYNAMIC_TYPE.equals(dynamic.getDynamicType())) {
+                                Comment comment = commentDao.selectById(targetId);
+                                String parentId = comment.getParentId();
+                                if (CommonField.FIRST_LEVEL_COMMENT.equals(comment.getCommentType())) {
+                                    Topic topic = topicDao.selectById(parentId);
+                                    userDynamicVO.setTargetName(topic.getTopicTitle());
+                                    userDynamicVO.setDynamicContent(comment.getCommentContent());
+                                } else if (CommonField.SECOND_LEVEL_COMMENT.equals(comment.getCommentType())) {
+                                    Comment parentComment = commentDao.selectById(parentId);
+                                    userDynamicVO.setTargetName(parentComment.getCommentContent());
+                                    userDynamicVO.setDynamicContent(comment.getCommentContent());
+                                }
+                            } else if (CommonField.USER_LIKE_TOPIC_DYNAMIC_TYPE.equals(dynamic.getDynamicType())) {
+                                Topic topic = topicDao.selectById(targetId);
+                                if (topic != null) {
+                                    userDynamicVO.setTargetName(topic.getTopicTitle());
+                                    userDynamicVO.setDynamicContent(topic.getTopicContent());
+                                }
+                            } else if (CommonField.USER_REGISTER_DYNAMIC_TYPE.equals(dynamic.getDynamicType())) {
+                                userDynamicVO.setTargetName(user.getUsername());
+                                userDynamicVO.setDynamicContent("您出生了");
+                            }
+                        }
+                        return userDynamicVO;
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
+
+            Optional<BaseVO> userHomepageVOP = userHomepage.toVO();
+            if (userHomepageVOP.isPresent()) {
+                userHomepageVO = (UserHomepageVO) userHomepageVOP.get();
+                userHomepageVO.setUsername(user.getUsername());
+                userHomepageVO.setHeadPortrait(user.getHeadPortrait());
+                userHomepageVO.setSelf(account.equals(user.getAccount()));
+                userHomepageVO.setUserInfoVO((UserInfoVO) userInfo.toVO().orElse(null));
+                userHomepageVO.setUserDynamicVOList(userDynamicVOList);
+            }
         } catch (Exception e) {
-            log.error("UserSev getTopicListByAccount errorMsg: {}", e.getMessage(), e);
-            return new ArrayList<>();
+            log.error("UserSev loadHomepage errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
         }
-        return topicVOList;
+        return Optional.ofNullable(userHomepageVO);
     }
 
     @Override
@@ -197,6 +291,7 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
             }
         } catch (Exception e) {
             log.error("UserSev uploadHeadPortrait errorMsg: {}", e.getMessage(), e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             sevFuncResult = new SevFuncResult(true, "未知错误", ServerStatusCode.UNKNOWN);
         }
         return sevFuncResult;
@@ -211,6 +306,12 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
                 Optional<BaseVO> baseVOptional = user.toVO();
                 if (baseVOptional.isPresent()) {
                     userVO = (UserVO) baseVOptional.get();
+                    QueryWrapper<UserHomepage> queryWrapper = new QueryWrapper<>();
+                    queryWrapper.eq("account", account);
+                    UserHomepage userHomepage = userHomepageDao.selectOne(queryWrapper);
+                    if (userHomepage != null) {
+                        userVO.setHomepageId(userHomepage.getHomepageId());
+                    }
                 }
             }
         } catch (Exception e) {

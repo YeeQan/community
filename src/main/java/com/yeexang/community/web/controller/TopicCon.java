@@ -1,10 +1,12 @@
 package com.yeexang.community.web.controller;
 
+import com.yeexang.community.common.annotation.RateLimiterAnnotation;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.filter.Filter;
 import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.IpUtil;
+import com.yeexang.community.common.util.UserUtil;
 import com.yeexang.community.pojo.dto.SectionDTO;
 import com.yeexang.community.pojo.dto.TopicDTO;
 import com.yeexang.community.pojo.vo.PageVO;
@@ -44,8 +46,12 @@ public class TopicCon {
     @Autowired
     private IpUtil ipUtil;
 
+    @Autowired
+    private UserUtil userUtil;
+
     @PostMapping("page")
     @ApiOperation(value = "获取帖子分页")
+    @RateLimiterAnnotation(permitsPerSecond = 2.0)
     public ResponseEntity<PageVO> page(@RequestBody RequestEntity<TopicDTO> requestEntity) {
 
         TopicDTO topicDTO;
@@ -59,6 +65,7 @@ public class TopicCon {
         Integer pageNum = requestEntity.getPageNum();
         Integer pageSize = requestEntity.getPageSize();
         Filter filter = requestEntity.getFilter();
+
         PageVO<TopicVO> pageVO = topicSev.getTopicList(pageNum, pageSize, topicDTO, filter);
 
         return new ResponseEntity<>(pageVO);
@@ -66,6 +73,7 @@ public class TopicCon {
 
     @PostMapping("visit")
     @ApiOperation(value = "访问帖子")
+    @RateLimiterAnnotation(permitsPerSecond = 2.0)
     public ResponseEntity<TopicVO> visit(@RequestBody RequestEntity<TopicDTO> requestEntity,
                                           HttpServletRequest request) {
 
@@ -77,7 +85,9 @@ public class TopicCon {
             topicDTO = data.get(0);
         }
 
-        Optional<TopicVO> optional = topicSev.visit(topicDTO.getTopicId(), ipUtil.getIpAddr(request));
+        Optional<String> opAccount = userUtil.getLoginUserAccount(request);
+
+        Optional<TopicVO> optional = topicSev.visit(topicDTO.getTopicId(), ipUtil.getIpAddr(request), opAccount.orElse(null));
 
         if (optional.isEmpty()) {
             return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
@@ -88,6 +98,7 @@ public class TopicCon {
 
     @PostMapping("publish")
     @ApiOperation(value = "发布帖子")
+    @RateLimiterAnnotation(permitsPerSecond = 2.0)
     public ResponseEntity<TopicVO> publish(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
 
         String account = request.getAttribute("account").toString();
@@ -133,43 +144,23 @@ public class TopicCon {
         return new ResponseEntity<>(optional.get());
     }
 
-    /*@PostMapping("like")
+    @PostMapping("like")
     @ApiOperation(value = "点赞帖子")
-    public ResponseEntity<TopicDTO> like(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
+    @RateLimiterAnnotation(permitsPerSecond = 1.0)
+    public ResponseEntity<TopicVO> like(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
 
         String account = request.getAttribute("account").toString();
 
         TopicDTO topicDTO;
         List<TopicDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
+        if (data == null || data.isEmpty() || data.get(0) == null) {
             return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
         } else {
             topicDTO = data.get(0);
         }
 
-        // 点赞
-        List<Topic> topicList = topicSev.like(topicDTO, account);
-        if (topicList.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.DATA_NOT_FOUND);
-        }
+        topicSev.like(topicDTO, account);
 
-        List<TopicDTO> topicDTOList = topicList.stream()
-                .map(topic -> {
-                    TopicDTO dto = null;
-                    Optional<BaseDTO> optional = topic.toVO();
-                    if (optional.isPresent()) {
-                        dto = (TopicDTO) optional.get();
-                        UserDTO param = new UserDTO();
-                        param.setAccount(dto.getCreateUser());
-                        List<User> userList = userSev.selectUser(param);
-                        if (!userList.isEmpty()) {
-                            String username = userList.get(0).getUsername();
-                            dto.setCreateUserName(username);
-                        }
-                    }
-                    return dto;
-                }).collect(Collectors.toList());
-
-        return new ResponseEntity<>(topicDTOList);
-    }*/
+        return new ResponseEntity<>(ServerStatusCode.SUCCESS);
+    }
 }

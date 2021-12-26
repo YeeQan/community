@@ -2,13 +2,10 @@ package com.yeexang.community.web.service;
 
 import com.yeexang.community.common.http.response.SevFuncResult;
 import com.yeexang.community.pojo.dto.UserDTO;
-import com.yeexang.community.pojo.po.Topic;
-import com.yeexang.community.pojo.po.User;
-import com.yeexang.community.pojo.vo.TopicVO;
+import com.yeexang.community.pojo.vo.UserHomepageVO;
 import com.yeexang.community.pojo.vo.UserVO;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -36,12 +33,13 @@ public interface UserSev {
     SevFuncResult login(UserDTO userDTO);
 
     /**
-     * 获取该用户发布的帖子
+     * 获取该用户的个人主页
      *
      * @param account account
-     * @return List<Topic>
+     * @param homepageId homepageId
+     * @return Optional<UserHomepageVO>
      */
-    List<TopicVO> getTopicListByAccount(String account);
+    Optional<UserHomepageVO> loadHomepage(String account, String homepageId);
 
     /**
      * 上传头像

@@ -5,10 +5,7 @@ import com.yeexang.community.pojo.po.Topic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 
-import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Optional;
 
 /**

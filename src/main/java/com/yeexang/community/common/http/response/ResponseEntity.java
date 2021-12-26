@@ -34,11 +34,6 @@ public class ResponseEntity<T> {
      */
     private List<T> data;
 
-    /**
-     * 通知
-     */
-    /*private List<NotificationDTO> notificationDTOList;*/
-
     public ResponseEntity(ServerStatusCode serverStatusCode) {
         this.code = serverStatusCode.getCode();
         this.description = serverStatusCode.getDesc();
