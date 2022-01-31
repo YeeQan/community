@@ -35,15 +35,6 @@
             <result property="updateTime" column="update_time"/>
             <result property="updateUser" column="update_user"/>
         </association>
-        <collection property="userDynamicList" ofType="com.yeexang.community.pojo.po.UserDynamic">
-            <id property="dynamicId" column="dynamic_id"/>
-            <result property="id" column="id"/>
-            <result property="account" column="account"/>
-            <result property="targetId" column="target_id"/>
-            <result property="dynamicType" column="dynamic_type"/>
-            <result property="createTime" column="create_time"/>
-            <result property="updateTime" column="update_time"/>
-        </collection>
     </resultMap>
 
     <select id="selectUserHomepage" resultMap="user_homepage_info_dynamic_map" parameterType="string">
@@ -73,18 +64,10 @@
             ui.create_time,
             ui.create_user,
             ui.update_time,
-            ui.update_user,
-            ud.id,
-            ud.dynamic_id,
-            ud.account,
-            ud.target_id,
-            ud.dynamic_type,
-            ud.create_time,
-            ud.update_time
+            ui.update_user
         from y_c_user_homepage uh
         left join y_c_user u on uh.account = u.account
         left join y_c_user_info ui on uh.account = ui.account
-        left join y_c_user_dynamic ud on uh.account = ud.account
         where uh.homepage_id = #{homepageId}
     </select>
     

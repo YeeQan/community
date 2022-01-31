@@ -29,6 +29,12 @@ public class FilterUtil {
         if (filter.isCreateTimeDesc()) {
             setCreateTimeDesc(queryWrapper);
         }
+        if (filter.isLastCommentTimeAsc()) {
+            setLastCommentTimeAsc(queryWrapper);
+        }
+        if (filter.isLastCommentTimeDesc()) {
+            setLastCommentTimeDesc(queryWrapper);
+        }
         if (filter.isTopicEssential()) {
             setTopicEssential(queryWrapper);
         }
@@ -46,6 +52,20 @@ public class FilterUtil {
      */
     private void setCreateTimeDesc(QueryWrapper queryWrapper) {
         queryWrapper.orderByDesc("create_time");
+    }
+
+    /**
+     * 最后一次评论时间正序
+     */
+    private void setLastCommentTimeAsc(QueryWrapper queryWrapper) {
+        queryWrapper.orderByAsc("last_comment_time");
+    }
+
+    /**
+     * 最后一次评论时间倒序
+     */
+    private void setLastCommentTimeDesc(QueryWrapper queryWrapper) {
+        queryWrapper.orderByDesc("last_comment_time");
     }
 
     /**

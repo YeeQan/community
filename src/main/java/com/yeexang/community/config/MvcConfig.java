@@ -29,18 +29,6 @@ public class MvcConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("index");
-        registry.addViewController("/index").setViewName("index");
-        registry.addViewController("/publish").setViewName("publish");
-        registry.addViewController("/topic/view/**").setViewName("topic");
-        registry.addViewController("/homepage/**").setViewName("homepage");
-        registry.addViewController("/common/header-logined").setViewName("common/header-logined");
-        registry.addViewController("/common/header-non-logined").setViewName("common/header-non-logined");
-        registry.addViewController("/common/footer").setViewName("common/footer");
-    }
-
-    @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // token 校验拦截器
         registry.addInterceptor(getTokenVerifyInterceptor()).addPathPatterns("/**")

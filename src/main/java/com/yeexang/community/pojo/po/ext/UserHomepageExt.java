@@ -21,5 +21,4 @@ public class UserHomepageExt {
     private UserHomepage userHomepage;
     private User user;
     private UserInfo userInfo;
-    private List<UserDynamic> userDynamicList;
 }

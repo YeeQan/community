@@ -22,13 +22,29 @@ jQuery.extend({
    * 初始化筛选条件
    */
   initFilter: function() {
-    // 最新
-    $("#topic-new").click(function() {
+    // 最新发表
+    $("#topic-public-new").click(function() {
       var requestJson = {
         pageNum: 1,
         pageSize: 20,
         filter: {
           createTimeDesc: true
+        },
+        data: [
+          {
+            section: $("#section-nav").attr("section-sign"),
+          },
+        ],
+      };
+      $.postPage(requestJson);
+    })
+    // 最新评论
+    $("#topic-comment-new").click(function() {
+      var requestJson = {
+        pageNum: 1,
+        pageSize: 20,
+        filter: {
+          lastCommentTimeDesc: true
         },
         data: [
           {
@@ -109,7 +125,10 @@ jQuery.extend({
             $("#section-nav").attr("section-sign", null)
             var requestJson = {
               pageNum: 1,
-              pageSize: 20
+              pageSize: 20,
+              filter: {
+                lastCommentTimeDesc: true
+              }
             };
             $.postPage(requestJson);
           });
@@ -140,6 +159,9 @@ jQuery.extend({
                     section: section.sectionId,
                   },
                 ],
+                filter: {
+                  lastCommentTimeDesc: true
+                }
               };
               $.postPage(requestJson);
             });
@@ -235,6 +257,93 @@ jQuery.extend({
                 $(location).attr(
                   "href",
                   "/community/topic/view/" + topic.topicId
+                );
+              }
+            }
+          },
+        });
+      });
+    });
+  },
+
+  /**
+   * 初始化编辑页
+   */
+  initEdit: function () {
+    // 初始化专栏
+    $.post("/community/section/list", function (result) {
+      if (result == null) {
+        $.alert({
+          title: "出错啦!",
+          content: "请稍后再试！",
+        });
+      } else {
+        if (result.code !== "2000") {
+          $.alert({
+            title: "出错啦!",
+            content: result.description,
+          });
+        } else {
+          var $selectSection = $("#selectSection");
+
+          $.each(result.data, function (index, section) {
+            var $option = $("<option/>", {
+              value: section.sectionId,
+              html: section.sectionName,
+            });
+            $selectSection.append($option);
+          });
+        }
+      }
+    });
+    $(function () {
+      var editor = editormd("topicEditor", {
+        width: "100%",
+        height: "500px",
+        path: "/community/editor.md/lib/",
+        placeholder: "请在这里输入详细描述",
+        syncScrolling: "single",
+        saveHTMLToTextarea: true,
+        emoji: true,
+        tex: true, // 开启科学公式TeX语言支持，默认关闭
+        flowChart: true, // 开启流程图支持，默认关闭
+        sequenceDiagram: true, // 开启时序/序列图支持，默认关闭,
+        imageUpload: true,
+        imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+      });
+      $("#publishTopic").click(function () {
+        var requestJson = {
+          data: [
+            {
+              topicTitle: $("#topicTitle").val(),
+              topicContent: editor.getMarkdown(),
+              section: $("#selectSection").val(),
+            },
+          ],
+        };
+        $.ajax({
+          contentType: "application/json",
+          type: "POST",
+          url: "/community/topic/publish",
+          dataType: "json",
+          data: JSON.stringify(requestJson),
+          success: function (result) {
+            if (result == null) {
+              $.alert({
+                title: "出错啦!",
+                content: "请稍后再试！",
+              });
+            } else {
+              if (result.code !== "2000") {
+                $.alert({
+                  title: "出错啦!",
+                  content: result.description,
+                });
+              } else {
+                var topic = result.data[0];
+                $(location).attr(
+                    "href",
+                    "/community/topic/view/" + topic.topicId
                 );
               }
             }
@@ -873,7 +982,8 @@ jQuery.extend({
           } else {
             var data = result.data[0];
             $("#topic-title").html(data.topicTitle);
-            $("#topic-info")
+            let $topicInfo = $("#topic-info");
+            $topicInfo
               .append(
                 $("<span/>", {
                   html: "作者：" + data.createUserName + "&nbsp;&nbsp;&nbsp;",
@@ -899,6 +1009,19 @@ jQuery.extend({
                   html: "发布时间：" + data.createTime,
                 })
               );
+            if (data.createrVisit === true) {
+              $topicInfo
+                  .append(
+                      $("<a/>", {
+                        href: "/community/edit",
+                      }).append(
+                          $("<span/>", {
+                            class: "text-black-50 small",
+                            html: "&nbsp;&nbsp;&nbsp;重新编辑",
+                          })
+                      )
+                  )
+            }
             $("#topic-content").html(
               '<textarea style="display:none;" id="topic-textarea"></textarea>'
             );

@@ -25,6 +25,7 @@ public class TopicVO extends BaseVO {
     private String createUserName;
     private String headPortrait;
     private Boolean likeStatus;
+    private Boolean createrVisit;
 
     private List<CommentVO> commentVOList;
 }

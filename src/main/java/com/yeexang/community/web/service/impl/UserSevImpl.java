@@ -8,12 +8,10 @@ import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.response.AliyunOssResult;
 import com.yeexang.community.common.http.response.SevFuncResult;
 import com.yeexang.community.common.redis.RedisKey;
-import com.yeexang.community.common.task.UserPubTopDynamicTask;
 import com.yeexang.community.common.task.UserRegisterTask;
 import com.yeexang.community.common.util.*;
 import com.yeexang.community.dao.*;
 import com.yeexang.community.pojo.dto.UserDTO;
-import com.yeexang.community.pojo.dto.UserInfoDTO;
 import com.yeexang.community.pojo.po.*;
 import com.yeexang.community.pojo.po.ext.UserHomepageExt;
 import com.yeexang.community.pojo.vo.*;
@@ -52,6 +50,9 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
     private UserInfoDao userInfoDao;
 
     @Autowired
+    private UserDynamicDao userDynamicDao;
+
+    @Autowired
     private TopicDao topicDao;
 
     @Autowired
@@ -67,10 +68,10 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
     private AliyunOssUtil aliyunOssUtil;
 
     @Autowired
-    private DateUtil dateUtil;
+    private ThreadUtil threadUtil;
 
     @Autowired
-    private ThreadUtil threadUtil;
+    private DateUtil dateUtil;
 
     @Override
     protected RedisKey getRedisKey() {
@@ -203,17 +204,10 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
             UserHomepage userHomepage = userHomepageExt.getUserHomepage();
             User user = userHomepageExt.getUser();
             UserInfo userInfo = userHomepageExt.getUserInfo();
-            List<UserDynamicVO> userDynamicVOList = userHomepageExt.getUserDynamicList()
+
+            List<UserDynamic> userDynamicList = userDynamicDao.selectUserDynamicByAccount(account);
+            List<UserDynamicVO> userDynamicVOList = userDynamicList
                     .stream()
-                    .sorted((d1, d2) -> {
-                        if (d1.getCreateTime().after(d2.getCreateTime())) {
-                            return -1;
-                        } else if (d1.getCreateTime().before(d2.getCreateTime())) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                    })
                     .map(dynamic -> {
                         UserDynamicVO userDynamicVO = null;
                         Optional<BaseVO> userDynamicVOP = dynamic.toVO();

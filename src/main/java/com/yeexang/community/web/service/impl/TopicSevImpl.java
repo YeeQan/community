@@ -160,10 +160,13 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
                         commentDTO.setParentId(topic.getTopicId());
                         List<CommentVO> firstLevelComment = commentSev.getFirstLevelComment(commentDTO);
                         topicVO.setCommentVOList(firstLevelComment);
-                        // 点赞状态
+                        // 点赞状态 & 是否作者访问
                         if (account != null) {
                             boolean likeStatus = topicLikeSev.getTopicLikeStatus(topicId, account);
                             topicVO.setLikeStatus(likeStatus);
+                            if (account.equals(topic.getCreateUser())) {
+                                topicVO.setCreaterVisit(true);
+                            }
                         } else {
                             topicVO.setLikeStatus(false);
                         }
@@ -234,6 +237,8 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
                 Topic topic = selectById(topicId);
                 // 评论次数加一
                 topic.setCommentCount(topic.getCommentCount() + 1);
+                // 保存最新评论时间
+                topic.setLastCommentTime(new Date());
                 // 保存
                 save(topic, topicId);
             }

@@ -1,5 +1,9 @@
 package com.yeexang.community.aspect.log;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.yeexang.community.common.constant.CommonField;
+import com.yeexang.community.common.http.request.RequestEntity;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -8,7 +12,16 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
 
 /**
  * Controller 日志切面
@@ -32,32 +45,43 @@ public class ControllerLogAsp {
      */
     @Before(value = "controllerMethod()", argNames = "joinPoint")
     public void LogRequestInfo(JoinPoint joinPoint) {
-        Signature signature = joinPoint.getSignature();
-        // 方法名
-        String methodName = signature.getName();
-        // 类名
-        String typeName = signature.getDeclaringTypeName();
-        // 方法参数
-        Object[] args = joinPoint.getArgs();
-        StringBuilder sb = new StringBuilder();
-        sb.append("controller log start: ").append(typeName).append(" ")
-                .append(methodName).append("(");
-        for (int i = 0; i < args.length; i++) {
-            if (args[i] != null) {
-                if (i == args.length - 1) {
-                    sb.append(args[i].toString()).append(")");
-                } else {
-                    sb.append(args[i].toString()).append(",");
+        // 持有上下文的 request 容器
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            // 获取 request 请求
+            HttpServletRequest request = attributes.getRequest();
+            // 获取用户账户号
+            Object attribute = request.getAttribute(CommonField.ACCOUNT);
+            if (attribute == null) {
+                // 如果账户为空，则不记录日志
+                return;
+            }
+            String account = attribute.toString();
+            // 获取请求 uri
+            String requestURI = request.getRequestURI();
+            // 获取方法签名
+            MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+            // 获取方法
+            Method method = methodSignature.getMethod();
+            // 获取方法上面的注解
+            GetMapping getMapping = method.getAnnotation(GetMapping.class);
+            PostMapping postMapping = method.getAnnotation(PostMapping.class);
+            // 根据注解类型打印日志
+            if (getMapping != null) {
+                log.info("user:{} getRequest send:{}", account, requestURI);
+            }
+            if (postMapping != null) {
+                // 方法参数
+                RequestEntity requestEntity = null;
+                for (Object arg : joinPoint.getArgs()) {
+                    if (arg instanceof RequestEntity) {
+                        requestEntity = (RequestEntity) arg;
+                    }
                 }
-            } else {
-                if (i == args.length - 1) {
-                    sb.append("null").append(")");
-                } else {
-                    sb.append("null").append(",");
-                }
+                log.info("user:{} postRequest send:{}, requestParam: {}",
+                        account, requestURI, requestEntity == null ? "null" : JSON.toJSONString(requestEntity));
             }
         }
-        log.info(sb.toString());
     }
 
     /**
@@ -67,16 +91,31 @@ public class ControllerLogAsp {
      */
     @AfterReturning(returning = "responseEntity", pointcut = "controllerMethod()")
     public void logResultInfo(JoinPoint joinPoint, ResponseEntity responseEntity) {
-        Signature signature = joinPoint.getSignature();
-        // 方法名
-        String methodName = signature.getName();
-        // 类名
-        String typeName = signature.getDeclaringTypeName();
-        // 拼接返回值
-        String sb = typeName + "controller log end: " +
-                typeName + " " +
-                methodName + " " +
-                "returnValue: " + responseEntity.toString();
-        log.info(sb);
+        // 持有上下文的 request 容器
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            // 获取 request 请求
+            HttpServletRequest request = attributes.getRequest();
+            // 获取用户账户号
+            Object attribute = request.getAttribute(CommonField.ACCOUNT);
+            if (attribute == null) {
+                // 如果账户为空，则不记录日志
+                return;
+            }
+            String account = attribute.toString();
+            // 获取请求 uri
+            String requestURI = request.getRequestURI();
+            // 获取方法签名
+            MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+            // 获取方法
+            Method method = methodSignature.getMethod();
+            // 获取方法上面的注解
+            PostMapping postMapping = method.getAnnotation(PostMapping.class);
+            // 根据注解类型打印日志
+            if (postMapping != null) {
+                log.info("user:{} postRequest finish:{}, result: {}",
+                        account, requestURI, responseEntity);
+            }
+        }
     }
 }

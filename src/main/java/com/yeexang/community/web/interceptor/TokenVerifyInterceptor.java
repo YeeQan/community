@@ -45,9 +45,6 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=utf-8");
         try {
-            String requestUri = request.getRequestURI();
-            // 获取请求的 URI 路径
-            log.info("TokenVerifyInterceptor preHandle request url: {}", requestUri);
             Cookie[] cookies = request.getCookies();
             String token = null;
             if (cookies != null && cookies.length != 0) {

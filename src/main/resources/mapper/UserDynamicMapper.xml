@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeexang.community.dao.UserDynamicDao">
+
+    <select id="selectUserDynamicByAccount" resultType="com.yeexang.community.pojo.po.UserDynamic" parameterType="string">
+        select
+            ud.id,
+            ud.account,
+            ud.target_id,
+            ud.dynamic_type,
+            ud.create_time,
+            ud.update_time
+        from y_c_user_dynamic ud
+        where ud.account = #{account}
+        order by ud.create_time desc
+    </select>
+    
+</mapper>
