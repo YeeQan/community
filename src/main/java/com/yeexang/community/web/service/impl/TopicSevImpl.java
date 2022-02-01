@@ -274,6 +274,57 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
         }
     }
 
+    @Override
+    public Optional<TopicVO> getTopicInfo(String topicId) {
+        TopicVO topicVO = null;
+        try {
+            Topic topic = selectById(topicId);
+            if (topic != null) {
+                Optional<BaseVO> baseVOptional = topic.toVO();
+                if (baseVOptional.isPresent()) {
+                    topicVO = (TopicVO) baseVOptional.get();
+                }
+            }
+        } catch (Exception e) {
+            log.error("TopicSev getTopicInfo errorMsg: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
+        return Optional.ofNullable(topicVO);
+    }
+
+    @Override
+    public Optional<TopicVO> edit(TopicDTO topicDTO) {
+        TopicVO topicVO = null;
+        try {
+            Optional<BasePO> optional = topicDTO.toPO();
+            if (optional.isPresent()) {
+                String topicId = topicDTO.getTopicId();
+                Topic topic = (Topic) optional.get();
+                topic.setUpdateTime(new Date());
+
+                save(topic, topic.getTopicId());
+                topic = selectById(topicId);
+
+                Optional<BaseVO> topicVOP = topic.toVO();
+                if (topicVOP.isPresent()) {
+                    topicVO = (TopicVO) topicVOP.get();
+                    Optional<UserVO> userVOP = userSev.getUserVOByAccount(topic.getCreateUser());
+
+                    if (userVOP.isPresent()) {
+                        UserVO userVO = userVOP.get();
+                        topicVO.setCreateUserName(userVO.getUsername());
+                        topicVO.setHeadPortrait(userVO.getHeadPortrait());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("TopicSev edit errorMsg: {}", e.getMessage(), e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return Optional.empty();
+        }
+        return Optional.ofNullable(topicVO);
+    }
+
     /**
      * 更新帖子浏览次数
      *

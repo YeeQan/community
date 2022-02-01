@@ -54,4 +54,18 @@ public interface TopicSev {
      * @param account account
      */
     void like(TopicDTO topicDTO, String account);
+
+    /**
+     * 获取帖子信息
+     * @param topicId topicId
+     * @return Optional<TopicVO>
+     */
+    Optional<TopicVO> getTopicInfo(String topicId);
+
+    /**
+     * 编辑帖子
+     * @param topicDTO topicDTO
+     * @return Optional<TopicVO>
+     */
+    Optional<TopicVO> edit(TopicDTO topicDTO);
 }

@@ -123,6 +123,7 @@ public class Topic extends BasePO {
             topicVO.setTopicId(topicId);
             topicVO.setTopicTitle(topicTitle);
             topicVO.setTopicContent(topicContent);
+            topicVO.setSection(section);
             topicVO.setCommentCount(commentCount);
             topicVO.setLikeCount(likeCount);
             topicVO.setViewCount(viewCount);

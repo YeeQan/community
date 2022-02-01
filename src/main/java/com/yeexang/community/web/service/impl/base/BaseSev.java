@@ -87,6 +87,7 @@ public abstract class BaseSev<Entity, ID> {
         } else {
             this.getBaseMapper().updateById(entity);
         }
+        entity = this.getBaseMapper().selectById((Serializable) id);
         // 保存数据到 Redis 中
         redisUtil.setObjectValue(getRedisKey(), id.toString(), entity);
     }

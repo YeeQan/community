@@ -27,7 +27,7 @@ public class ViewCon {
         return "publish";
     }
 
-    @GetMapping("/edit")
+    @GetMapping("/edit/**")
     @ApiOperation(value = "编辑页")
     public String edit() {
         return "edit";

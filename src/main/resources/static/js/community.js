@@ -269,7 +269,43 @@ jQuery.extend({
   /**
    * 初始化编辑页
    */
-  initEdit: function () {
+  initEdit: function (topicId) {
+    // 初始化帖子编辑内容
+    var sectionId;
+    var requestJson = {
+      data: [
+        {
+          topicId: topicId
+        },
+      ],
+    };
+    $.ajax({
+      contentType: "application/json",
+      type: "POST",
+      url: "/community/topic/info",
+      dataType: "json",
+      data: JSON.stringify(requestJson),
+      success: function (result) {
+        if (result == null) {
+          $.alert({
+            title: "出错啦!",
+            content: "请稍后再试！",
+          });
+        } else {
+          if (result.code !== "2000") {
+            $.alert({
+              title: "出错啦!",
+              content: result.description,
+            });
+          } else {
+            $("#topicTitle-edit").val(result.data[0].topicTitle)
+            $("#topicDescription-edit").val(result.data[0].topicContent)
+            sectionId = result.data[0].section
+            console.log(sectionId)
+          }
+        }
+      },
+    });
     // 初始化专栏
     $.post("/community/section/list", function (result) {
       if (result == null) {
@@ -284,14 +320,17 @@ jQuery.extend({
             content: result.description,
           });
         } else {
-          var $selectSection = $("#selectSection");
+          var selectSectionEdit = $("#selectSection-edit");
 
           $.each(result.data, function (index, section) {
             var $option = $("<option/>", {
               value: section.sectionId,
               html: section.sectionName,
             });
-            $selectSection.append($option);
+            if(section.sectionId === sectionId) {
+              $option.attr("selected", "selected")
+            }
+            selectSectionEdit.append($option);
           });
         }
       }
@@ -311,20 +350,21 @@ jQuery.extend({
         imageUpload: true,
         imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
       });
-      $("#publishTopic").click(function () {
+      $("#editTopic").click(function () {
         var requestJson = {
           data: [
             {
-              topicTitle: $("#topicTitle").val(),
+              topicId: topicId,
+              topicTitle: $("#topicTitle-edit").val(),
               topicContent: editor.getMarkdown(),
-              section: $("#selectSection").val(),
+              section: $("#selectSection-edit").val(),
             },
           ],
         };
         $.ajax({
           contentType: "application/json",
           type: "POST",
-          url: "/community/topic/publish",
+          url: "/community/topic/edit",
           dataType: "json",
           data: JSON.stringify(requestJson),
           success: function (result) {
@@ -1013,7 +1053,7 @@ jQuery.extend({
               $topicInfo
                   .append(
                       $("<a/>", {
-                        href: "/community/edit",
+                        href: "/community/edit/" + data.topicId,
                       }).append(
                           $("<span/>", {
                             class: "text-black-50 small",

@@ -1,6 +1,7 @@
 package com.yeexang.community.web.controller;
 
 import com.yeexang.community.common.annotation.RateLimiterAnnotation;
+import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.filter.Filter;
 import com.yeexang.community.common.http.request.RequestEntity;
@@ -162,5 +163,75 @@ public class TopicCon {
         topicSev.like(topicDTO, account);
 
         return new ResponseEntity<>(ServerStatusCode.SUCCESS);
+    }
+
+    @PostMapping("info")
+    @ApiOperation(value = "获取帖子信息")
+    @RateLimiterAnnotation(permitsPerSecond = 1.0)
+    public ResponseEntity<TopicVO> info(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
+
+        TopicDTO topicDTO;
+        List<TopicDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty() || data.get(0) == null) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+        } else {
+            topicDTO = data.get(0);
+        }
+
+        Optional<TopicVO> optional = topicSev.getTopicInfo(topicDTO.getTopicId());
+
+        if (optional.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
+        }
+
+        return new ResponseEntity<>(optional.get());
+    }
+
+    @PostMapping("edit")
+    @ApiOperation(value = "编辑帖子")
+    @RateLimiterAnnotation(permitsPerSecond = 1.0)
+    public ResponseEntity<TopicVO> edit(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
+
+        String account = request.getAttribute(CommonField.ACCOUNT).toString();
+
+        TopicDTO topicDTO;
+        List<TopicDTO> data = requestEntity.getData();
+        if (data == null || data.isEmpty() || data.get(0) == null) {
+            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+        } else {
+            topicDTO = data.get(0);
+        }
+
+        // 参数校验
+        if (StringUtils.isEmpty(topicDTO.getTopicTitle())) {
+            return new ResponseEntity<>(ServerStatusCode.TOPIC_TITLE_EMPTY);
+        }
+        if (topicDTO.getTopicTitle().length() > 20) {
+            return new ResponseEntity<>(ServerStatusCode.TOPIC_TITLE_TOO_LONG);
+        }
+        if (StringUtils.isEmpty(topicDTO.getTopicContent())) {
+            return new ResponseEntity<>(ServerStatusCode.TOPIC_CONTENT_EMPTY);
+        }
+        if (topicDTO.getTopicContent().length() > 1000) {
+            return new ResponseEntity<>(ServerStatusCode.TOPIC_CONTENT_TOO_LONG);
+        }
+        if (StringUtils.isEmpty(topicDTO.getSection())) {
+            return new ResponseEntity<>(ServerStatusCode.SECTION_EMPTY);
+        }
+        SectionDTO sectionDTO = new SectionDTO();
+        sectionDTO.setSectionId(topicDTO.getSection());
+        if (sectionSev.getSectionList(sectionDTO).isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.SECTION_NOT_EXIST);
+        }
+
+        topicDTO.setCreateUser(account);
+        topicDTO.setUpdateUser(account);
+        Optional<TopicVO> optional = topicSev.edit(topicDTO);
+
+        if (optional.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
+        }
+
+        return new ResponseEntity<>(optional.get());
     }
 }

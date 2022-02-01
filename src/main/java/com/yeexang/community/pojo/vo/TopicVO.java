@@ -16,6 +16,7 @@ public class TopicVO extends BaseVO {
     private String topicId;
     private String topicTitle;
     private String topicContent;
+    private String section;
     private Integer commentCount;
     private Integer viewCount;
     private Integer likeCount;
