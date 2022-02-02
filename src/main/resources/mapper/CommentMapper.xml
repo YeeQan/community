@@ -52,7 +52,7 @@
             u.update_time,
             u.update_user
         from y_c_user u
-        left join y_c_comment c on c.create_user
+        left join y_c_comment c on u.account = c.create_user
         where c.parent_id = #{parentId} and c.comment_type = #{commentType}
         order by c.create_time desc
     </select>
