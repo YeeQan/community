@@ -750,11 +750,13 @@ jQuery.extend({
         class: "media mb-lg-3",
       });
 
-      var $img = $("<img/>", {
-        src: topic.headPortrait,
-        class:
-          "mr-lg-3 rounded-circle community-ele-width-50px community-ele-height-50px",
-      });
+      var $img = $("<a/>", {
+        href: "/community/homepage/" + topic.createrHomepageId
+      }).append($("<img/>", {
+          src: topic.headPortrait,
+          class:
+              "mr-lg-3 rounded-circle community-ele-width-50px community-ele-height-50px",
+      }));
 
       var $mediaBodyDiv = $("<div/>", {
         class: "media-body",
@@ -1025,9 +1027,12 @@ jQuery.extend({
             let $topicInfo = $("#topic-info");
             $topicInfo
               .append(
-                $("<span/>", {
+                $("<a/>",{
+                  href: "/community/homepage/" + data.createrHomepageId
+                }).append($("<span/>", {
+                  class: "text-black-50 small",
                   html: "作者：" + data.createUserName + "&nbsp;&nbsp;&nbsp;",
-                })
+                }))
               )
               .append(
                 $("<span/>", {
@@ -1120,11 +1125,13 @@ jQuery.extend({
                 class:
                   "media w-100",
               });
-              var $img = $("<img/>", {
+              var $img = $("<a/>", {
+                href: "/community/homepage/" + commentVO.createrHomepageId
+              }).append($("<img/>", {
                 src: commentVO.headPortrait,
                 class:
-                  "mr-lg-3 rounded-circle community-ele-width-50px community-ele-height-50px",
-              });
+                    "mr-lg-3 rounded-circle community-ele-width-50px community-ele-height-50px",
+              }));
               var $mediaBody = $("<div/>", {
                 class: "media-body",
               });
@@ -1132,7 +1139,7 @@ jQuery.extend({
                 class: "mt-lg-0",
               }).append(
                 $("<a/>", {
-                  href: "javascript:void(0)",
+                  href: "/community/homepage/" + commentVO.createrHomepageId
                 }).append(
                   $("<span/>", {
                     class: "font-weight-bold text-dark",
@@ -1229,11 +1236,13 @@ jQuery.extend({
                               class:
                                 "media mb-lg-3 w-100",
                             });
-                            var $secondCommentMediaImg = $("<img/>", {
+                            var $secondCommentMediaImg = $("<a/>", {
+                              href: "/community/homepage/" + secondCommentDTO.createrHomepageId
+                            }).append($("<img/>", {
                               src: secondCommentDTO.headPortrait,
                               class:
-                                "mr-lg-3 rounded-circle community-ele-width-40px community-ele-height-40px",
-                            });
+                                  "mr-lg-3 rounded-circle community-ele-width-40px community-ele-height-40px",
+                            }));
                             var $secondCommentMediaBody = $("<div/>", {
                               class: "media-body",
                             });
@@ -1242,7 +1251,7 @@ jQuery.extend({
                             })
                               .append(
                                 $("<a/>", {
-                                  href: "javascript:void(0)",
+                                  href: "/community/homepage/" + secondCommentDTO.createrHomepageId
                                 }).append(
                                   $("<span/>", {
                                     class:

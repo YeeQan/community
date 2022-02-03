@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nonnull;
@@ -205,7 +206,7 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
             User user = userHomepageExt.getUser();
             UserInfo userInfo = userHomepageExt.getUserInfo();
 
-            List<UserDynamic> userDynamicList = userDynamicDao.selectUserDynamicByAccount(account);
+            List<UserDynamic> userDynamicList = userDynamicDao.selectUserDynamicByAccount(user.getAccount());
             List<UserDynamicVO> userDynamicVOList = userDynamicList
                     .stream()
                     .map(dynamic -> {
@@ -256,7 +257,9 @@ public class UserSevImpl extends BaseSev<User, String> implements UserSev {
                 userHomepageVO = (UserHomepageVO) userHomepageVOP.get();
                 userHomepageVO.setUsername(user.getUsername());
                 userHomepageVO.setHeadPortrait(user.getHeadPortrait());
-                userHomepageVO.setSelf(account.equals(user.getAccount()));
+                if (!StringUtils.isEmpty(account)) {
+                    userHomepageVO.setSelf(account.equals(user.getAccount()));
+                }
                 userHomepageVO.setUserInfoVO((UserInfoVO) userInfo.toVO().orElse(null));
                 userHomepageVO.setUserDynamicVOList(userDynamicVOList);
             }

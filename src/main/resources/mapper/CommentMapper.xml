@@ -27,6 +27,15 @@
             <result property="updateTime" column="update_time"/>
             <result property="updateUser" column="update_user"/>
         </association>
+        <association property="userHomepage" javaType="com.yeexang.community.pojo.po.UserHomepage">
+            <id property="homepageId" column="homepage_id"/>
+            <result property="id" column="id"/>
+            <result property="account" column="account"/>
+            <result property="createTime" column="create_time"/>
+            <result property="createUser" column="create_user"/>
+            <result property="updateTime" column="update_time"/>
+            <result property="updateUser" column="update_user"/>
+        </association>
     </resultMap>
 
     <select id="selectCommentListByParentIdAndType" resultMap="user_comment_map">
@@ -50,11 +59,19 @@
             u.create_time,
             u.create_user,
             u.update_time,
-            u.update_user
+            u.update_user,
+            uh.id,
+            uh.homepage_id,
+            uh.account,
+            uh.create_time,
+            uh.create_user,
+            uh.update_time,
+            uh.update_user
         from y_c_user u
         left join y_c_comment c on u.account = c.create_user
+        left join y_c_user_homepage uh on u.account = uh.account
         where c.parent_id = #{parentId} and c.comment_type = #{commentType}
-        order by c.create_time desc
+        order by c.create_time asc
     </select>
 
 </mapper>

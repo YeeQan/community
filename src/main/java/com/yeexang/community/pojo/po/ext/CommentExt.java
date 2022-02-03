@@ -1,9 +1,9 @@
 package com.yeexang.community.pojo.po.ext;
 
-import com.yeexang.community.pojo.po.*;
+import com.yeexang.community.pojo.po.Comment;
+import com.yeexang.community.pojo.po.User;
+import com.yeexang.community.pojo.po.UserHomepage;
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * 用户评论 PO EXT
@@ -16,4 +16,5 @@ public class CommentExt {
 
     private Comment comment;
     private User user;
+    private UserHomepage userHomepage;
 }

@@ -150,7 +150,7 @@ public class TopicCon {
     @RateLimiterAnnotation(permitsPerSecond = 1.0)
     public ResponseEntity<TopicVO> like(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
 
-        String account = request.getAttribute("account").toString();
+        String account = request.getAttribute(CommonField.ACCOUNT).toString();
 
         TopicDTO topicDTO;
         List<TopicDTO> data = requestEntity.getData();

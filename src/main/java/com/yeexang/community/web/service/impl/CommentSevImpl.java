@@ -11,6 +11,7 @@ import com.yeexang.community.pojo.dto.CommentDTO;
 import com.yeexang.community.pojo.po.BasePO;
 import com.yeexang.community.pojo.po.Comment;
 import com.yeexang.community.pojo.po.User;
+import com.yeexang.community.pojo.po.UserHomepage;
 import com.yeexang.community.pojo.po.ext.CommentExt;
 import com.yeexang.community.pojo.vo.BaseVO;
 import com.yeexang.community.pojo.vo.CommentVO;
@@ -73,6 +74,7 @@ public class CommentSevImpl extends BaseSev<Comment, String> implements CommentS
                     .map(commentExt -> {
                         Comment comment = commentExt.getComment();
                         User user = commentExt.getUser();
+                        UserHomepage userHomepage = commentExt.getUserHomepage();
                         CommentVO commentVO = null;
                         Optional<BaseVO> optional = comment.toVO();
                         if (optional.isPresent()) {
@@ -80,6 +82,7 @@ public class CommentSevImpl extends BaseSev<Comment, String> implements CommentS
                             if (user != null) {
                                 commentVO.setCreateUsername(user.getUsername());
                                 commentVO.setHeadPortrait(user.getHeadPortrait());
+                                commentVO.setCreaterHomepageId(userHomepage.getHomepageId());
                             }
                         }
                         return commentVO;
@@ -103,6 +106,7 @@ public class CommentSevImpl extends BaseSev<Comment, String> implements CommentS
                     .map(commentExt -> {
                         Comment comment = commentExt.getComment();
                         User user = commentExt.getUser();
+                        UserHomepage userHomepage = commentExt.getUserHomepage();
                         CommentVO commentVO = null;
                         Optional<BaseVO> optional = comment.toVO();
                         if (optional.isPresent()) {
@@ -111,6 +115,7 @@ public class CommentSevImpl extends BaseSev<Comment, String> implements CommentS
                                 commentVO.setCreateUsername(user.getUsername());
                                 commentVO.setHeadPortrait(user.getHeadPortrait());
                             }
+                            commentVO.setCreaterHomepageId(userHomepage.getHomepageId());
                         }
                         return commentVO;
                     })

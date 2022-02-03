@@ -19,4 +19,5 @@ public class CommentVO extends BaseVO {
     private String createUsername;
     private String createTime;
     private String headPortrait;
+    private String createrHomepageId;
 }

@@ -19,14 +19,17 @@ import java.util.Date;
 @Slf4j
 public class UserLikeTopDynamicTask implements Runnable {
 
+    private final String account;
+
     private final Topic topic;
 
     private final UserDynamicDao userDynamicDao = SpringBeanUtil.getBean(UserDynamicDao.class);
 
     private final CommonUtil commonUtil = SpringBeanUtil.getBean(CommonUtil.class);
 
-    public UserLikeTopDynamicTask(Topic topic) {
+    public UserLikeTopDynamicTask(Topic topic, String account) {
         this.topic = topic;
+        this.account = account;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class UserLikeTopDynamicTask implements Runnable {
                 UserDynamic userDynamic = new UserDynamic();
                 userDynamic.setId(commonUtil.uuid());
                 userDynamic.setDynamicId(commonUtil.randomCode());
-                userDynamic.setAccount(topic.getCreateUser());
+                userDynamic.setAccount(account);
                 userDynamic.setTargetId(topic.getTopicId());
                 userDynamic.setDynamicType(CommonField.USER_LIKE_TOPIC_DYNAMIC_TYPE);
                 userDynamic.setCreateTime(new Date());

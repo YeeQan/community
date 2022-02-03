@@ -122,6 +122,7 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
                                 if (userVOP.isPresent()) {
                                     UserVO userVO = userVOP.get();
                                     vo.setHeadPortrait(userVO.getHeadPortrait());
+                                    vo.setCreaterHomepageId(userVO.getHomepageId());
                                 }
                             }
                             return vo;
@@ -167,6 +168,7 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
                             if (account.equals(topic.getCreateUser())) {
                                 topicVO.setCreaterVisit(true);
                             }
+                            topicVO.setCreaterHomepageId(userVO.getHomepageId());
                         } else {
                             topicVO.setLikeStatus(false);
                         }
@@ -263,7 +265,7 @@ public class TopicSevImpl extends BaseSev<Topic, String> implements TopicSev {
                 save(topic, topic.getTopicId());
                 // 异步保存动态
                 if (topicLikeSev.getTopicLikeOne(topic.getTopicId(), account).isEmpty()) {
-                    threadUtil.execute(new UserLikeTopDynamicTask(topic));
+                    threadUtil.execute( new UserLikeTopDynamicTask(topic, account));
                 }
                 // 保存点赞记录
                 topicLikeSev.saveTopicLikeStatus(topic.getTopicId(), account);

@@ -43,6 +43,7 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/index",
                         "/user/login",
                         "/user/register",
+                        "/user/person",
                         "/topic/page",
                         "/comment/first/list",
                         "/comment/second/list",
@@ -51,7 +52,8 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/common/header-logined",
                         "/common/header-non-logined",
                         "/common/footer",
-                        "/topic/view/**");
+                        "/topic/view/**",
+                        "/homepage/**");
         // RateLimiter 限流拦截器
         registry.addInterceptor(getRateLimiterInterceptor()).addPathPatterns("/**");
     }

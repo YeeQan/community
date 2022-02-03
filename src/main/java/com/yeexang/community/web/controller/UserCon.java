@@ -10,8 +10,10 @@ import com.yeexang.community.common.util.CookieUtil;
 import com.yeexang.community.common.util.JwtUtil;
 import com.yeexang.community.pojo.dto.UserDTO;
 import com.yeexang.community.pojo.dto.UserHomepageDTO;
+import com.yeexang.community.pojo.dto.UserInfoDTO;
 import com.yeexang.community.pojo.po.UserHomepage;
 import com.yeexang.community.pojo.vo.UserHomepageVO;
+import com.yeexang.community.pojo.vo.UserInfoVO;
 import com.yeexang.community.pojo.vo.UserVO;
 import com.yeexang.community.web.service.UserSev;
 import io.swagger.annotations.Api;
@@ -200,7 +202,11 @@ public class UserCon {
             userHomepageDTO = data.get(0);
         }
 
-        String account = request.getAttribute(CommonField.ACCOUNT).toString();
+        String account = null;
+        Object attribute = request.getAttribute(CommonField.ACCOUNT);
+        if (attribute != null) {
+            account = attribute.toString();
+        }
 
         // 加载该用户的个人主页
         Optional<UserHomepageVO> optional = userSev.loadHomepage(account, userHomepageDTO.getHomepageId());
