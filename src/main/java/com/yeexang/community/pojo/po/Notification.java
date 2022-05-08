@@ -19,7 +19,7 @@ import java.util.Optional;
  */
 @Data
 @Slf4j
-@TableName("y_c_notifcation")
+@TableName("y_c_notification")
 @EqualsAndHashCode(callSuper = false)
 public class Notification extends BasePO {
 

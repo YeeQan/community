@@ -1,9 +1,5 @@
-/* 删除通知表的 del_flag */
-ALTER TABLE `yeexang_community_db`.`y_c_notification`
-DROP COLUMN `del_flag`;
-
 /* 消息通知表 */
-CREATE TABLE `y_c_notifcation`  (
+CREATE TABLE `y_c_notification`  (
     `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'id',
     `notification_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '通知id',
     `notifier` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '通知者',
