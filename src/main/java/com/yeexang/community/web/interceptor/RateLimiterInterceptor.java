@@ -54,6 +54,7 @@ import java.io.PrintWriter;
                 String account = attribute.toString();
                 boolean acquire = rateLimiterUtil.tryAcquire(account, rateLimiterAnnotation.permitsPerSecond());
                 if (!acquire) {
+                    log.error("User:{} visit uri:{} frequently", account, request.getRequestURI());
                     ResponseEntity<?> responseEntity = new ResponseEntity<>(ServerStatusCode.USER_VISIT_FREQUENTLY);
                     String json = JSON.toJSONString(responseEntity);
                     out = response.getWriter();

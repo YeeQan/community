@@ -1,4 +1,4 @@
-package com.yeexang.community.web.service.impl.base;
+package com.yeexang.community.web.service.base;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yeexang.community.common.constant.CommonField;
@@ -25,28 +25,28 @@ public abstract class BaseSev<Entity, ID> {
      *
      * @return RedisKey
      */
-    protected abstract RedisKey getRedisKey();
+    public abstract RedisKey getRedisKey();
 
     /**
      * 获取对应 Entity 的操作对象
      *
      * @return BaseMapper<Entity>
      */
-    protected abstract BaseMapper<Entity> getBaseMapper();
+    public abstract BaseMapper<Entity> getBaseMapper();
 
     /**
      * 获取对应 Entity 的 Class 类型
      *
      * @return Class<Entity>
      */
-    protected abstract Class<Entity> getEntityClass();
+    public abstract Class<Entity> getEntityClass();
 
     /**
      * 根据 ID 获取 Entity
      * @param id id
      * @return Entity
      */
-    protected Entity selectById(ID id) {
+    public Entity selectById(ID id) {
         Entity entity = null;
         RedisKey redisKey = this.getRedisKey();
         Optional<?> rovOP = redisUtil.getObjectValue(getEntityClass(), redisKey, id.toString());
@@ -79,7 +79,7 @@ public abstract class BaseSev<Entity, ID> {
      * @param entity entity
      * @param id id
      */
-    protected void save(Entity entity, ID id) {
+    public void save(Entity entity, ID id) {
         // 如果存在数据就更新，否则插入
         Entity entityDB = this.getBaseMapper().selectById((Serializable) id);
         if (entityDB == null) {

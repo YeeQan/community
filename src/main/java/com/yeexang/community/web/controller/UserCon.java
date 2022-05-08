@@ -10,10 +10,7 @@ import com.yeexang.community.common.util.CookieUtil;
 import com.yeexang.community.common.util.JwtUtil;
 import com.yeexang.community.pojo.dto.UserDTO;
 import com.yeexang.community.pojo.dto.UserHomepageDTO;
-import com.yeexang.community.pojo.dto.UserInfoDTO;
-import com.yeexang.community.pojo.po.UserHomepage;
 import com.yeexang.community.pojo.vo.UserHomepageVO;
-import com.yeexang.community.pojo.vo.UserInfoVO;
 import com.yeexang.community.pojo.vo.UserVO;
 import com.yeexang.community.web.service.UserSev;
 import io.swagger.annotations.Api;
@@ -173,7 +170,6 @@ public class UserCon {
 
     @PostMapping("loginInfo")
     @ApiOperation(value = "登录状态信息")
-    @RateLimiterAnnotation(permitsPerSecond = 1.0)
     public ResponseEntity<UserVO> loginInfo(HttpServletRequest request) {
 
         String account = request.getAttribute(CommonField.ACCOUNT).toString();

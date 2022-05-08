@@ -6,8 +6,6 @@ import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.response.ResponseEntity;
 import com.yeexang.community.common.util.JwtUtil;
-import com.yeexang.community.dao.UserDao;
-import com.yeexang.community.pojo.po.User;
 import com.yeexang.community.pojo.vo.UserVO;
 import com.yeexang.community.web.service.UserSev;
 import lombok.extern.slf4j.Slf4j;

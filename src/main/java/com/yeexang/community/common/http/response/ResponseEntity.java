@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 通用响应类
@@ -33,6 +34,11 @@ public class ResponseEntity<T> {
      * 返回数据
      */
     private List<T> data;
+
+    /**
+     * 消息通知类型数量
+     */
+    private Map<String, Integer> notificationMap;
 
     public ResponseEntity(ServerStatusCode serverStatusCode) {
         this.code = serverStatusCode.getCode();

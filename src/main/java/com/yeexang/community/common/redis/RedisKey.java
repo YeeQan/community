@@ -19,7 +19,8 @@ public enum RedisKey {
     TOPIC_LIKE(Duration.ofDays(7)),
     TOPIC_VISIT_COUNT_LIMIT(Duration.ofHours(1L)),
     COMMENT(Duration.ofDays(7)),
-    USER_INFO(Duration.ofDays(7));
+    USER_INFO(Duration.ofDays(7)),
+    NOTIFICATION(Duration.ofDays(7));
 
     /**
      * key 的 value 的 expire 时间,如果为 null，表示 value 永远不过期

@@ -1,5 +1,8 @@
 package com.yeexang.community.common.constant;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 常量工具类
  *
@@ -38,20 +41,7 @@ public class CommonField {
      */
     public static final String SECOND_LEVEL_COMMENT = "2";
 
-    /**
-     * 通知类型 —— 回帖
-     */
-    public static final String NOTIFICATION_TYPE_TOPIC = "1";
 
-    /**
-     * 通知类型 —— 回复评论
-     */
-    public static final String NOTIFICATION_TYPE_COMMENT = "2";
-
-    /**
-     * 通知类型 —— 点赞帖子
-     */
-    public static final String NOTIFICATION_TYPE_LIKE_TOPIC = "3";
 
     /**
      * 账号必须由字母、数字、下划线组成，不能超过12位

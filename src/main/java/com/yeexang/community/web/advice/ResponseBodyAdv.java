@@ -1,26 +1,38 @@
 package com.yeexang.community.web.advice;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Maps;
+import com.yeexang.community.common.constant.CommonField;
+import com.yeexang.community.common.constant.NotificationField;
+import com.yeexang.community.common.http.response.ResponseEntity;
+import com.yeexang.community.dao.NotificationDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * 响应处理 Advice
  *
  * @author yeeq
  * @date 2021/8/4
  */
-/*
 @ControllerAdvice
 public class ResponseBodyAdv implements ResponseBodyAdvice<ResponseEntity<?>> {
 
     @Autowired
-    private NotificationSev notificationSev;
-
-    @Autowired
-    private UserSev userSev;
-
-    @Autowired
-    private TopicSev topicSev;
-
-    @Autowired
-    private CommentSev commentSev;
+    private NotificationDao notificationDao;
 
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
@@ -34,64 +46,33 @@ public class ResponseBodyAdv implements ResponseBodyAdvice<ResponseEntity<?>> {
         Object account = request.getAttribute(CommonField.ACCOUNT);
         if (account != null && !StringUtils.isEmpty(account.toString())) {
             String accountStr = account.toString();
-            */
-/* 用户通知处理 *//*
-
-            NotificationDTO param = new NotificationDTO();
-            param.setReceiver(accountStr);
-            List<Notification> notificationList = notificationSev.receive(param);
-            List<NotificationDTO> notificationDTOList = notificationList.stream()
-                    .map(notification -> {
-                        NotificationDTO notificationDTO = null;
-                        Optional<BaseDTO> dtoOptional = notification.toDTO();
-                        if (dtoOptional.isPresent()) {
-                            notificationDTO = (NotificationDTO) dtoOptional.get();
-                            UserDTO userDTO = new UserDTO();
-                            // 设置通知者用户名
-                            userDTO.setAccount(notificationDTO.getNotifier());
-                            List<User> notifierList = userSev.getUser(userDTO);
-                            if (!notifierList.isEmpty()) {
-                                String notifierName = notifierList.get(0).getUsername();
-                                notificationDTO.setNotifierName(notifierName);
-                            }
-                            // 设置接收者用户名
-                            userDTO.setAccount(notificationDTO.getReceiver());
-                            List<User> receiverList = userSev.getUser(userDTO);
-                            if (!receiverList.isEmpty()) {
-                                String receiverName = receiverList.get(0).getUsername();
-                                notificationDTO.setReceiverName(receiverName);
-                            }
-                            // 根据评论类型设置信息
-                            String type = notificationDTO.getNotificationType();
-                            if (!StringUtils.isEmpty(type)) {
-                                if (type.equals(CommonField.NOTIFICATION_TYPE_TOPIC)
-                                        || type.equals(CommonField.NOTIFICATION_TYPE_LIKE_TOPIC)) {
-                                    TopicDTO topicDTO = new TopicDTO();
-                                    topicDTO.setTopicId(notificationDTO.getOuterId());
-                                    List<Topic> topicList = topicSev.getTopic(topicDTO);
-                                    if (!topicList.isEmpty()) {
-                                        String title = topicList.get(0).getTopicTitle();
-                                        notificationDTO.setOuterName(title);
-                                    }
-                                } else if (StringUtils.isEmpty(type)
-                                        || type.equals(CommonField.NOTIFICATION_TYPE_COMMENT)
-                                        || type.equals(CommonField.NOTIFICATION_TYPE_LIKE_COMMENT)) {
-                                    CommentDTO commentDTO = new CommentDTO();
-                                    commentDTO.setCommentId(notificationDTO.getOuterId());
-                                    List<Comment> commentList = commentSev.getCommentList(commentDTO);
-                                    if (!commentList.isEmpty()) {
-                                        String content = commentList.get(0).getCommentContent();
-                                        notificationDTO.setOuterName(content);
-                                    }
-                                }
-                            }
-                        }
-                        return notificationDTO;
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            responseEntity.setNotificationDTOList(notificationDTOList);
+            QueryWrapper queryWrapper = new QueryWrapper();
+            /* 用户通知处理开始 */
+            queryWrapper.select("notification_type as type, count(1) as num");
+            queryWrapper.eq("receiver", accountStr);
+            queryWrapper.eq("status", "0");
+            queryWrapper.groupBy("notification_type");
+            List<Map<String , Object>> mapList = notificationDao.selectMaps(queryWrapper);
+            Map<String, Integer> notificationMap = new HashMap<>();
+            int sum = 0;
+            int commentSum = 0;
+            int likeSum = 0;
+            for (Map<String, Object> map : mapList) {
+                String type = map.get("type").toString();
+                int num = Integer.parseInt(map.get("num").toString());
+                if (NotificationField.TOPIC_VALUE.equals(type) || NotificationField.COMMENT_VALUE.equals(type)) {
+                    commentSum += num;
+                    notificationMap.put(NotificationField.COMMENT_LABEL, commentSum);
+                } else if (NotificationField.TOPIC_LIKE_VALUE.equals(type)) {
+                    likeSum += num;
+                    notificationMap.put(NotificationField.TOPIC_LIKE_LABEL, likeSum);
+                }
+                sum += num;
+            }
+            notificationMap.put("all", sum);
+            responseEntity.setNotificationMap(notificationMap);
+            /* 用户通知处理结束 */
         }
         return responseEntity;
     }
-}*/
+}

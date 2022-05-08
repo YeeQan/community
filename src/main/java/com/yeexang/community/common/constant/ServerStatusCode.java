@@ -38,7 +38,8 @@ public enum ServerStatusCode {
     TOKEN_DISABLED("4021", "登录超时，请重新登录"),
     FILE_UPLOAD_FAILED("4022", "文件上传失败"),
     PASSWORD_ERROR("4024", "密码错误"),
-    USER_VISIT_FREQUENTLY("4025", "访问太频繁，请稍后再试")
+    USER_VISIT_FREQUENTLY("4025", "访问太频繁，请稍后再试"),
+    NOTIFICATION_TYPE_ERROR("4026", "通知类型错误"),
     ;
 
     private final String code;

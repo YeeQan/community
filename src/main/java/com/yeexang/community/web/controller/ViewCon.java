@@ -45,6 +45,12 @@ public class ViewCon {
         return "homepage";
     }
 
+    @GetMapping("/notification/**")
+    @ApiOperation(value = "评论通知")
+    public String notification() {
+        return "notification";
+    }
+
     @GetMapping("/common/header-logined")
     @ApiOperation(value = "顶部栏已登录")
     public String headerLogined() {
