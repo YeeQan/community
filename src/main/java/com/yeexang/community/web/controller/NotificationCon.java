@@ -1,6 +1,8 @@
 package com.yeexang.community.web.controller;
 
 import com.yeexang.community.common.annotation.RateLimiterAnnotation;
+import com.yeexang.community.common.annotation.ReqParamVerify;
+import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.NotificationField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
@@ -39,35 +41,21 @@ public class NotificationCon {
     @Autowired
     private NotificationSev notificationSev;
 
-    @Autowired
-    private UserUtil userUtil;
-
+    @ReqParamVerify
     @PostMapping("page")
     @ApiOperation(value = "获取评论通知")
     @RateLimiterAnnotation(permitsPerSecond = 2.0)
     public ResponseEntity<PageVO> page(@RequestBody RequestEntity<NotificationDTO> requestEntity,
                                               HttpServletRequest request) {
 
-        NotificationDTO notificationDTO;
-        List<NotificationDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
-        } else {
-            notificationDTO = data.get(0);
-        }
+        NotificationDTO notificationDTO = requestEntity.getData().get(0);
 
-        Optional<String> opAccount = userUtil.getLoginUserAccount(request);
-        if (opAccount.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
-        }
+        String account = request.getAttribute(CommonField.ACCOUNT).toString();
 
         Integer pageNum = requestEntity.getPageNum();
         Integer pageSize = requestEntity.getPageSize();
 
         String typeLabel = notificationDTO.getTypeLabel();
-        if (StringUtils.isEmpty(typeLabel)) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
-        }
 
         if (!NotificationField.LABEL_VALUE_MAP.containsKey(typeLabel)) {
             return new ResponseEntity<>(ServerStatusCode.NOTIFICATION_TYPE_ERROR);
@@ -75,19 +63,14 @@ public class NotificationCon {
 
         PageVO<NotificationVO> pageVO
                 = notificationSev.getNotificationList(
-                        pageNum, pageSize, opAccount.get(), NotificationField.LABEL_VALUE_MAP.get(typeLabel));
+                        pageNum, pageSize, account, NotificationField.LABEL_VALUE_MAP.get(typeLabel));
 
         return new ResponseEntity<>(pageVO);
     }
 
     @PostMapping("type/list")
     @ApiOperation(value = "获取通知类型列表")
-    public ResponseEntity<KeyValueResult> typeList(HttpServletRequest request) {
-
-        Optional<String> opAccount = userUtil.getLoginUserAccount(request);
-        if (opAccount.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.UNKNOWN);
-        }
+    public ResponseEntity<KeyValueResult> typeList() {
 
         List<KeyValueResult> list = new ArrayList<>();
 
@@ -99,5 +82,36 @@ public class NotificationCon {
         }
 
         return new ResponseEntity<>(list);
+    }
+
+    @ReqParamVerify
+    @PostMapping("clean")
+    @ApiOperation(value = "获取通知类型列表")
+    public ResponseEntity<?> clean(@RequestBody RequestEntity<NotificationDTO> requestEntity,
+                                   HttpServletRequest request) {
+
+        NotificationDTO notificationDTO = requestEntity.getData().get(0);
+
+        String account = request.getAttribute(CommonField.ACCOUNT).toString();
+
+        notificationSev.clean(notificationDTO.getTypeLabel(), account);
+
+        return new ResponseEntity<>(ServerStatusCode.SUCCESS);
+    }
+
+    @ReqParamVerify
+    @PostMapping("read")
+    @ApiOperation(value = "阅读通知")
+    public ResponseEntity<?> read(@RequestBody RequestEntity<NotificationDTO> requestEntity, HttpServletRequest request) {
+
+        NotificationDTO notificationDTO = requestEntity.getData().get(0);
+
+        Optional<NotificationVO> optional = notificationSev.read(notificationDTO);
+
+        if (optional.isEmpty()) {
+            return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
+        }
+
+        return new ResponseEntity<>(optional.get());
     }
 }

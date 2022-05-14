@@ -74,9 +74,6 @@ public class RedisUtil {
             Optional<String> optional = getValue(redisKey, id);
             if (optional.isPresent()) {
                 String value = optional.get();
-                if (CommonField.REDIS_DEFAULT_VALUE.equals(value)) {
-                    return Optional.empty();
-                }
                 parseObject = JSON.parseObject(value, clazz);
             }
         } catch (Exception e) {

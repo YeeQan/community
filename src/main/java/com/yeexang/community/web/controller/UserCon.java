@@ -1,6 +1,7 @@
 package com.yeexang.community.web.controller;
 
 import com.yeexang.community.common.annotation.RateLimiterAnnotation;
+import com.yeexang.community.common.annotation.ReqParamVerify;
 import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.request.RequestEntity;
@@ -48,17 +49,12 @@ public class UserCon {
     @Autowired
     private CookieUtil cookieUtil;
 
+    @ReqParamVerify
     @PostMapping("register")
     @ApiOperation(value = "用户注册")
     public ResponseEntity<?> register(@RequestBody RequestEntity<UserDTO> requestEntity, HttpServletResponse response) {
 
-        UserDTO userDTO;
-        List<UserDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty() || data.get(0) == null) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
-        } else {
-            userDTO = data.get(0);
-        }
+        UserDTO userDTO = requestEntity.getData().get(0);
 
         // 格式校验
         if (StringUtils.isEmpty(userDTO.getAccount())) {
@@ -104,17 +100,12 @@ public class UserCon {
         return new ResponseEntity<>(ServerStatusCode.SUCCESS);
     }
 
+    @ReqParamVerify
     @PostMapping("login")
     @ApiOperation(value = "用户登录")
     public ResponseEntity<?> login(@RequestBody RequestEntity<UserDTO> requestEntity, HttpServletResponse response) {
 
-        UserDTO userDTO;
-        List<UserDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty() || data.get(0) == null) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
-        } else {
-            userDTO = data.get(0);
-        }
+        UserDTO userDTO = requestEntity.getData().get(0);
 
         // 格式校验
         if (userDTO == null) {
@@ -178,37 +169,27 @@ public class UserCon {
         Optional<UserVO> optional = userSev.getUserVOByAccount(account);
 
         if (optional.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+            return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
         }
 
         return new ResponseEntity<>(optional.get());
     }
 
+    @ReqParamVerify
     @PostMapping("person")
     @ApiOperation(value = "用户个人主页")
     @RateLimiterAnnotation(permitsPerSecond = 1.0)
     public ResponseEntity<UserHomepageVO> homepage(@RequestBody RequestEntity<UserHomepageDTO> requestEntity, HttpServletRequest request) {
 
-        UserHomepageDTO userHomepageDTO;
-        List<UserHomepageDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()
-                || data.get(0) == null || StringUtils.isEmpty(data.get(0).getHomepageId())) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
-        } else {
-            userHomepageDTO = data.get(0);
-        }
+        UserHomepageDTO userHomepageDTO = requestEntity.getData().get(0);
 
-        String account = null;
-        Object attribute = request.getAttribute(CommonField.ACCOUNT);
-        if (attribute != null) {
-            account = attribute.toString();
-        }
+        String account = request.getAttribute(CommonField.ACCOUNT) == null ? null : request.getAttribute(CommonField.ACCOUNT).toString();
 
         // 加载该用户的个人主页
         Optional<UserHomepageVO> optional = userSev.loadHomepage(account, userHomepageDTO.getHomepageId());
 
         if (optional.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
+            return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
         }
 
         return new ResponseEntity<>(optional.get());

@@ -5,7 +5,7 @@ import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.NotificationField;
 import com.yeexang.community.common.redis.RedisKey;
 import com.yeexang.community.common.task.SendNotificationTask;
-import com.yeexang.community.common.task.UserPubComDynamicTask;
+import com.yeexang.community.common.task.UserDynamicTask;
 import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.common.util.ThreadUtil;
 import com.yeexang.community.dao.CommentDao;
@@ -179,7 +179,7 @@ public class CommentSev extends BaseSev<Comment, String> {
                     }
                     topicSev.topicCommentCountIncrease(topicId);
                     // 异步保存动态
-                    threadUtil.execute(new UserPubComDynamicTask(comment));
+                    threadUtil.execute(new UserDynamicTask(comment.getCommentId(), comment.getCreateUser(), CommonField.USER_PUBLIC_COMMENT_DYNAMIC_TYPE));
                 }
             }
         } catch (Exception e) {

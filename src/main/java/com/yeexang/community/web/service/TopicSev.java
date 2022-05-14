@@ -10,8 +10,7 @@ import com.yeexang.community.common.filter.Filter;
 import com.yeexang.community.common.redis.RedisKey;
 import com.yeexang.community.common.redis.RedisUtil;
 import com.yeexang.community.common.task.SendNotificationTask;
-import com.yeexang.community.common.task.UserLikeTopDynamicTask;
-import com.yeexang.community.common.task.UserPubTopDynamicTask;
+import com.yeexang.community.common.task.UserDynamicTask;
 import com.yeexang.community.common.util.CommonUtil;
 import com.yeexang.community.common.util.FilterUtil;
 import com.yeexang.community.common.util.ThreadUtil;
@@ -228,7 +227,7 @@ public class TopicSev extends BaseSev<Topic, String> {
                         topicVO.setHeadPortrait(userVO.getHeadPortrait());
                     }
                     // 异步保存动态
-                    threadUtil.execute(new UserPubTopDynamicTask(topic));
+                    threadUtil.execute(new UserDynamicTask(topic.getTopicId(), topic.getCreateUser(), CommonField.USER_PUBLIC_TOPIC_DYNAMIC_TYPE));
                 }
             }
         } catch (Exception e) {
@@ -280,7 +279,7 @@ public class TopicSev extends BaseSev<Topic, String> {
                 save(topic, topic.getTopicId());
                 // 异步保存动态 & 发送点赞消息通知
                 if (topicLikeSev.getTopicLikeOne(topic.getTopicId(), account).isEmpty()) {
-                    threadUtil.execute(new UserLikeTopDynamicTask(topic, account));
+                    threadUtil.execute(new UserDynamicTask(topic.getTopicId(), account, CommonField.USER_LIKE_TOPIC_DYNAMIC_TYPE));
                     threadUtil.execute(new SendNotificationTask(account, topic.getTopicId(), null, NotificationField.TOPIC_LIKE_VALUE));
                 }
                 // 保存点赞记录

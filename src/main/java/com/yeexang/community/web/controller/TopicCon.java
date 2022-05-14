@@ -1,6 +1,7 @@
 package com.yeexang.community.web.controller;
 
 import com.yeexang.community.common.annotation.RateLimiterAnnotation;
+import com.yeexang.community.common.annotation.ReqParamVerify;
 import com.yeexang.community.common.constant.CommonField;
 import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.filter.Filter;
@@ -55,13 +56,8 @@ public class TopicCon {
     @RateLimiterAnnotation(permitsPerSecond = 2.0)
     public ResponseEntity<PageVO> page(@RequestBody RequestEntity<TopicDTO> requestEntity) {
 
-        TopicDTO topicDTO;
-        List<TopicDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty()) {
-            topicDTO = new TopicDTO();
-        } else {
-            topicDTO = data.get(0);
-        }
+        TopicDTO topicDTO = requestEntity == null || requestEntity.getData() == null
+                ? new TopicDTO() : requestEntity.getData().get(0);
 
         Integer pageNum = requestEntity.getPageNum();
         Integer pageSize = requestEntity.getPageSize();
@@ -97,6 +93,7 @@ public class TopicCon {
         return new ResponseEntity<>(optional.get());
     }
 
+    @ReqParamVerify
     @PostMapping("publish")
     @ApiOperation(value = "发布帖子")
     @RateLimiterAnnotation(permitsPerSecond = 2.0)
@@ -104,13 +101,7 @@ public class TopicCon {
 
         String account = request.getAttribute("account").toString();
 
-        TopicDTO topicDTO;
-        List<TopicDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty() || data.get(0) == null) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
-        } else {
-            topicDTO = data.get(0);
-        }
+        TopicDTO topicDTO = requestEntity.getData().get(0);
 
         // 参数校验
         if (StringUtils.isEmpty(topicDTO.getTopicTitle())) {
@@ -145,6 +136,7 @@ public class TopicCon {
         return new ResponseEntity<>(optional.get());
     }
 
+    @ReqParamVerify
     @PostMapping("like")
     @ApiOperation(value = "点赞帖子")
     @RateLimiterAnnotation(permitsPerSecond = 1.0)
@@ -152,31 +144,20 @@ public class TopicCon {
 
         String account = request.getAttribute(CommonField.ACCOUNT).toString();
 
-        TopicDTO topicDTO;
-        List<TopicDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty() || data.get(0) == null) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
-        } else {
-            topicDTO = data.get(0);
-        }
+        TopicDTO topicDTO = requestEntity.getData().get(0);
 
         topicSev.like(topicDTO, account);
 
         return new ResponseEntity<>(ServerStatusCode.SUCCESS);
     }
 
+    @ReqParamVerify
     @PostMapping("info")
     @ApiOperation(value = "获取帖子信息")
     @RateLimiterAnnotation(permitsPerSecond = 1.0)
     public ResponseEntity<TopicVO> info(@RequestBody RequestEntity<TopicDTO> requestEntity, HttpServletRequest request) {
 
-        TopicDTO topicDTO;
-        List<TopicDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty() || data.get(0) == null) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
-        } else {
-            topicDTO = data.get(0);
-        }
+        TopicDTO topicDTO = requestEntity.getData().get(0);
 
         Optional<TopicVO> optional = topicSev.getTopicInfo(topicDTO.getTopicId());
 
@@ -187,6 +168,7 @@ public class TopicCon {
         return new ResponseEntity<>(optional.get());
     }
 
+    @ReqParamVerify
     @PostMapping("edit")
     @ApiOperation(value = "编辑帖子")
     @RateLimiterAnnotation(permitsPerSecond = 1.0)
@@ -194,13 +176,7 @@ public class TopicCon {
 
         String account = request.getAttribute(CommonField.ACCOUNT).toString();
 
-        TopicDTO topicDTO;
-        List<TopicDTO> data = requestEntity.getData();
-        if (data == null || data.isEmpty() || data.get(0) == null) {
-            return new ResponseEntity<>(ServerStatusCode.REQUEST_DATA_EMPTY);
-        } else {
-            topicDTO = data.get(0);
-        }
+        TopicDTO topicDTO = requestEntity.getData().get(0);
 
         // 参数校验
         if (StringUtils.isEmpty(topicDTO.getTopicTitle())) {

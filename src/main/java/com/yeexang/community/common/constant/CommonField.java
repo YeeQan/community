@@ -1,8 +1,5 @@
 package com.yeexang.community.common.constant;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * 常量工具类
  *
@@ -40,8 +37,6 @@ public class CommonField {
      * 评论类型 —— 二级评论
      */
     public static final String SECOND_LEVEL_COMMENT = "2";
-
-
 
     /**
      * 账号必须由字母、数字、下划线组成，不能超过12位

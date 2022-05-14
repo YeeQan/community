@@ -35,12 +35,7 @@ public class SectionCon {
     @RateLimiterAnnotation(permitsPerSecond = 2.0)
     public ResponseEntity<SectionVO> list(@RequestBody(required = false) RequestEntity<SectionDTO> requestEntity) {
 
-        SectionDTO sectionDTO;
-        if (requestEntity == null || requestEntity.getData() == null || requestEntity.getData().isEmpty()) {
-            sectionDTO = new SectionDTO();
-        } else {
-            sectionDTO = requestEntity.getData().get(0);
-        }
+        SectionDTO sectionDTO = requestEntity == null ? new SectionDTO() : requestEntity.getData().get(0);
 
         List<SectionVO> sectionVOList = sectionSev.getSectionList(sectionDTO);
 

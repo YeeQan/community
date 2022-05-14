@@ -9,18 +9,18 @@ import com.yeexang.community.common.redis.RedisKey;
 import com.yeexang.community.dao.CommentDao;
 import com.yeexang.community.dao.NotificationDao;
 import com.yeexang.community.dao.TopicDao;
-import com.yeexang.community.pojo.po.Comment;
-import com.yeexang.community.pojo.po.Notification;
-import com.yeexang.community.pojo.po.Topic;
-import com.yeexang.community.pojo.po.User;
+import com.yeexang.community.pojo.dto.NotificationDTO;
+import com.yeexang.community.pojo.po.*;
 import com.yeexang.community.pojo.vo.BaseVO;
 import com.yeexang.community.pojo.vo.NotificationVO;
 import com.yeexang.community.pojo.vo.PageVO;
+import com.yeexang.community.pojo.vo.TopicVO;
 import com.yeexang.community.web.service.base.BaseSev;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.List;
 import java.util.Objects;
@@ -137,12 +137,14 @@ public class NotificationSev extends BaseSev<Notification, String> {
                             // 查找外部和内部信息
                             if (NotificationField.TOPIC_VALUE.equals(po.getNotificationType())) {
                                 Topic outer = topicSev.selectById(po.getOuterId());
+                                vo.setOuterId(outer.getTopicId());
                                 vo.setOuterName(outer.getTopicTitle());
                                 Comment inner = commentSev.selectById(po.getInnerId());
                                 vo.setInnerName(inner.getCommentContent());
                             } else if (NotificationField.COMMENT_VALUE.equals(po.getNotificationType())) {
                                 Comment outer = commentSev.selectById(po.getOuterId());
-                                vo.setOuterName(outer.getCommentContent());
+                                vo.setOuterId(outer.getParentId());
+                                vo.setOuterName(outer.getCommentId());
                                 Comment inner = commentSev.selectById(po.getInnerId());
                                 String innerName = inner.getCommentContent();
                                 if (innerName.length() > 15) {
@@ -152,6 +154,7 @@ public class NotificationSev extends BaseSev<Notification, String> {
                                 vo.setInnerName(innerName);
                             } else if (NotificationField.TOPIC_LIKE_VALUE.equals(po.getNotificationType())) {
                                 Topic outer = topicSev.selectById(po.getOuterId());
+                                vo.setOuterId(outer.getTopicId());
                                 vo.setOuterName(outer.getTopicTitle());
                             }
                         }
@@ -165,5 +168,58 @@ public class NotificationSev extends BaseSev<Notification, String> {
             return new PageVO<>();
         }
         return pageVO;
+    }
+
+    /**
+     * 清空所有消息
+     * @param typeLabel typeLabel
+     * @param account account
+     */
+    public void clean(String typeLabel, String account) {
+        try {
+            List<String> typeList = NotificationField.LABEL_VALUE_MAP.get(typeLabel);
+            QueryWrapper<Notification> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("receiver", account);
+            queryWrapper.in("notification_type", typeList);
+            notificationDao.delete(queryWrapper);
+        } catch (Exception e) {
+            log.error("NotificationSev clean errorMsg: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 阅读消息
+     * @param notificationDTO notificationDTO
+     * @return NotificationVO
+     */
+    public Optional<NotificationVO> read(NotificationDTO notificationDTO) {
+        NotificationVO notificationVO = null;
+        try {
+            Optional<BasePO> optional = notificationDTO.toPO();
+            if (optional.isPresent()) {
+                Notification notification = (Notification) optional.get();
+                Notification db = selectById(notification.getNotificationId());
+                if (db != null) {
+                    notification.setReceiver(db.getReceiver());
+                    notification.setStatus("1");
+                    save(notification, notification.getNotificationId());
+
+                    String outerId = null;
+                    if (NotificationField.TOPIC_VALUE.equals(db.getNotificationType())
+                            || NotificationField.TOPIC_LIKE_VALUE.equals(db.getNotificationType())) {
+                        outerId = db.getOuterId();
+                    } else if (NotificationField.COMMENT_VALUE.equals(db.getNotificationType())) {
+                        Comment comment = commentSev.selectById(db.getOuterId());
+                        outerId = comment.getParentId();
+                    }
+                    notificationVO.setOuterId(outerId);
+                }
+            }
+        } catch (Exception e) {
+            log.error("NotificationSev read errorMsg: {}", e.getMessage(), e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return Optional.empty();
+        }
+        return Optional.ofNullable(notificationVO);
     }
 }

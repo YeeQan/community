@@ -25,7 +25,7 @@ import java.io.PrintWriter;
  */
 @Slf4j
 @Component
-    public class RateLimiterInterceptor implements HandlerInterceptor {
+public class RateLimiterInterceptor implements HandlerInterceptor {
 
     @Autowired
     private RateLimiterUtil rateLimiterUtil;

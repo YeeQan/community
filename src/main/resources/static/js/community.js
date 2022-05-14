@@ -32,6 +32,55 @@ jQuery.extend({
                 }
             ]
         };
+        $("#notification-clean").click(function () {
+            $.confirm({
+                title: "确认",
+                content: "确认要清空所有消息吗？",
+                buttons: {
+                    ok: {
+                        text: '确认',
+                        btnClass: 'btn-primary',
+                        action: function() {
+                            var requestJson = {
+                                data: [
+                                    {
+                                        typeLabel: label,
+                                    }
+                                ]
+                            };
+                            $.ajax({
+                                contentType: "application/json",
+                                type: "POST",
+                                url: "/community/notification/clean",
+                                dataType: "json",
+                                data: JSON.stringify(requestJson),
+                                success: function (result) {
+                                    if (result == null) {
+                                        $.alert({
+                                            title: "出错啦!",
+                                            content: "请稍后再试！",
+                                        });
+                                    } else {
+                                        if (result.code !== "2000") {
+                                            $.alert({
+                                                title: "出错啦!",
+                                                content: result.description,
+                                            });
+                                        } else {
+                                            location.reload();
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                    },
+                    cancel: {
+                        text: '取消',
+                        btnClass: 'btn-primary'
+                    }
+                }
+            });
+        })
         $.postNotificationPage(requestJson)
     },
 
@@ -146,6 +195,7 @@ jQuery.extend({
                                 ],
                             };
                             $.postNotificationPage(requestJson);
+                            $("#notification-name").html(kv.key)
                         });
                         if(kv.value === label) {
                             $("#notification-name").html(kv.key)

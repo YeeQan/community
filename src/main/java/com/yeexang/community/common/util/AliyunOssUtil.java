@@ -53,7 +53,7 @@ public class AliyunOssUtil {
     /**
      * AliyunOss 工具客户端
      */
-    private OSSClient ossClient;
+    private volatile OSSClient ossClient;
 
     /**
      * 单例模式
@@ -88,7 +88,7 @@ public class AliyunOssUtil {
                 // 头像图片大小控制在 2M 以内
                 long size = file.getSize();
                 if (size > 1024 * 2 * 1024 || size < 1024 * 2) {
-                    aliyunOssResult = new AliyunOssResult(false, null, null, null, "用户头像图片尺寸不合适.范围 10kb - 2M");
+                    aliyunOssResult = new AliyunOssResult(false, null, null, null, "用户头像图片尺寸不合适,范围10kb-2M");
                 } else {
                     // 获取流
                     InputStream inputStream = file.getInputStream();

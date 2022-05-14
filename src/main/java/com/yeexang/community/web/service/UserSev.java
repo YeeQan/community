@@ -8,7 +8,7 @@ import com.yeexang.community.common.constant.ServerStatusCode;
 import com.yeexang.community.common.http.response.AliyunOssResult;
 import com.yeexang.community.common.http.response.SevFuncResult;
 import com.yeexang.community.common.redis.RedisKey;
-import com.yeexang.community.common.task.UserRegisterTask;
+import com.yeexang.community.common.task.UserDynamicTask;
 import com.yeexang.community.common.util.*;
 import com.yeexang.community.dao.*;
 import com.yeexang.community.pojo.dto.UserDTO;
@@ -28,7 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -157,7 +160,7 @@ public class UserSev extends BaseSev<User, String> {
                     userHomepage.setUpdateUser(user.getAccount());
                     userHomepageDao.insert(userHomepage);
                     // 异步保存动态
-                    threadUtil.execute(new UserRegisterTask(user));
+                    threadUtil.execute(new UserDynamicTask(user.getAccount(), user.getAccount(), CommonField.USER_REGISTER_DYNAMIC_TYPE));
                     // 返回结果
                     sevFuncResult = new SevFuncResult(true, "成功", ServerStatusCode.SUCCESS);
                 }
