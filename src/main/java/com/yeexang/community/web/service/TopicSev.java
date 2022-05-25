@@ -168,6 +168,7 @@ public class TopicSev extends BaseSev<Topic, String> {
                         commentDTO.setParentId(topic.getTopicId());
                         List<CommentVO> firstLevelComment = commentSev.getFirstLevelComment(commentDTO);
                         topicVO.setCommentVOList(firstLevelComment);
+                        topicVO.setCreaterHomepageId(userVO.getHomepageId());
                         // 点赞状态 & 是否作者访问
                         if (account != null) {
                             boolean likeStatus = topicLikeSev.getTopicLikeStatus(topicId, account);
@@ -175,7 +176,6 @@ public class TopicSev extends BaseSev<Topic, String> {
                             if (account.equals(topic.getCreateUser())) {
                                 topicVO.setCreaterVisit(true);
                             }
-                            topicVO.setCreaterHomepageId(userVO.getHomepageId());
                         } else {
                             topicVO.setLikeStatus(false);
                         }
