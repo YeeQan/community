@@ -1002,10 +1002,14 @@ jQuery.extend({
                                                     (notification.status === '0' ? '<span class=\"badge badge-danger small\">New</span>\n' : '') +
                             "               </div>\n" +
                             "               <div class=\"mt-lg-2\">\n" +
-                            "                   <span class=\"font-weight-bold\">" + notification.innerName + "</span>\n" +
+                            "                   <a href=\"/community/readNotifi/" + notification.notificationId + "\">\n" +
+                            "                       <span class=\"font-weight-bold text-dark\">" + notification.innerName + "</span>\n" +
+                            "                   </a>\n" +
                             "               </div>\n" +
                             "               <div class=\"mt-lg-2\">\n" +
-                            "                   <a><span>" + notification.outerName + "</span></a>\n" +
+                            "                   <a href=\"/community/readNotifi/" + notification.notificationId + "\">\n" +
+                            "                       <span class=\"text-dark\">" + notification.outerName + "</span>\n" +
+                            "                   </a>\n" +
                             "               </div>\n" +
                             "           </div>\n" +
                             "       </div>\n" +
@@ -1027,7 +1031,9 @@ jQuery.extend({
                                                     (notification.status === '0' ? '<span class=\"badge badge-danger small\">New</span>\n' : '') +
                             "               </div>\n" +
                             "               <div class=\"mt-lg-2\">\n" +
-                            "                   <a><span>" + notification.outerName + "</span></a>\n" +
+                            "                   <a href=\"/community/readNotifi/" + notification.notificationId + "\">\n" +
+                            "                       <span class=\"text-dark\">" + notification.outerName + "</span>" +
+                            "                   </a>\n" +
                             "               </div>\n" +
                             "           </div>\n" +
                             "       </div>\n" +

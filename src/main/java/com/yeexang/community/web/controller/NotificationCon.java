@@ -98,20 +98,4 @@ public class NotificationCon {
 
         return new ResponseEntity<>(ServerStatusCode.SUCCESS);
     }
-
-    @ReqParamVerify
-    @PostMapping("read")
-    @ApiOperation(value = "阅读通知")
-    public ResponseEntity<?> read(@RequestBody RequestEntity<NotificationDTO> requestEntity, HttpServletRequest request) {
-
-        NotificationDTO notificationDTO = requestEntity.getData().get(0);
-
-        Optional<NotificationVO> optional = notificationSev.read(notificationDTO);
-
-        if (optional.isEmpty()) {
-            return new ResponseEntity<>(ServerStatusCode.RESPONSE_DATA_EMPTY);
-        }
-
-        return new ResponseEntity<>(optional.get());
-    }
 }

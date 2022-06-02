@@ -144,7 +144,12 @@ public class NotificationSev extends BaseSev<Notification, String> {
                             } else if (NotificationField.COMMENT_VALUE.equals(po.getNotificationType())) {
                                 Comment outer = commentSev.selectById(po.getOuterId());
                                 vo.setOuterId(outer.getParentId());
-                                vo.setOuterName(outer.getCommentId());
+                                String outerName = outer.getCommentContent();
+                                if (outerName.length() > 15) {
+                                    // 截取前15个字符
+                                    outerName = outerName.substring(0, 15) + "...";
+                                }
+                                vo.setOuterName(outerName);
                                 Comment inner = commentSev.selectById(po.getInnerId());
                                 String innerName = inner.getCommentContent();
                                 if (innerName.length() > 15) {
@@ -189,37 +194,18 @@ public class NotificationSev extends BaseSev<Notification, String> {
 
     /**
      * 阅读消息
-     * @param notificationDTO notificationDTO
-     * @return NotificationVO
+     *
+     * @param notificationId notificationId
      */
-    public Optional<NotificationVO> read(NotificationDTO notificationDTO) {
-        NotificationVO notificationVO = null;
+    public void read(String notificationId) {
         try {
-            Optional<BasePO> optional = notificationDTO.toPO();
-            if (optional.isPresent()) {
-                Notification notification = (Notification) optional.get();
-                Notification db = selectById(notification.getNotificationId());
-                if (db != null) {
-                    notification.setReceiver(db.getReceiver());
-                    notification.setStatus("1");
-                    save(notification, notification.getNotificationId());
-
-                    String outerId = null;
-                    if (NotificationField.TOPIC_VALUE.equals(db.getNotificationType())
-                            || NotificationField.TOPIC_LIKE_VALUE.equals(db.getNotificationType())) {
-                        outerId = db.getOuterId();
-                    } else if (NotificationField.COMMENT_VALUE.equals(db.getNotificationType())) {
-                        Comment comment = commentSev.selectById(db.getOuterId());
-                        outerId = comment.getParentId();
-                    }
-                    notificationVO.setOuterId(outerId);
-                }
-            }
+            Notification notification = new Notification();
+            notification.setNotificationId(notificationId);
+            notification.setStatus("1");
+            save(notification, notificationId);
         } catch (Exception e) {
             log.error("NotificationSev read errorMsg: {}", e.getMessage(), e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return Optional.empty();
         }
-        return Optional.ofNullable(notificationVO);
     }
 }
