@@ -857,6 +857,35 @@ jQuery.extend({
                         $("#homepageHeadPortrait").attr("src", data.headPortrait)
                         $("#homepageUsername").html(data.username)
                         $.renderUserDynamicList(data.userDynamicVOList)
+                        $("#upload-headPortrait-button").click(function () {
+                            var file = $('#headPortraitMultiple').get(0).files[0]
+                            var formData = new FormData();
+                            formData.append('file', file);
+                            $.ajax({
+                                type: "post",
+                                data: formData,
+                                contentType : false,
+                                processData : false,
+                                url: "/community/user/upload/headPortrait",
+                                success: function (result) {
+                                    if (result == null) {
+                                        $.alert({
+                                            title: "出错啦!",
+                                            content: "请稍后再试！",
+                                        });
+                                    } else {
+                                        if (result.code !== "2000") {
+                                            $.alert({
+                                                title: "出错啦!",
+                                                content: result.description,
+                                            });
+                                        } else {
+                                            location.reload();
+                                        }
+                                    }
+                                }
+                            })
+                        });
                     }
                 }
             },
