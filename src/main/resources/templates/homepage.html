@@ -26,8 +26,10 @@
       <!-- 个人简介 -->
       <div class="col-lg-8">
         <div class="media bg-white shadow-sm rounded px-lg-3 py-lg-3" id="user-info">
-          <img id="homepageHeadPortrait"
-            class="mr-lg-3 community-ele-height-80px community-ele-width-80px rounded-circle">
+          <a href="javascript:void(0)" data-toggle="modal" data-target="#uploadHeadPortraitModel">
+            <img id="homepageHeadPortrait"
+                 class="mr-lg-3 community-ele-height-80px community-ele-width-80px rounded-circle">
+          </a>
           <div class="media-body">
             <h4 class="mt-2 font-weight-bold" id="homepageUsername"></h4>
             <span class="community-text-desc-grey community-text-desc-font-size-15px">个人简介：没有个人简介</span>
@@ -57,6 +59,32 @@
     </div>
   </div>
 </body>
+
+<div class="modal fade" id="uploadHeadPortraitModel" data-backdrop="static" data-keyboard="false" tabindex="-1"
+     aria-labelledby="uploadHeadPortraitModel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="uploadHeadPortraitLabel">上传用户头像</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="headPortraitMultiple" class="form-label">图片大小请控制在2M以内</label>
+            <input class="form-control" type="file" id="headPortraitMultiple" multiple>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="upload-headPortrait-button">提交</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <footer id="footer"></footer>
 
