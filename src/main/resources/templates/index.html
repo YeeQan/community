@@ -3,11 +3,11 @@
 
 <head>
 
-  <title>首页</title>
+  <title>Community</title>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap.css" />
   <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap-grid.min.css" />
   <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap-reboot.min.css" />
   <link rel="stylesheet" href="/community/css/community.css" />
@@ -27,50 +27,51 @@
 
   <header id="header"></header>
 
-  <!-- 主体部分 -->
   <div class="container mt-lg-5">
     <div class="row">
-      <!-- 分区导航 -->
-      <div class="col-lg-1">
-        <div class="bg-white sticky-top shadow-sm rounded">
-          <ul class="nav flex-column" id="section-nav"></ul>
+      <div class="col-lg-8">
+        <h4>讨论</h4>
+      </div>
+      <div class="col-lg-4">
+        <h6 class="text-secondary">公告 | 暂时没有公告</h6>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <!-- 左侧 -->
+      <div class="col-lg-8">
+        <!-- 讨论列表 -->
+        <div class="row mt-lg-3">
+          <div class="col-lg-12">
+            <div class="bg-white shadow-sm rounded">
+              <div id="topic-list"></div>
+              <div class="p-lg-2 mt-lg-3 d-flex justify-content-center">
+                <nav>
+                  <ul class="pagination pagination-sm" id="topic-pagination"></ul>
+                </nav>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <!-- 帖子预览列表 -->
-      <div class="col-lg-7">
-        <div class="container-fluid bg-white shadow-sm rounded">
-          <!-- 公告栏 -->
-          <div class="row border border-top-0 border-left-0 border-right-0 community-ele-border-color-grey">
-            <nav class="nav py-lg-2 pl-lg-3">
-              <a class="nav-link" href="javascript:void(0)" id="topic-public-new">
-                <span class="text-black-50">最新发表</span>
-              </a>
-              <a class="nav-link" href="javascript:void(0)" id="topic-comment-new">
-                <span class="text-black-50">最新评论</span>
-              </a>
-              <a class="nav-link" href="javascript:void(0)" id="topic-essential">
-                <span class="text-black-50">精华</span>
-              </a>
-            </nav>
-          </div>
-          <!-- 列表 -->
-          <div class="row">
-            <div class="col-lg-12 py-lg-3" id="topic-list"></div>
-          </div>
-          <!-- 分页 -->
-          <div class="row pl-lg-3">
-            <nav>
-              <ul class="pagination pagination-sm" id="pagination"></ul>
-            </nav>
+      <!-- 右侧 -->
+      <div class="col-lg-4">
+        <div class="row mt-lg-3">
+          <div class="col-lg-12">
+            <div class="bg-white p-lg-3 shadow-sm rounded">
+              <h4>Community 宣言</h4>
+              <p>欢迎你加入本社区~</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-</body>
+  <footer id="footer"></footer>
 
-<footer id="footer"></footer>
+</body>
 
 <script>
   $.initIndex()

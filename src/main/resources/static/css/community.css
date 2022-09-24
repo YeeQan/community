@@ -1,6 +1,6 @@
 html,
 body {
-  background-color: #e2e2e2;
+  background-color: #e9ecef;
 }
 
 ul li {
@@ -37,4 +37,22 @@ a:link {
 
 .community-ele-border-color-grey {
   border-bottom-color: #e2e2e2 !important;
+}
+
+.num-card {
+  width: 3rem;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.num-card-comment {
+  border: 1px solid #00965e;
+  color: #00965e!important;
+}
+
+.num-card-read {
+  color: #ac560e!important;
 }

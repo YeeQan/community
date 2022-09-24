@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.yeexang.community.dao.TopicDao">
+<mapper namespace="com.styeeqan.community.mapper.TopicMapper">
+
+    <update id="incrViewCount">
+        update y_c_topic set view_count = view_count + 1 where id = #{topicId}
+    </update>
+
+    <update id="incrCommentCount">
+        update y_c_topic set comment_count = comment_count + 1 where id = #{topicId}
+    </update>
 
 </mapper>

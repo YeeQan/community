@@ -6,136 +6,7 @@ jQuery.extend({
     initIndex: function () {
         $.initTop();
         $.initFooter();
-        $.initSection();
-        $.initFilter();
-        var requestJson = {
-            pageNum: 1,
-            pageSize: 20,
-            filter: {
-                createTimeDesc: true
-            }
-        };
-        $.postPage(requestJson);
-    },
-
-    /**
-     * 初始化评论通知
-     */
-    initNotification: function (label) {
-        $.initNotificationNav(label)
-        var requestJson = {
-            pageNum: 1,
-            pageSize: 20,
-            data: [
-                {
-                    typeLabel: label,
-                }
-            ]
-        };
-        $("#notification-clean").click(function () {
-            $.confirm({
-                title: "确认",
-                content: "确认要清空所有消息吗？",
-                buttons: {
-                    ok: {
-                        text: '确认',
-                        btnClass: 'btn-primary',
-                        action: function() {
-                            var requestJson = {
-                                data: [
-                                    {
-                                        typeLabel: label,
-                                    }
-                                ]
-                            };
-                            $.ajax({
-                                contentType: "application/json",
-                                type: "POST",
-                                url: "/community/notification/clean",
-                                dataType: "json",
-                                data: JSON.stringify(requestJson),
-                                success: function (result) {
-                                    if (result == null) {
-                                        $.alert({
-                                            title: "出错啦!",
-                                            content: "请稍后再试！",
-                                        });
-                                    } else {
-                                        if (result.code !== "2000") {
-                                            $.alert({
-                                                title: "出错啦!",
-                                                content: result.description,
-                                            });
-                                        } else {
-                                            location.reload();
-                                        }
-                                    }
-                                }
-                            })
-                        }
-                    },
-                    cancel: {
-                        text: '取消',
-                        btnClass: 'btn-primary'
-                    }
-                }
-            });
-        })
-        $.postNotificationPage(requestJson)
-    },
-
-    /**
-     * 初始化筛选条件
-     */
-    initFilter: function () {
-        // 最新发表
-        $("#topic-public-new").click(function () {
-            var requestJson = {
-                pageNum: 1,
-                pageSize: 20,
-                filter: {
-                    createTimeDesc: true
-                },
-                data: [
-                    {
-                        section: $("#section-nav").attr("section-sign"),
-                    },
-                ],
-            };
-            $.postPage(requestJson);
-        })
-        // 最新评论
-        $("#topic-comment-new").click(function () {
-            var requestJson = {
-                pageNum: 1,
-                pageSize: 20,
-                filter: {
-                    lastCommentTimeDesc: true
-                },
-                data: [
-                    {
-                        section: $("#section-nav").attr("section-sign"),
-                    },
-                ],
-            };
-            $.postPage(requestJson);
-        })
-        // 精华
-        $("#topic-essential").click(function () {
-            var requestJson = {
-                pageNum: 1,
-                pageSize: 20,
-                filter: {
-                    topicEssential: true
-                },
-                data: [
-                    {
-                        section: $("#section-nav").attr("section-sign")
-                    },
-                ],
-            };
-            $.postPage(requestJson);
-        })
+        $.postIndexPage();
     },
 
     /**
@@ -162,171 +33,13 @@ jQuery.extend({
     },
 
     /**
-     * 初始化通知类型
-     */
-    initNotificationNav: function (label) {
-        $("#notification-nav").attr("notification-sign", label)
-        $.post("/community/notification/type/list", function (result) {
-            if (result == null) {
-                $.alert({
-                    title: "出错啦!",
-                    content: "请稍后再试！",
-                });
-            } else {
-                if (result.code !== "2000") {
-                    $.alert({
-                        title: "出错啦!",
-                        content: result.description,
-                    });
-                } else {
-                    var $nav = $("#notification-nav");
-                    $.each(result.data, function (index, kv) {
-                        var $li = $("<li/>", {
-                            class: "nav-item",
-                        }).click(function () {
-                            $("#notification-nav").attr("notification-sign", kv.value)
-                            var requestJson = {
-                                pageNum: 1,
-                                pageSize: 20,
-                                data: [
-                                    {
-                                        typeLabel: kv.value,
-                                    },
-                                ],
-                            };
-                            $.postNotificationPage(requestJson);
-                            $("#notification-name").html(kv.key)
-                        });
-                        if(kv.value === label) {
-                            $("#notification-name").html(kv.key)
-                        }
-                        var html =  "<a class=\"nav-link\" href=\"javascript:void(0)\">\n" +
-                                    "   <span class=\"text-black-50\">" + kv.key + "</span>\n" +
-                                    "</a>\n"
-                        $li.append(html);
-                        $nav.append($li);
-                    });
-                }
-            }
-        });
-    },
-
-    /**
-     * 初始化专栏数据
-     */
-    initSection: function () {
-        $.post("/community/section/list", function (result) {
-            if (result == null) {
-                $.alert({
-                    title: "出错啦!",
-                    content: "请稍后再试！",
-                });
-            } else {
-                if (result.code !== "2000") {
-                    $.alert({
-                        title: "出错啦!",
-                        content: result.description,
-                    });
-                } else {
-                    var $nav = $("#section-nav");
-
-                    var $span = $("<span/>", {
-                        class: "text-black-50",
-                        html: "全部"
-                    });
-                    var $a = $("<a/>", {
-                        class: "nav-link",
-                        href: "javascript:void(0)",
-                    }).click(function () {
-                        $("#section-nav").attr("section-sign", null)
-                        var requestJson = {
-                            pageNum: 1,
-                            pageSize: 20,
-                            filter: {
-                                lastCommentTimeDesc: true
-                            }
-                        };
-                        $.postPage(requestJson);
-                    });
-
-                    var $li = $("<li/>", {
-                        class: "nav-item",
-                    });
-
-                    $a.append($span);
-                    $li.append($a);
-                    $nav.append($li);
-
-                    $.each(result.data, function (index, section) {
-                        var $span = $("<span/>", {
-                            class: "text-black-50",
-                            html: section.sectionName
-                        });
-                        var $a = $("<a/>", {
-                            class: "nav-link",
-                            href: "javascript:void(0)",
-                        }).click(function () {
-                            $("#section-nav").attr("section-sign", section.sectionId)
-                            var requestJson = {
-                                pageNum: 1,
-                                pageSize: 20,
-                                data: [
-                                    {
-                                        section: section.sectionId,
-                                    },
-                                ],
-                                filter: {
-                                    lastCommentTimeDesc: true
-                                }
-                            };
-                            $.postPage(requestJson);
-                        });
-
-                        var $li = $("<li/>", {
-                            class: "nav-item",
-                        });
-
-                        $a.append($span);
-                        $li.append($a);
-                        $nav.append($li);
-                    });
-                }
-            }
-        });
-    },
-
-    /**
      * 初始化发布页
      */
     initPublish: function () {
-        // 初始化专栏
-        $.post("/community/section/list", function (result) {
-            if (result == null) {
-                $.alert({
-                    title: "出错啦!",
-                    content: "请稍后再试！",
-                });
-            } else {
-                if (result.code !== "2000") {
-                    $.alert({
-                        title: "出错啦!",
-                        content: result.description,
-                    });
-                } else {
-                    var $selectSection = $("#selectSection");
-
-                    $.each(result.data, function (index, section) {
-                        var $option = $("<option/>", {
-                            value: section.sectionId,
-                            html: section.sectionName,
-                        });
-                        $selectSection.append($option);
-                    });
-                }
-            }
-        });
+        $.initTop();
+        $.initFooter();
         $(function () {
-            var editor = editormd("topicEditor", {
+            var editor = editormd("topic-editor", {
                 width: "100%",
                 height: "500px",
                 path: "/community/editor.md/lib/",
@@ -340,15 +53,10 @@ jQuery.extend({
                 imageUpload: true,
                 imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
             });
-            $("#publishTopic").click(function () {
+            $("#publish-topic").click(function () {
                 var requestJson = {
-                    data: [
-                        {
-                            topicTitle: $("#topicTitle").val(),
-                            topicContent: editor.getMarkdown(),
-                            section: $("#selectSection").val(),
-                        },
-                    ],
+                        topicTitle: $("#topic-title").val(),
+                        topicContent: editor.getMarkdown(),
                 };
                 $.ajax({
                     contentType: "application/json",
@@ -372,7 +80,7 @@ jQuery.extend({
                                 var topic = result.data[0];
                                 $(location).attr(
                                     "href",
-                                    "/community/topic/view/" + topic.topicId
+                                    "/community/topic/view/" + topic.id
                                 );
                             }
                         }
@@ -531,50 +239,8 @@ jQuery.extend({
                             content: result.description,
                         });
                     } else {
-                        var loginUsername = result.data[0].username;
                         var headPortrait = result.data[0].headPortrait;
-                        var homepageId = result.data[0].homepageId;
-
-                        $("#loginUsername").html(loginUsername);
-                        $("#userHomepage").attr("href", "/community/homepage/" + homepageId);
-
-                        var notificationMap = new Map(Object.entries(result.notificationMap));
-
-                        var allNotifCount = notificationMap.get("all");
-                        if (!isNaN(allNotifCount) && allNotifCount > 0) {
-                            $("#notification-all-badge").html(allNotifCount);
-                        }
-
-                        $.ajax({
-                            contentType: "application/json",
-                            type: "POST",
-                            url: "/community/notification/type/list",
-                            success: function (result) {
-                                if (result == null) {
-                                    $.alert({
-                                        title: "出错啦!",
-                                        content: "请稍后再试！",
-                                    });
-                                } else {
-                                    if (result.code !== "2000") {
-                                        $.alert({
-                                            title: "出错啦!",
-                                            content: result.description,
-                                        });
-                                    } else {
-                                        $.each(result.data, function (index, kv) {
-                                            console.log(kv);
-                                            var $dropdown = $("#dropdown-menu-notification");
-                                            var html = "<a class=\"dropdown-item\" href=\"/community/notification/" + kv.value + "\">\n" +
-                                                "   <span class=\"text-black-50\">" + kv.key + "</span>\n" +
-                                                (!isNaN(notificationMap.get(kv.value)) && notificationMap.get(kv.value) > 0 ? "<span class=\"badge badge-danger\" id=\"notification-comment-badge\">" + notificationMap.get(kv.value) + "</span>\n" : "") +
-                                                "</a>";
-                                            $dropdown.append(html);
-                                        })
-                                    }
-                                }
-                            },
-                        });
+                        $("#userDropDown-button").html("<img class='rounded-circle' width='32' height='32' src='" + headPortrait + "' alt='头像'>")
                     }
                 }
             },
@@ -613,14 +279,11 @@ jQuery.extend({
         // 初始化注册按钮
         $("#register-button").click(function () {
             var requestJson = {
-                data: [
-                    {
-                        account: $("#registerAccount").val(),
-                        username: $("#registerName").val(),
-                        password: $("#registerPassword").val(),
-                    },
-                ],
+                account: $("#registerAccount").val(),
+                username: $("#registerName").val(),
+                password: $("#registerPassword").val()
             };
+            console.log(requestJson);
             $.ajax({
                 contentType: "application/json",
                 type: "POST",
@@ -635,10 +298,8 @@ jQuery.extend({
                         });
                     } else {
                         if (result.code !== "2000") {
-                            $.alert({
-                                title: "出错啦!",
-                                content: result.description,
-                            });
+                            $("#registerError").removeClass("d-none")
+                            $("#registerErrorMsg").html(result.description)
                         } else {
                             location.reload();
                         }
@@ -649,12 +310,8 @@ jQuery.extend({
         // 初始化登录按钮
         $("#login-button").click(function () {
             var requestJson = {
-                data: [
-                    {
-                        account: $("#loginAccount").val(),
-                        password: $("#loginPassword").val(),
-                    },
-                ],
+                account: $("#loginAccount").val(),
+                password: $("#loginPassword").val()
             };
             $.ajax({
                 contentType: "application/json",
@@ -670,10 +327,8 @@ jQuery.extend({
                         });
                     } else {
                         if (result.code !== "2000") {
-                            $.alert({
-                                title: "出错啦!",
-                                content: result.description,
-                            });
+                            $("#loginError").removeClass("d-none")
+                            $("#loginErrorMsg").html(result.description)
                         } else {
                             location.reload();
                         }
@@ -924,9 +579,13 @@ jQuery.extend({
     },
 
     /**
-     * 获取帖子分页
+     * 获取讨论
      */
-    postPage: function (requestJson) {
+    postIndexPage: function () {
+        var requestJson = {
+            pageNum: 1,
+            pageSize: 20
+        };
         $.ajax({
             contentType: "application/json",
             type: "POST",
@@ -946,8 +605,8 @@ jQuery.extend({
                             content: result.description,
                         });
                     } else {
-                        $.render(result);
-                        $.setPage(result);
+                        $.renderIndexPage(result);
+                        $.setTopicPagination(result);
                     }
                 }
             },
@@ -955,131 +614,44 @@ jQuery.extend({
     },
 
     /**
-     * 渲染帖子列表
+     * 渲染讨论列表
      */
-    render: function (pageInfo) {
+    renderIndexPage: function (pageInfo) {
         var $topicList = $("#topic-list");
         $topicList.empty();
         $.each(pageInfo.data[0].list, function (index, topic) {
-            var $mediaDiv = $("<div/>", {
-                class: "media mb-lg-3",
-            });
-
-            var $img = $("<a/>", {
-                href: "/community/homepage/" + topic.createrHomepageId
-            }).append($("<img/>", {
-                src: topic.headPortrait,
-                class:
-                    "mr-lg-3 rounded-circle community-ele-width-50px community-ele-height-50px",
-            }));
-
-            var $mediaBodyDiv = $("<div/>", {
-                class: "media-body",
-            });
-
-            var $titleDiv = $("<div/>").append(
-                $("<a/>", {
-                    href: "/community/topic/view/" + topic.topicId
-                }).append(
-                    $("<span/>", {
-                        class:
-                            "text-black-50",
-                        html: topic.topicTitle,
-                    })
-                )
-            );
-
-            var $contentDiv = $("<div/>", {
-                class:
-                    "mt-lg-1 small text-black-50",
-            }).append(
-                $("<span/>", {
-                    html: topic.commentCount + "&nbsp;个回复&nbsp;&nbsp;",
-                })
-            ).append(
-                $("<span/>", {
-                    html: topic.viewCount + "&nbsp;次浏览&nbsp;&nbsp;",
-                })
-            ).append(
-                $("<span/>", {
-                    html: "发布时间：" + topic.createTime,
-                })
-            );
-
-            $mediaBodyDiv.append($titleDiv).append($contentDiv);
-            $mediaDiv.append($img).append($mediaBodyDiv);
-            $topicList.append($mediaDiv);
+            var html =
+                "<div class='px-lg-3 py-lg-4 border border-top-0 border-left-0 border-right-0'>" +
+                "   <div class='media'>" +
+                "       <div class='num-card mr-lg-1 align-self-center " + (topic.commentCount === 0 ? 'text-secondary' : 'num-card-comment') + "'>" +
+                "           <span>" + topic.commentCount + "</span>" +
+                "           <span>回答</span>" +
+                "       </div>" +
+                "       <div class='num-card mr-lg-2 align-self-center " + (topic.viewCount < 100 ? 'text-secondary' : 'num-card-read') + "'>" +
+                "           <span>" + topic.viewCount + "</span>" +
+                "           <span>阅读</span>" +
+                "       </div>" +
+                "       <div class='media-body'>" +
+                "           <div>" +
+                "               <a href='/community/topic/view/" + topic.id + "'>" +
+                "                   <span class='text-body'>" + topic.topicTitle + "</span>" +
+                "               </a>" +
+                "               <div class='text-right'>" +
+                "                   <a class='text-success' href='javascript:void(0)'>" + topic.createUserName + "</a>" +
+                "                   <span class='text-secondary'>于&nbsp;" + topic.createTime + "&nbsp;发布</span>" +
+                "               </div>" +
+                "           </div>" +
+                "       </div>" +
+                "   </div>" +
+                "</div>"
+            $topicList.append(html);
         });
     },
 
     /**
-     * 渲染评论通知分页
+     * 渲染讨论分页
      */
-    renderNotification: function (pageInfo) {
-        var $notificationList = $("#notification-list");
-        $notificationList.empty();
-        $.each(pageInfo.data[0].list, function (index, notification) {
-            if(notification.notificationType === "1" || notification.notificationType === "2") {
-                var html =  "<div class=\"row px-lg-2 py-lg-4 border border-bottom-0 border-left-0 border-right-0 community-ele-border-color-grey\">\n" +
-                            "   <div class=\"col-lg-10\">\n" +
-                            "       <div class=\"media\">\n" +
-                            "           <img src=\"" + notification.receiverHeadPortrait + "\" class=\"mr-3 rounded-circle community-ele-width-50px community-ele-height-50px\">\n" +
-                            "           <div class=\"media-body\">\n" +
-                            "               <div class=\"mt-lg-0\">\n" +
-                            "                   <a><span>" + notification.notifierName + "</span>&nbsp;</a>\n" +
-                                                    (notification.notificationType === '1' ? '<span class=\"text-black-50\">回复了你的帖子</span>&nbsp;\n' : '<span class=\"text-black-50\">回复了你的评论</span>&nbsp;\n') +
-                                                    (notification.status === '0' ? '<span class=\"badge badge-danger small\">New</span>\n' : '') +
-                            "               </div>\n" +
-                            "               <div class=\"mt-lg-2\">\n" +
-                            "                   <a href=\"/community/readNotifi/" + notification.notificationId + "\">\n" +
-                            "                       <span class=\"font-weight-bold text-dark\">" + notification.innerName + "</span>\n" +
-                            "                   </a>\n" +
-                            "               </div>\n" +
-                            "               <div class=\"mt-lg-2\">\n" +
-                            "                   <a href=\"/community/readNotifi/" + notification.notificationId + "\">\n" +
-                            "                       <span class=\"text-dark\">" + notification.outerName + "</span>\n" +
-                            "                   </a>\n" +
-                            "               </div>\n" +
-                            "           </div>\n" +
-                            "       </div>\n" +
-                            "   </div>\n" +
-                            "   <div class=\"col-lg-2\">\n" +
-                            "       <span class=\"text-black-50\">" + notification.updateTime + "</span>\n" +
-                            "   </div>\n" +
-                            "</div>";
-                $notificationList.append(html);
-            } else if (notification.notificationType === "3") {
-                var html =  "<div class=\"row px-lg-2 py-lg-4 border border-bottom-0 border-left-0 border-right-0 community-ele-border-color-grey\">\n" +
-                            "   <div class=\"col-lg-10\">\n" +
-                            "       <div class=\"media\">\n" +
-                            "           <img src=\"" + notification.receiverHeadPortrait + "\" class=\"mr-3 rounded-circle community-ele-width-50px community-ele-height-50px\">\n" +
-                            "           <div class=\"media-body\">\n" +
-                            "               <div class=\"mt-lg-0\">\n" +
-                            "                   <a><span>" + notification.notifierName + "</span>&nbsp;</a>\n" +
-                            "                   <span class=\"text-black-50\">点赞了你的帖子</span>&nbsp;\n" +
-                                                    (notification.status === '0' ? '<span class=\"badge badge-danger small\">New</span>\n' : '') +
-                            "               </div>\n" +
-                            "               <div class=\"mt-lg-2\">\n" +
-                            "                   <a href=\"/community/readNotifi/" + notification.notificationId + "\">\n" +
-                            "                       <span class=\"text-dark\">" + notification.outerName + "</span>" +
-                            "                   </a>\n" +
-                            "               </div>\n" +
-                            "           </div>\n" +
-                            "       </div>\n" +
-                            "   </div>\n" +
-                            "   <div class=\"col-lg-2\">\n" +
-                            "       <span class=\"text-black-50\">" + notification.updateTime + "</span>\n" +
-                            "   </div>\n" +
-                            "</div>";
-                $notificationList.append(html);
-            }
-        });
-    },
-
-    /**
-     * 渲染通知分页
-     */
-    setNotificationPage: function (pageInfo) {
+    setTopicPagination: function (pageInfo) {
         // 当前页
         var currentPage = pageInfo.data[0].pageNum;
         // 得到总页数
@@ -1087,106 +659,70 @@ jQuery.extend({
         // 所有导航页号
         var navigatepageNums = pageInfo.data[0].navigatepageNums;
 
-        var $pagination = $("#notification-pagination");
+        var $pagination = $("#topic-pagination");
 
         $pagination.empty();
 
         if (pageCount > 0) {
-            // 当前通知
-            var typeLabel = $("#notification-nav").attr("notification-sign")
-            var $pageFirst = $("<li/>", {
-                class: "page-item",
-            }).append(
-                $("<a/>", {
-                    class: "page-link",
-                    href: "javascript:void(0)",
-                    html: "首页",
-                }).click(function () {
-                    var requestJson = {
-                        pageNum: 0,
-                        pageSize: 20,
-                        data: [
-                            {
-                                typeLabel: typeLabel,
-                            },
-                        ],
-                    };
-                    $.postNotificationPage(requestJson);
-                })
-            );
 
-            var $pagePrevious = $("<li/>", {
-                class: "page-item",
-            }).append(
-                $("<a/>", {
-                    class: "page-link",
-                    href: "javascript:void(0)",
-                    html: "&lt;上一页",
-                })
-            );
+            var pageFirst = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>首页</a></li>"
+            var $pageFirst = $(pageFirst).click(function () {
+                var requestJson = {
+                    pageNum: 0,
+                    pageSize: 20
+                };
+                $.postIndexPage(requestJson);
+            })
 
-            var $pageNext = $("<li/>", {
-                class: "page-item",
-            }).append(
-                $("<a/>", {
-                    class: "page-link",
-                    href: "javascript:void(0)",
-                    html: "下一页&gt;",
-                })
-            );
+            var pagePrevious = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>&lt;上一页</a></li>"
+            var $pagePrevious = $(pagePrevious).click(function () {
+                var requestJson = {
+                    pageNum: currentPage - 1,
+                    pageSize: 20
+                };
+                $.postIndexPage(requestJson);
+            })
 
-            var $pageLast = $("<li/>", {
-                class: "page-item",
-            }).append(
-                $("<a/>", {
-                    class: "page-link",
-                    href: "javascript:void(0)",
-                    html: "尾页",
-                }).click(function () {
-                    var requestJson = {
-                        pageNum: 99999,
-                        pageSize: 20,
-                        data: [
-                            {
-                                typeLabel: typeLabel,
-                            },
-                        ],
-                    };
-                    $.postNotificationPage(requestJson);
-                })
-            );
+            var pageNext = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>下一页&gt;</a></li>"
+            var $pageNext = $(pageNext).click(function () {
+                var requestJson = {
+                    pageNum: currentPage + 1,
+                    pageSize: 20
+                };
+                $.postIndexPage(requestJson);
+            })
+
+            var pageLast = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>尾页</a></li>"
+            var $pageLast = $(pageLast).click(function () {
+                var requestJson = {
+                    pageNum: 99999,
+                    pageSize: 20
+                };
+                $.postIndexPage(requestJson);
+            })
 
             $pagination
                 .append($pageFirst)
                 .append($pagePrevious)
                 .append($pageNext)
-                .append($pageLast);
+                .append($pageLast)
 
             // 总页数小于等于5，直接加载
             if (pageCount <= 5) {
                 $.each(navigatepageNums, function (index, num) {
-                    var $pageItem = $("<li/>", {
-                        class: "page-item",
+                    var pageItem
+                    if(num === currentPage) {
+                        pageItem = "<li class='page-item active'><a class='page-link' href='javascript:void(0)'>" + num + "</a></li>"
+                    } else {
+                        pageItem = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>" + num + "</a></li>"
+                    }
+                    var $pageItem = $(pageItem).click(function () {
+                        var requestJson = {
+                            pageNum: num,
+                            pageSize: 20
+                        };
+                        $.postIndexPage(requestJson);
                     })
-                        .append(
-                            $("<a/>", {
-                                class: "page-link",
-                                href: "javascript:void(0)",
-                                html: num,
-                            })
-                        )
-                        .click(function () {
-                            var requestJson = {
-                                pageNum: num,
-                                pageSize: 20,
-                                data: [
-                                    {
-                                        typeLabel: typeLabel,
-                                    },
-                                ],
-                            };
-                            $.postNotificationPage(requestJson);
-                        });
                     $pageNext.before($pageItem);
                 });
             } else {
@@ -1201,268 +737,22 @@ jQuery.extend({
                     sliceArray = navigatepageNums.slice(currentPage - 3, currentPage + 2);
                 }
                 $.each(sliceArray, function (index, num) {
-                    var $pageItem;
+                    var pageItem;
                     if (num === currentPage) {
-                        $pageItem = $("<li/>", {
-                            class: "page-item active",
-                            id: "page-position",
-                            "data-id": num,
-                        }).append(
-                            $("<a/>", {
-                                class: "page-link",
-                                href: "javascript:void(0)",
-                                html: num,
-                            })
-                        );
+                        pageItem = "<li class='page-item active'><a class='page-link' href='javascript:void(0)'>" + num + "</a></li>"
                     } else {
-                        $pageItem = $("<li/>", {
-                            class: "page-item",
-                            id: "page-position",
-                            "data-id": num,
-                        }).append(
-                            $("<a/>", {
-                                class: "page-link",
-                                href: "javascript:void(0)",
-                                html: num,
-                            })
-                        );
+                        pageItem = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>" + num + "</a></li>"
                     }
-                    $pageItem.click(function () {
+                    var $pageItem = $(pageItem).click(function () {
                         var requestJson = {
                             pageNum: num,
-                            pageSize: 20,
-                            data: [
-                                {
-                                    typeLabel: typeLabel,
-                                },
-                            ],
+                            pageSize: 20
                         };
-                        $.postNotificationPage(requestJson);
-                    });
-                    $pageNext.before($pageItem);
-                });
-            }
-
-            $pagePrevious.click(function () {
-                var requestJson = {
-                    pageNum: currentPage - 1,
-                    pageSize: 20,
-                    data: [
-                        {
-                            typeLabel: typeLabel,
-                        },
-                    ],
-                };
-                $.postNotificationPage(requestJson);
-            });
-
-            $pageNext.click(function () {
-                var requestJson = {
-                    pageNum: currentPage + 1,
-                    pageSize: 20,
-                    data: [
-                        {
-                            typeLabel: typeLabel,
-                        },
-                    ],
-                };
-                $.postNotificationPage(requestJson);
-            });
-        }
-    },
-
-    /**
-     * 渲染分页
-     */
-    setPage: function (pageInfo) {
-        // 当前页
-        var currentPage = pageInfo.data[0].pageNum;
-        // 得到总页数
-        var pageCount = pageInfo.data[0].pages;
-        // 所有导航页号
-        var navigatepageNums = pageInfo.data[0].navigatepageNums;
-
-        var $pagination = $("#pagination");
-
-        $pagination.empty();
-
-        if (pageCount > 0) {
-            // 当前专区
-            var sectionId = $("#section-nav").attr("section-sign")
-            var $pageFirst = $("<li/>", {
-                class: "page-item",
-            }).append(
-                $("<a/>", {
-                    class: "page-link",
-                    href: "javascript:void(0)",
-                    html: "首页",
-                }).click(function () {
-                    var requestJson = {
-                        pageNum: 0,
-                        pageSize: 20,
-                        data: [
-                            {
-                                section: sectionId,
-                            },
-                        ],
-                    };
-                    $.postPage(requestJson);
-                })
-            );
-
-            var $pagePrevious = $("<li/>", {
-                class: "page-item",
-            }).append(
-                $("<a/>", {
-                    class: "page-link",
-                    href: "javascript:void(0)",
-                    html: "&lt;上一页",
-                })
-            );
-
-            var $pageNext = $("<li/>", {
-                class: "page-item",
-            }).append(
-                $("<a/>", {
-                    class: "page-link",
-                    href: "javascript:void(0)",
-                    html: "下一页&gt;",
-                })
-            );
-
-            var $pageLast = $("<li/>", {
-                class: "page-item",
-            }).append(
-                $("<a/>", {
-                    class: "page-link",
-                    href: "javascript:void(0)",
-                    html: "尾页",
-                }).click(function () {
-                    var requestJson = {
-                        pageNum: 99999,
-                        pageSize: 20,
-                        data: [
-                            {
-                                section: sectionId,
-                            },
-                        ],
-                    };
-                    $.postPage(requestJson);
-                })
-            );
-
-            $pagination
-                .append($pageFirst)
-                .append($pagePrevious)
-                .append($pageNext)
-                .append($pageLast);
-
-            // 总页数小于等于5，直接加载
-            if (pageCount <= 5) {
-                $.each(navigatepageNums, function (index, num) {
-                    var $pageItem = $("<li/>", {
-                        class: "page-item",
+                        $.postIndexPage(requestJson);
                     })
-                        .append(
-                            $("<a/>", {
-                                class: "page-link",
-                                href: "javascript:void(0)",
-                                html: num,
-                            })
-                        )
-                        .click(function () {
-                            var requestJson = {
-                                pageNum: num,
-                                pageSize: 20,
-                                data: [
-                                    {
-                                        section: sectionId,
-                                    },
-                                ],
-                            };
-                            $.postPage(requestJson);
-                        });
-                    $pageNext.before($pageItem);
-                });
-            } else {
-                // 总页数大于5
-                var sliceArray;
-                // 当前页小于等于3，显示前5页
-                if (currentPage <= 3) {
-                    sliceArray = navigatepageNums.slice(0, 5);
-                } else if (currentPage >= pageCount - 2) {
-                    sliceArray = navigatepageNums.slice(pageCount - 5);
-                } else {
-                    sliceArray = navigatepageNums.slice(currentPage - 3, currentPage + 2);
-                }
-                $.each(sliceArray, function (index, num) {
-                    var $pageItem;
-                    if (num === currentPage) {
-                        $pageItem = $("<li/>", {
-                            class: "page-item active",
-                            id: "page-position",
-                            "data-id": num,
-                        }).append(
-                            $("<a/>", {
-                                class: "page-link",
-                                href: "javascript:void(0)",
-                                html: num,
-                            })
-                        );
-                    } else {
-                        $pageItem = $("<li/>", {
-                            class: "page-item",
-                            id: "page-position",
-                            "data-id": num,
-                        }).append(
-                            $("<a/>", {
-                                class: "page-link",
-                                href: "javascript:void(0)",
-                                html: num,
-                            })
-                        );
-                    }
-                    $pageItem.click(function () {
-                        var requestJson = {
-                            pageNum: num,
-                            pageSize: 20,
-                            data: [
-                                {
-                                    section: sectionId,
-                                },
-                            ],
-                        };
-                        $.postPage(requestJson);
-                    });
                     $pageNext.before($pageItem);
                 });
             }
-
-            $pagePrevious.click(function () {
-                var requestJson = {
-                    pageNum: currentPage - 1,
-                    pageSize: 20,
-                    data: [
-                        {
-                            section: sectionId,
-                        },
-                    ],
-                };
-                $.postPage(requestJson);
-            });
-
-            $pageNext.click(function () {
-                var requestJson = {
-                    pageNum: currentPage + 1,
-                    pageSize: 20,
-                    data: [
-                        {
-                            section: sectionId,
-                        },
-                    ],
-                };
-                $.postPage(requestJson);
-            });
         }
     },
 
@@ -1470,12 +760,10 @@ jQuery.extend({
      * 初始化帖子内容
      */
     initTopic: function (topicId) {
+        $.initTop()
+        $.initFooter()
         var requestJson = {
-            data: [
-                {
-                    topicId: topicId,
-                },
-            ],
+            topicId: topicId
         };
         $.ajax({
             contentType: "application/json",
@@ -1497,53 +785,41 @@ jQuery.extend({
                         });
                     } else {
                         var data = result.data[0];
-                        $("#topic-title").html(data.topicTitle);
-                        let $topicInfo = $("#topic-info");
-                        $topicInfo
-                            .append(
-                                $("<a/>", {
-                                    href: "/community/homepage/" + data.createrHomepageId
-                                }).append($("<span/>", {
-                                    class: "text-black-50 small",
-                                    html: "作者：" + data.createUserName + "&nbsp;&nbsp;&nbsp;",
-                                }))
-                            )
-                            .append(
-                                $("<span/>", {
-                                    html: data.commentCount + "&nbsp;个回复&nbsp;&nbsp;&nbsp;",
-                                })
-                            )
-                            .append(
-                                $("<span/>", {
-                                    html: data.likeCount + "&nbsp;次点赞&nbsp;&nbsp;&nbsp;",
-                                })
-                            )
-                            .append(
-                                $("<span/>", {
-                                    html: data.viewCount + "&nbsp;次浏览&nbsp;&nbsp;&nbsp;",
-                                })
-                            )
-                            .append(
-                                $("<span/>", {
-                                    html: "发布时间：" + data.createTime,
-                                })
-                            );
-                        if (data.createrVisit === true) {
-                            $topicInfo
-                                .append(
-                                    $("<a/>", {
-                                        href: "/community/edit/" + data.topicId,
-                                    }).append(
-                                        $("<span/>", {
-                                            class: "text-black-50 small",
-                                            html: "&nbsp;&nbsp;&nbsp;重新编辑",
-                                        })
-                                    )
-                                )
-                        }
-                        $("#topic-content").html(
-                            '<textarea style="display:none;" id="topic-textarea"></textarea>'
-                        );
+
+                        $("title").text(data.topicTitle + "- Community");
+                        var topicDetail =
+                            "<div class='card p-lg-3'>" +
+                            "   <div class='card-body'>" +
+                            "       <h2 class='card-title'>" + data.topicTitle + "</h2>" +
+                            "       <div class='py-lg-2'>" +
+                            "           <a href='#'>" +
+                            "               <img class='rounded-circle' width='32' height='32' alt='头像' src='" + data.headPortrait + "'>" +
+                            "               <strong class='text-success'>&nbsp;" + data.createUserName + "</strong>" +
+                            "           </a>" +
+                            "           <span class='text-secondary'>&nbsp;&nbsp;发布于&nbsp;" + data.createTime + "</span>" +
+                            "       </div>" +
+                            "       <div class='card-text py-lg-2' id='topic-content'>" +
+                            "           <textarea style='display:none' id='topic-textarea'></textarea>" +
+                            "       </div>" +
+                            "       <div class='py-lg-2'>" +
+                            "           <a href='javascript:void(0)' class='text-secondary' id='show-reply-topic'>回复</a>&nbsp;&nbsp;" +
+                            "           <span class='text-secondary'>阅读&nbsp;" + data.viewCount + "</span>" +
+                            "       </div>" +
+                            "       <div class='bg-light border-0 card' id='reply-topic' style='display: none'>" +
+                            "           <div class='card-body'>" +
+                            "               <div class='media-body'>" +
+                            "                   <div class='mb-lg-3'>" +
+                            "                       <textarea class='form-control form-control-sm' style='resize: none' rows='3' placeholder='友善的评论是交流的起点' id='reply-comment-content'></textarea>" +
+                            "                   </div>" +
+                            "               </div>" +
+                            "               <div>" +
+                            "                   <button type='button' class='btn btn-sm btn-primary pull-right'  id='reply-topic-commit'>提交评论</button>" +
+                            "               </div>" +
+                            "           </div>" +
+                            "       </div>" +
+                            "   </div>" +
+                            "</div>"
+                        $("#topic-detail").append(topicDetail)
                         $("#topic-textarea").val(data.topicContent);
                         editormd.markdownToHTML("topic-content", {
                             htmlDecode: "style,script,iframe",
@@ -1553,17 +829,52 @@ jQuery.extend({
                             flowChart: true, // 默认不解析
                             sequenceDiagram: true, // 默认不解析
                         });
+                        // 去掉 editormd 的默认样式
+                        $("#topic-content").removeClass("editormd-html-preview")
 
-                        if (data.likeStatus === true) {
-                            $("#topic-like-icon").attr("class", "bi bi-hand-thumbs-up-fill");
-                        } else {
-                            $("#topic-like-icon").attr("class", "bi bi-hand-thumbs-up");
-                        }
-                        $("#topic-like").click(function () {
+                        commentCount = data.commentCount
+
+                        var commentArea =
+                            "<div class='card' id='comment-list'>" +
+                            "   <div class='justify-content-between card-header bg-white'>" +
+                            "       <strong><span id='comment-count'>" + commentCount + "</span>&nbsp;个评论</strong>" +
+                            "   </div>" +
+                            "</div>"
+                        $("#comment-area").append(commentArea)
+
+                        $.each(data.commentVOList, function (index, comment) {
+                            var commentHtml =
+                                "<div class='list-group-item'>" +
+                                "   <div class='p-lg-3'>" +
+                                "       <div class='py-lg-2'>" +
+                                "           <a>" +
+                                "               <img class='rounded-circle' width='32' height='32' alt='头像' src='" + comment.headPortrait + "'>" +
+                                "               <strong class='text-success'>&nbsp;" + comment.createUserName + "</strong>" +
+                                "           </a>" +
+                                "           <span class='text-secondary'>&nbsp;&nbsp;发布于&nbsp;" + data.createTime + "</span>" +
+                                "       </div>" +
+                                "       <div class='py-lg-2'>" + comment.commentContent + "</div>" +
+                                "       <div class='py-lg-2'>" +
+                                "           <a href='javascript:void(0)' class='text-secondary'>回复</a>" +
+                                "       </div>" +
+                                "   </div>" +
+                                "</div>"
+                            $("#comment-list").append(commentHtml)
+                        })
+
+                        $("#show-reply-topic").click(function () {
+                            $("#reply-topic").toggle();
+                        });
+
+                        $("#reply-topic-commit").click(function () {
+                            var requestJson = {
+                                parentId: data.id,
+                                commentContent: $("#reply-comment-content").val()
+                            };
                             $.ajax({
                                 contentType: "application/json",
                                 type: "POST",
-                                url: "/community/topic/like",
+                                url: "/community/comment/publish",
                                 dataType: "json",
                                 data: JSON.stringify(requestJson),
                                 success: function (result) {
@@ -1575,285 +886,40 @@ jQuery.extend({
                                     } else {
                                         if (result.code !== "2000") {
                                             $.alert({
+                                                title: "出错啦!",
                                                 content: result.description,
                                             });
-                                        } else if ($("#topic-like-icon").attr("class") === "bi bi-hand-thumbs-up") {
-                                            $("#topic-like-icon").attr("class", "bi bi-hand-thumbs-up-fill");
                                         } else {
-                                            $("#topic-like-icon").attr("class", "bi bi-hand-thumbs-up");
+                                            $.snack('success', '评论成功', 3000)
+                                            var comment = result.data[0];
+                                            $("#reply-comment-content").val("")
+                                            var commentHtml =
+                                                "<div class='list-group-item' id='" + comment.commentId + "'>" +
+                                                "   <div class='p-lg-3'>" +
+                                                "       <div class='py-lg-2'>" +
+                                                "           <a>" +
+                                                "               <img class='rounded-circle' width='32' height='32' alt='头像' src='" + comment.headPortrait + "'>" +
+                                                "               <strong class='text-success'>&nbsp;" + comment.createUserName + "</strong>" +
+                                                "           </a>" +
+                                                "           <span class='text-secondary'>&nbsp;&nbsp;发布于&nbsp;" + comment.createTime + "</span>" +
+                                                "       </div>" +
+                                                "       <div class='py-lg-2'>" + comment.commentContent + "</div>" +
+                                                "       <div class='py-lg-2'>" +
+                                                "           <a href='javascript:void(0)' class='text-secondary'>回复</a>" +
+                                                "       </div>" +
+                                                "   </div>" +
+                                                "</div>"
+                                            $("#comment-count").html(commentCount + 1)
+                                            $("#comment-list").append(commentHtml)
+                                            $("html,body").animate({scrollTop:$("#" + comment.commentId).offset().top},1000);
                                         }
                                     }
-                                }
-                            })
-                        });
-                        $("#comment-count").html(data.commentCount + "&nbsp;个回复");
-
-                        var commentVOList = data.commentVOList;
-                        var $commentList = $("#comment-list");
-
-                        $.each(commentVOList, function (index, commentVO) {
-                            var $commentDiv = $("<div/>", {
-                                class: "row mx-lg-2 my-lg-3",
-                            });
-                            var $commentMedia = $("<div/>", {
-                                class:
-                                    "media w-100",
-                            });
-                            var $img = $("<a/>", {
-                                href: "/community/homepage/" + commentVO.createrHomepageId
-                            }).append($("<img/>", {
-                                src: commentVO.headPortrait,
-                                class:
-                                    "mr-lg-3 rounded-circle community-ele-width-50px community-ele-height-50px",
-                            }));
-                            var $mediaBody = $("<div/>", {
-                                class: "media-body",
-                            });
-                            var $commentCreater = $("<div/>", {
-                                class: "mt-lg-0",
-                            }).append(
-                                $("<a/>", {
-                                    href: "/community/homepage/" + commentVO.createrHomepageId
-                                }).append(
-                                    $("<span/>", {
-                                        class: "font-weight-bold text-dark",
-                                        html: commentVO.createUsername,
-                                    })
-                                )
-                            );
-                            var $commentContent = $("<div/>", {
-                                class: "mt-lg-1",
-                            }).append(
-                                $("<span/>", {
-                                    html: commentVO.commentContent,
-                                })
-                            );
-                            var $commentInfo = $("<div/>", {
-                                class:
-                                    "mt-lg-1 small text-black-50 my-lg-3",
-                            });
-                            var $commentIcon = $("<i/>", {
-                                class: "bi bi-chat-left-dots-fill",
-                            });
-                            var $commentCount = $("<span/>", {
-                                html:
-                                    "&nbsp;&nbsp;" +
-                                    commentVO.commentCount +
-                                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
-                            });
-                            var $createTime = $("<span/>", {
-                                class: "pull-right",
-                                html: commentVO.createTime,
-                            });
-
-                            var $secondCommentDiv = $("<div/>", {
-                                class:
-                                    "mt-lg-3 px-lg-3 py-lg-3 border community-ele-border-color-grey rounded",
-                            });
-
-                            $secondCommentDiv.hide();
-
-                            $commentInfo
-                                .append($commentIcon)
-                                .append($commentCount)
-                                .append($createTime);
-                            $mediaBody
-                                .append($commentCreater)
-                                .append($commentContent)
-                                .append($commentInfo)
-                                .append($secondCommentDiv);
-                            $commentMedia.append($img).append($mediaBody);
-                            $commentDiv.append($commentMedia);
-                            $commentList.append($commentDiv);
-
-                            $commentIcon.click(function () {
-                                $secondCommentDiv.toggle();
-                                var requestJson = {
-                                    data: [
-                                        {
-                                            parentId: commentVO.commentId
-                                        },
-                                    ],
-                                };
-
-                                $.ajax({
-                                    contentType: "application/json",
-                                    type: "POST",
-                                    url: "/community/comment/second/list",
-                                    dataType: "json",
-                                    data: JSON.stringify(requestJson),
-                                    success: function (result) {
-                                        if (result == null) {
-                                            $.alert({
-                                                title: "出错啦!",
-                                                content: "请稍后再试！",
-                                            });
-                                        } else {
-                                            if (result.code !== "2000") {
-                                                $secondCommentDiv.empty();
-                                                $.alert({
-                                                    content: result.description,
-                                                });
-                                            } else {
-                                                console.log(result);
-                                                var secondCommentDTOList = result.data;
-                                                $commentCount.html(
-                                                    "&nbsp;&nbsp;" +
-                                                    commentVO.commentCount +
-                                                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-                                                );
-                                                $secondCommentDiv.empty();
-                                                $.each(
-                                                    secondCommentDTOList,
-                                                    function (index, secondCommentDTO) {
-                                                        var $secondCommentMedia = $("<div/>", {
-                                                            class:
-                                                                "media mb-lg-3 w-100",
-                                                        });
-                                                        var $secondCommentMediaImg = $("<a/>", {
-                                                            href: "/community/homepage/" + secondCommentDTO.createrHomepageId
-                                                        }).append($("<img/>", {
-                                                            src: secondCommentDTO.headPortrait,
-                                                            class:
-                                                                "mr-lg-3 rounded-circle community-ele-width-40px community-ele-height-40px",
-                                                        }));
-                                                        var $secondCommentMediaBody = $("<div/>", {
-                                                            class: "media-body",
-                                                        });
-                                                        var $secondCommentInfo = $("<div/>", {
-                                                            class: "mt-lg-0",
-                                                        })
-                                                            .append(
-                                                                $("<a/>", {
-                                                                    href: "/community/homepage/" + secondCommentDTO.createrHomepageId
-                                                                }).append(
-                                                                    $("<span/>", {
-                                                                        class:
-                                                                            "font-weight-bold text-dark",
-                                                                        html: secondCommentDTO.createUsername,
-                                                                    })
-                                                                )
-                                                            )
-                                                            .append(
-                                                                $("<span/>", {
-                                                                    class:
-                                                                        "pull-right small text-black-50",
-                                                                    html: secondCommentDTO.createTime,
-                                                                })
-                                                            );
-                                                        var $secondCommentContent = $("<div/>", {
-                                                            class: "mt-lg-1",
-                                                        }).append(
-                                                            $("<span/>", {
-                                                                html: secondCommentDTO.commentContent,
-                                                            })
-                                                        );
-                                                        $secondCommentMediaBody
-                                                            .append($secondCommentInfo)
-                                                            .append($secondCommentContent);
-                                                        $secondCommentMedia
-                                                            .append($secondCommentMediaImg)
-                                                            .append($secondCommentMediaBody);
-                                                        $secondCommentDiv.append($secondCommentMedia);
-                                                    }
-                                                );
-                                            }
-                                        }
-                                        var $secondCommentForm = $("<form/>");
-                                        var $secondCommentFormGroup = $("<div/>", {
-                                            class: "form-group",
-                                        });
-                                        var $secondCommentInput = $(
-                                            $("<input/>", {
-                                                id: "secondReplyInput",
-                                                class: "form-control",
-                                            })
-                                        );
-                                        var $secondCommentFormBtn = $("<button/>", {
-                                            type: "button",
-                                            class: "btn btn-primary btn-sm",
-                                            html: "提交",
-                                        }).click(function () {
-                                            var requestJson = {
-                                                data: [
-                                                    {
-                                                        parentId: commentVO.commentId,
-                                                        commentContent: $("#secondReplyInput").val(),
-                                                        commentType: "2",
-                                                    },
-                                                ],
-                                            };
-                                            $.ajax({
-                                                contentType: "application/json",
-                                                type: "POST",
-                                                url: "/community/comment/publish",
-                                                dataType: "json",
-                                                data: JSON.stringify(requestJson),
-                                                success: function (result) {
-                                                    if (result == null) {
-                                                        $.alert({
-                                                            title: "出错啦!",
-                                                            content: "请稍后再试！",
-                                                        });
-                                                    } else {
-                                                        if (result.code !== "2000") {
-                                                            $.alert({
-                                                                content: result.description,
-                                                            });
-                                                        } else {
-                                                            location.reload();
-                                                        }
-                                                    }
-                                                },
-                                            });
-                                        });
-                                        $secondCommentFormGroup.append($secondCommentInput);
-                                        $secondCommentForm
-                                            .append($secondCommentFormGroup)
-                                            .append($secondCommentFormBtn);
-                                        $secondCommentDiv.append($secondCommentForm);
-                                    },
-                                });
+                                },
                             });
                         });
                     }
                 }
             },
-        });
-        $("#publishFirstComment").click(function () {
-            var requestJson = {
-                data: [
-                    {
-                        parentId: topicId,
-                        commentContent: $("#firstReplyInput").val(),
-                        commentType: "1",
-                    },
-                ],
-            };
-            $.ajax({
-                contentType: "application/json",
-                type: "POST",
-                url: "/community/comment/publish",
-                dataType: "json",
-                data: JSON.stringify(requestJson),
-                success: function (result) {
-                    if (result == null) {
-                        $.alert({
-                            title: "出错啦!",
-                            content: "请稍后再试！",
-                        });
-                    } else {
-                        if (result.code !== "2000") {
-                            $.alert({
-                                title: "出错啦!",
-                                content: result.description,
-                            });
-                        } else {
-                            location.reload();
-                        }
-                    }
-                },
-            });
         });
     },
 });
