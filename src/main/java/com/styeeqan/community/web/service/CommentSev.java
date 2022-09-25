@@ -62,7 +62,11 @@ public class CommentSev {
             commentVO.setCreateTime(commentDB.getCreateTime());
 
             // 评论数加一
-            topicMapper.incrCommentCount(commentDB.getParentId());
+            int matched = topicMapper.incrCommentCount(commentDB.getParentId());
+            if (matched == 0) {
+                Comment parentComment = commentMapper.selectById(parentId);
+                topicMapper.incrCommentCount(parentComment.getParentId());
+            }
 
             return commentVO;
         } else {

@@ -71,7 +71,7 @@ public class TopicSev {
                     vo.setViewCount(po.getViewCount());
                     UserInfo userInfo = userInfoMapper.selectbyAccount(po.getCreateUser());
                     if (userInfo != null) {
-                        vo.setCreateUserName(userInfo.getCreateUser());
+                        vo.setCreateUserName(userInfo.getUsername());
                     }
                     return vo;
                 })
@@ -97,15 +97,30 @@ public class TopicSev {
             UserInfo userInfo = userInfoMapper.selectbyAccount(topic.getCreateUser());
             topicVO.setCreateUserName(userInfo.getUsername());
             topicVO.setHeadPortrait(userInfo.getHeadPortrait());
-            // 设置评论
+            // 设置该讨论下的所有评论
             List<Comment> commentList = commentMapper.selectCommentByParentId(topicId);
+            // 一级评论
             List<CommentVO> commentVOList = commentList.stream().map(comment -> {
                 CommentVO commentVO = new CommentVO();
                 UserInfo info = userInfoMapper.selectbyAccount(comment.getCreateUser());
                 commentVO.setCreateUsername(info.getUsername());
                 commentVO.setHeadPortrait(info.getHeadPortrait());
+                commentVO.setCommentId(comment.getId());
                 commentVO.setCommentContent(comment.getCommentContent());
                 commentVO.setCreateTime(comment.getCreateTime());
+                // 二级评论
+                List<Comment> commentList1 = commentMapper.selectCommentByParentId(comment.getId());
+                List<CommentVO> commentVOList1 = commentList1.stream().map(comment1 -> {
+                    CommentVO commentVO1 = new CommentVO();
+                    UserInfo info1 = userInfoMapper.selectbyAccount(comment1.getCreateUser());
+                    commentVO1.setCreateUsername(info1.getUsername());
+                    commentVO1.setHeadPortrait(info1.getHeadPortrait());
+                    commentVO1.setCommentId(comment1.getId());
+                    commentVO1.setCommentContent(comment1.getCommentContent());
+                    commentVO1.setCreateTime(comment1.getCreateTime());
+                    return commentVO1;
+                }).collect(Collectors.toList());
+                commentVO.setCommentVOList(commentVOList1);
                 return commentVO;
             }).collect(Collectors.toList());
 
@@ -126,7 +141,7 @@ public class TopicSev {
         topic.setTopicTitle(topicTitle);
         topic.setTopicContent(topicContent);
         topic.setCommentCount(0);
-        topic.setViewCount(1);
+        topic.setViewCount(0);
         topic.setUpdateUser(account);
         topic.setUpdateTime(new Date());
 

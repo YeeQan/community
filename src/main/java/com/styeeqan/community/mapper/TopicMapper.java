@@ -7,5 +7,5 @@ public interface TopicMapper extends BaseMapper<Topic> {
 
     void incrViewCount(String topicId);
 
-    void incrCommentCount(String topicId);
+    int incrCommentCount(String topicId);
 }
