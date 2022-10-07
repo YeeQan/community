@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/community/bootstrap-4.6.0/icons-1.5.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="/community/css/editormd.min.css">
   <link rel="stylesheet" href="/community/css/jquery-confirm.css">
+  <link rel="stylesheet" href="/community/css/toast.css">
 </head>
 
 <body>
@@ -30,6 +31,18 @@
                 <span class="font-weight-bold">标题（简单扼要）</span>
               </label>
               <input type="text" class="form-control shadow-sm" id="topic-title" placeholder="标题...">
+          </div>
+          <div class="form-group">
+            <div class="dropdown">
+              <button type="button" data-toggle="dropdown" class="btn btn-sm btn-outline-secondary">+&nbsp;添加标签</button>
+              <span id="select-tags"></span>
+              <div class="dropdown-menu my-2">
+                <h6 class="dropdown-header px-lg-4 py-lg-2">
+                  <span>还可添加5个标签</span>
+                </h6>
+                <div class="px-lg-4 py-lg-2" id="tag-list"></div>
+              </div>
+            </div>
           </div>
           <div class="form-group rounded" id="topic-editor">
             <label for="topic-description"></label>
@@ -52,6 +65,7 @@
 <script src="/community/js/editormd.min.js"></script>
 <script src="/community/js/community.js"></script>
 <script src="/community/js/jquery-confirm.js"></script>
+<script src="/community/js/toast.js"></script>
 
 <script>
   $.initPublish()

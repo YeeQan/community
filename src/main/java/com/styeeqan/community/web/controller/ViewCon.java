@@ -52,4 +52,10 @@ public class ViewCon {
     public String error() {
         return "error";
     }
+
+    @GetMapping("/u/**")
+    @ApiOperation(value = "错误页面")
+    public String homepage() {
+        return "homepage";
+    }
 }

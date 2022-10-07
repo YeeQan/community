@@ -6,23 +6,32 @@ jQuery.extend({
     initIndex: function () {
         $.initTop();
         $.initFooter();
-        $.postIndexPage();
+        var requestJson = {
+            pageNum: 1,
+            pageSize: 20
+        };
+        $.postIndexPage(requestJson);
     },
 
     /**
      * 初始化顶部栏
      */
     initTop: function () {
-        var token = $.cookie("token");
-        if (token) {
-            $("#header").load(
-                "/community/common/header-logined"
-            );
-        } else {
-            $("#header").load(
-                "/community/common/header-non-logined"
-            );
-        }
+        $.ajax({
+            type: "POST",
+            url: "/community/user/loginFlag",
+            success: function (result) {
+                if (result == null || result.code !== "2000") {
+                    $("#header").load(
+                        "/community/common/header-non-logined"
+                    );
+                } else {
+                    $("#header").load(
+                        "/community/common/header-logined"
+                    );
+                }
+            },
+        });
     },
 
     /**
@@ -54,9 +63,22 @@ jQuery.extend({
                 imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
             });
             $("#publish-topic").click(function () {
+                var tags = "";
+                let $select = $("#select-tags");
+                $.each($select.children(), function (index, tag) {
+                    var $tag = $(tag)
+                    console.log(index + ":" + $tag.attr("data-id"))
+                    tags += $tag.attr("data-id")
+                    console.log(tags)
+                    if ($select.length + 1 !== index) {
+                        tags += ","
+                    }
+                    console.log(tags)
+                })
                 var requestJson = {
                         topicTitle: $("#topic-title").val(),
                         topicContent: editor.getMarkdown(),
+                        tags: tags
                 };
                 $.ajax({
                     contentType: "application/json",
@@ -88,6 +110,55 @@ jQuery.extend({
                 });
             });
         });
+        $.ajax({
+            type: "POST",
+            url: "/community/tag/list",
+            success: function (result) {
+                if(result === null) {
+                    $.alert({
+                        title: "出错啦!",
+                        content: "请稍后再试！",
+                    });
+                } else {
+                    if (result.code !== "2000") {
+                        $.alert({
+                            title: "出错啦!",
+                            content: result.description,
+                        });
+                    } else {
+                        $.each(result.data, function (index, tag) {
+                            let $tagList = $("#tag-list");
+                            var tagHtml =
+                                "<a class='badge-tag m-1' href='javascript:void(0)'>" + tag.name + "</a>"
+                            $tagList.append(tagHtml)
+                            $tagList.children().eq(-1).click(function () {
+                                var $selectTags = $("#select-tags");
+                                if($selectTags.children().length >= 5) {
+                                    $.snack('warning', '最多添加5个标签', 3000)
+                                } else {
+                                    var flag = Boolean(true)
+                                    $.each($selectTags.children(), function (index, selectTag) {
+                                        var $selectTag = $(selectTag)
+                                        if (tag.id === $selectTag.attr("data-id")) {
+                                            $.snack('warning', '请不要重复添加标签', 3000)
+                                            flag = false
+                                        }
+                                    })
+                                    if (flag) {
+                                        var selectTagHtml =
+                                            "<button type='button' class='btn btn-sm btn-outline-secondary mx-1' id='tag-" + tag.id + "' data-id='" + tag.id + "'>" + tag.name + "&nbsp;×</button>";
+                                        $selectTags.append(selectTagHtml)
+                                        $("#tag-" + tag.id).click(function () {
+                                            $("#tag-" + tag.id).remove()
+                                        })
+                                    }
+                                }
+                            })
+                        });
+                    }
+                }
+            }
+        })
     },
 
     /**
@@ -239,8 +310,16 @@ jQuery.extend({
                             content: result.description,
                         });
                     } else {
-                        var headPortrait = result.data[0].headPortrait;
-                        $("#userDropDown-button").html("<img class='rounded-circle' width='32' height='32' src='" + headPortrait + "' alt='头像'>")
+                        var headPortrait = result.data[0].headPortrait
+                        var homepageId = result.data[0].homepageId
+                        var username = result.data[0].username
+                        var createTime = result.data[0].createTime
+                        $("#user-headportrait").attr("src", headPortrait)
+                        $("#homepage").attr("href", "/community/u/" + homepageId)
+                        sessionStorage.setItem("userHeadportrait", headPortrait)
+                        sessionStorage.setItem("username", username)
+                        sessionStorage.setItem("createTime", createTime)
+                        sessionStorage.setItem("homepageId", homepageId)
                     }
                 }
             },
@@ -347,224 +426,43 @@ jQuery.extend({
     },
 
     /**
-     * 渲染个人主页帖子列表
-     */
-    renderUserDynamicList: function (dataList) {
-        $("#dynamic-list").empty()
-        $.each(dataList, function (index, data) {
-            var $dynamicDiv = $("<div/>", {
-                class: "row border border-bottom-0 border-left-0 border-right-0 community-ele-border-color-grey"
-            })
-            var $dynamicContent = $("<div/>", {
-                class: "col-lg-12 my-lg-3"
-            })
-            var $dynamicMedia = $("<div/>", {
-                class: "media"
-            })
-            var $mediaImg = $("<img/>", {
-                src: data.headPortrait,
-                class: "mr-lg-3 rounded-circle community-ele-width-50px community-ele-height-50px"
-            })
-
-            var $mediaBody
-            if (data.dynamicType === "1") {
-                $mediaBody = $("<div/>", {
-                    class: "media-body"
-                }).append($("<h6/>", {
-                    class: "font-weight-bold",
-                    html: data.createUsername
-                }))
-                    .append($("<p/>", {
-                        class: "small text-black-50",
-                        html: data.relativeDate
-                    }))
-                    .append($("<p/>", {
-                        html: "发布了帖子&nbsp;"
-                    }).append($("<span/>", {
-                        class: "font-weight-bold",
-                        html: data.targetName
-                    })))
-                    .append($("<p/>", {
-                        html: data.dynamicContent
-                    }));
-            } else if (data.dynamicType === "2") {
-                $mediaBody = $("<div/>", {
-                    class: "media-body"
-                }).append($("<h6/>", {
-                    class: "font-weight-bold",
-                    html: data.createUsername
-                }))
-                    .append($("<p/>", {
-                        class: "small text-black-50",
-                        html: data.relativeDate
-                    }))
-                    .append($("<p/>", {
-                        html: "发布了对&nbsp;"
-                    }).append($("<span/>", {
-                        class: "font-weight-bold",
-                        html: data.targetName
-                    })).append($("<span/>", {
-                        html: "&nbsp;的评论"
-                    })))
-                    .append($("<p/>", {
-                        html: data.dynamicContent
-                    }));
-            } else if (data.dynamicType === "3") {
-                $mediaBody = $("<div/>", {
-                    class: "media-body"
-                }).append($("<h6/>", {
-                    class: "font-weight-bold",
-                    html: data.createUsername
-                }))
-                    .append($("<p/>", {
-                        class: "small text-black-50",
-                        html: data.relativeDate
-                    }))
-                    .append($("<p/>", {
-                        html: "点赞了帖子&nbsp;"
-                    }).append($("<span/>", {
-                        class: "font-weight-bold",
-                        html: data.targetName
-                    })))
-                    .append($("<p/>", {
-                        html: data.dynamicContent
-                    }));
-            } else if (data.dynamicType === "4") {
-                $mediaBody = $("<div/>", {
-                    class: "media-body"
-                }).append($("<h6/>", {
-                    class: "font-weight-bold",
-                    html: data.createUsername
-                }))
-                    .append($("<p/>", {
-                        class: "small text-black-50",
-                        html: data.relativeDate
-                    }))
-                    .append($("<p/>", {
-                        html: data.dynamicContent
-                    }));
-            }
-
-            $dynamicMedia.append($mediaImg).append($mediaBody)
-            var $dynamicInfo = $("<div/>", {
-                class: "row border border-bottom-0 border-left-0 border-right-0 community-ele-border-color-grey"
-            })
-            var $dynamicLike = $("<div/>", {
-                class: "col-lg-4 text-center mt-lg-3 border border-top-0 border-left-0 border-bottom-0 community-ele-border-color-grey"
-            }).append($("<a/>", {
-                href: "javascript:void(0)",
-                class: "text-black-50 small"
-            }).append($("<i/>", {
-                class: "bi bi-hand-thumbs-up"
-            })).append($("<span/>", {
-                html: "&nbsp;&nbsp;赞"
-            })))
-            var $dynamicConment = $("<div/>", {
-                class: "col-lg-4 text-center mt-lg-3 border border-top-0 border-left-0 border-bottom-0 community-ele-border-color-grey"
-            }).append($("<a/>", {
-                href: "javascript:void(0)",
-                class: "text-black-50 small"
-            }).append($("<i/>", {
-                class: "bi bi-chat-left-dots"
-            })).append($("<span/>", {
-                html: "&nbsp;&nbsp;评论"
-            })))
-            var $dynamicShare = $("<div/>", {
-                class: "col-lg-4 text-center mt-lg-3"
-            }).append($("<a/>", {
-                href: "javascript:void(0)",
-                class: "text-black-50 small"
-            }).append($("<i/>", {
-                class: "bi bi-share"
-            })).append($("<span/>", {
-                html: "&nbsp;&nbsp;分享"
-            })))
-            $dynamicInfo.append($dynamicLike).append($dynamicConment).append($dynamicShare)
-            $dynamicContent.append($dynamicMedia).append($dynamicInfo)
-            $dynamicDiv.append($dynamicContent)
-            $("#dynamic-list").append($dynamicDiv)
-        })
-    },
-
-    /**
      * 初始化个人主页
      */
-    initHomepage: function (homepageId) {
-        var requestJson = {
-            data: [
-                {
-                    homepageId: homepageId,
-                },
-            ],
-        };
-        $.ajax({
-            contentType: "application/json",
-            type: "POST",
-            url: "/community/user/person",
-            dataType: "json",
-            data: JSON.stringify(requestJson),
-            success: function (result) {
-                if (result == null) {
-                    $.alert({
-                        title: "出错啦!",
-                        content: "请稍后再试！",
-                    });
-                } else {
-                    if (result.code !== "2000") {
-                        $.alert({
-                            title: "出错啦!",
-                            content: result.description,
-                        });
-                    } else {
-                        var data = result.data[0]
-                        $("#homepageHeadPortrait").attr("src", data.headPortrait)
-                        $("#homepageUsername").html(data.username)
-                        $.renderUserDynamicList(data.userDynamicVOList)
-                        $("#upload-headPortrait-button").click(function () {
-                            var file = $('#headPortraitMultiple').get(0).files[0]
-                            var formData = new FormData();
-                            formData.append('file', file);
-                            $.ajax({
-                                type: "post",
-                                data: formData,
-                                contentType : false,
-                                processData : false,
-                                url: "/community/user/upload/headPortrait",
-                                success: function (result) {
-                                    if (result == null) {
-                                        $.alert({
-                                            title: "出错啦!",
-                                            content: "请稍后再试！",
-                                        });
-                                    } else {
-                                        if (result.code !== "2000") {
-                                            $.alert({
-                                                title: "出错啦!",
-                                                content: result.description,
-                                            });
-                                        } else {
-                                            location.reload();
-                                        }
-                                    }
-                                }
-                            })
-                        });
-                    }
-                }
-            },
+    initHomepage: function () {
+
+        $.initTop()
+        $.initFooter()
+
+        $("title").text(sessionStorage.getItem("username") + " - Community");
+
+        var userInfoHtml =
+            "<div class='text-center my-lg-3'>" +
+            "   <a href='javascript:void(0)'>" +
+            "       <img src='" + sessionStorage.getItem("userHeadportrait") + "' alt='头像' width='160' height='160' class='rounded-circle'>" +
+            "   </a>" +
+            "</div>" +
+            "<div class='text-center my-lg-3'>" +
+            "   <h3>" + sessionStorage.getItem("username") + "</h3>" +
+            "</div>" +
+            "<div class='text-center my-lg-3'>" +
+            "   <a href='javascript:void(0)' role='button' class='btn btn-block btn-outline-success'>编辑个人资料</a>" +
+            "</div>" +
+            "<div class='text-center my-lg-3'>" +
+            "   <p class='text-secondary'>" + sessionStorage.getItem("createTime") + "&nbsp;加入</p>" +
+            "</div>"
+        $("#homepage-user-info").html(userInfoHtml)
+
+        $.renderDynamicList()
+        $("#dynamic").click(function () {
+            $("#homepage-list").clear()
+            $.renderDynamicList()
         })
     },
 
-    /**
-     * 获取评论通知分页
-     */
-    postNotificationPage: function (requestJson) {
+    renderDynamicList: function () {
         $.ajax({
-            contentType: "application/json",
             type: "POST",
-            url: "/community/notification/page",
-            dataType: "json",
-            data: JSON.stringify(requestJson),
+            url: "/community/user/dynamic/list",
             success: function (result) {
                 if (result == null) {
                     $.alert({
@@ -578,8 +476,42 @@ jQuery.extend({
                             content: result.description,
                         });
                     } else {
-                        $.renderNotification(result);
-                        $.setNotificationPage(result);
+                        var dynamicList = result.data
+                        $.each(dynamicList, function (index, dynamic) {
+                            var dynamicHtml;
+                            var type = dynamic.type
+                            if("1" === type) {
+                                dynamicHtml =
+                                    "<div class='py-3 list-group-item'>" +
+                                    "   <div class='small text-secondary mb-2'>" +
+                                    "       <span>发布了讨论&nbsp;&nbsp;" + dynamic.createTime + "</span>" +
+                                    "   </div>" +
+                                    "   <div class='my-3'>" +
+                                    "       <a href='/community/topic/view/" + dynamic.targetId + "'>" +
+                                    "           <h5 class='text-body'>" + dynamic.targetContent + "</h5>" +
+                                    "       </a>" +
+                                    "   </div>" +
+                                    "   <div>" + dynamic.sourceContent + "</div>" +
+                                    "</div>"
+                            } else {
+                                dynamicHtml =
+                                    "<div class='py-3 list-group-item'>" +
+                                    "   <div class='small text-secondary mb-2'>" +
+                                    "       <span>发表了评论&nbsp;&nbsp;" + dynamic.createTime + "</span>" +
+                                    "   </div>" +
+                                    "   <div class='my-3'>" +
+                                    "       <a href='/community/topic/view/" + dynamic.targetId + "'>" +
+                                    "           <h5 class='text-body'>" + dynamic.targetContent + "</h5>" +
+                                    "       </a>" +
+                                    "   </div>" +
+                                    "   <div class='p-3 bg-light border-0'>" +
+                                    "       <strong class='text-success'>" + dynamic.sourceCreateUsername + ":&nbsp;</strong>" +
+                                    "       <span>" + dynamic.sourceContent + "</span>" +
+                                        "</div>" +
+                                    "</div>"
+                            }
+                            $("#homepage-list").append(dynamicHtml)
+                        });
                     }
                 }
             },
@@ -589,11 +521,7 @@ jQuery.extend({
     /**
      * 获取讨论
      */
-    postIndexPage: function () {
-        var requestJson = {
-            pageNum: 1,
-            pageSize: 20
-        };
+    postIndexPage: function (requestJson) {
         $.ajax({
             contentType: "application/json",
             type: "POST",
@@ -644,15 +572,24 @@ jQuery.extend({
                 "               <a href='/community/topic/view/" + topic.id + "'>" +
                 "                   <span class='text-body'>" + topic.topicTitle + "</span>" +
                 "               </a>" +
-                "               <div class='text-right'>" +
-                "                   <a class='text-success' href='javascript:void(0)'>" + topic.createUserName + "</a>" +
-                "                   <span class='text-secondary'>于&nbsp;" + topic.createTime + "&nbsp;发布</span>" +
+                "               <div class='d-flex flex-wrap mt-1'>" +
+                "                   <div class='d-flex flex-wrap' id='topic-tags-" + topic.id + "'></div>" +
+                "                   <div class='font-size-14 d-flex justify-content-end flex-fill'>" +
+                "                       <a href='" + "/community/u/" + topic.createUserHomepageId + "'>" +
+                "                           <span class='text-success'>" + topic.createUserName + "</span>" +
+                "                           <img class='rounded-circle' width='26' height='26' alt='头像' src='" + topic.createUserHeadPortrait + "'>" +
+                "                       </a>" +
+                "                       <span class='text-secondary'>&nbsp;于&nbsp;" + topic.createTime + "&nbsp;发布</span>" +
+                "                   </div>" +
                 "               </div>" +
                 "           </div>" +
                 "       </div>" +
                 "   </div>" +
                 "</div>"
             $topicList.append(html);
+            $.each(topic.tagVOList, function (index, tagVO) {
+                $("#topic-tags-" + topic.id).append("<a class='badge-tag mx-1' href='javascript:void(0)'>" + tagVO.name + "</a>")
+            })
         });
     },
 
@@ -676,7 +613,7 @@ jQuery.extend({
             var pageFirst = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>首页</a></li>"
             var $pageFirst = $(pageFirst).click(function () {
                 var requestJson = {
-                    pageNum: 0,
+                    pageNum: 1,
                     pageSize: 20
                 };
                 $.postIndexPage(requestJson);
@@ -794,14 +731,14 @@ jQuery.extend({
                     } else {
                         var data = result.data[0];
 
-                        $("title").text(data.topicTitle + "- Community");
+                        $("title").text(data.topicTitle + " - Community");
                         var topicDetail =
                             "<div class='card p-lg-3'>" +
                             "   <div class='card-body'>" +
                             "       <h2 class='card-title'>" + data.topicTitle + "</h2>" +
                             "       <div class='py-lg-2'>" +
-                            "           <a href='#'>" +
-                            "               <img class='rounded-circle' width='32' height='32' alt='头像' src='" + data.headPortrait + "'>" +
+                            "           <a href='" + "/community/u/" + data.createUserHomepageId + "'>" +
+                            "               <img class='rounded-circle' width='32' height='32' alt='头像' src='" + data.createUserHeadPortrait + "'>" +
                             "               <strong class='text-success'>&nbsp;" + data.createUserName + "</strong>" +
                             "           </a>" +
                             "           <span class='text-secondary'>&nbsp;&nbsp;发布于&nbsp;" + data.createTime + "</span>" +
@@ -809,6 +746,7 @@ jQuery.extend({
                             "       <div class='card-text py-lg-2' id='topic-content'>" +
                             "           <textarea style='display:none' id='topic-textarea'></textarea>" +
                             "       </div>" +
+                            "       <div class='py-lg-2' id='topic-detail-tags-" + data.createUserHomepageId + "'></div>" +
                             "       <div class='py-lg-2'>" +
                             "           <a href='javascript:void(0)' class='text-secondary' id='show-reply-topic'>回复</a>&nbsp;&nbsp;" +
                             "           <span class='text-secondary'>阅读&nbsp;" + data.viewCount + "</span>" +
@@ -839,6 +777,9 @@ jQuery.extend({
                         });
                         // 去掉 editormd 的默认样式
                         $("#topic-content").removeClass("editormd-html-preview")
+                        $.each(data.tagVOList, function (index, tagVO) {
+                            $("#topic-detail-tags-" + data.createUserHomepageId).append("<a class='badge-tag mx-1' href='javascript:void(0)'>" + tagVO.name + "</a>")
+                        })
 
                         commentCount = data.commentCount
 
@@ -856,7 +797,7 @@ jQuery.extend({
                                 "<div class='list-group-item'>" +
                                 "   <div class='p-lg-3'>" +
                                 "       <div class='py-lg-2'>" +
-                                "           <a>" +
+                                "           <a href='/community/u/" + comment.createUserHomepageId + "'>" +
                                 "               <img class='rounded-circle' width='32' height='32' alt='头像' src='" + comment.headPortrait + "'>" +
                                 "               <strong class='text-success'>&nbsp;" + comment.createUsername + "</strong>" +
                                 "           </a>" +
@@ -891,7 +832,8 @@ jQuery.extend({
                             $("#reply-other-commit-" + comment.commentId).click(function () {
                                 var requestJson = {
                                     parentId: comment.commentId,
-                                    commentContent: $("#reply-other-content-" + comment.commentId).val()
+                                    commentContent: $("#reply-other-content-" + comment.commentId).val(),
+                                    type: "2"
                                 };
                                 $.ajax({
                                     contentType: "application/json",
@@ -919,8 +861,8 @@ jQuery.extend({
                                                     "<div class='bg-light border-0 rounded' id='reply-other-success-" + comment.commentId + "'>" +
                                                     "   <div class='py-lg-1 px-lg-3'>" +
                                                     "       <div>" +
-                                                    "           <a href='javascript:void(0)'>" +
-                                                    "               <strong class='text-success'>" + comment1.createUsername + ":&nbsp;</strong>" +
+                                                    "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
+                                                    "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
                                                     "           </a>" +
                                                     "           <span class='small'>" + comment1.commentContent + "</span>" +
                                                     "       </div>" +
@@ -966,7 +908,8 @@ jQuery.extend({
                         $("#reply-topic-commit").click(function () {
                             var requestJson = {
                                 parentId: data.id,
-                                commentContent: $("#reply-comment-content").val()
+                                commentContent: $("#reply-comment-content").val(),
+                                type: "1"
                             };
                             $.ajax({
                                 contentType: "application/json",

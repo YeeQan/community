@@ -1,14 +1,20 @@
 package com.styeeqan.community.web.service;
 
+import com.alibaba.fastjson.JSON;
+import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.constant.ServerStatusCode;
 import com.styeeqan.community.common.exception.CustomizeException;
+import com.styeeqan.community.common.redis.RedisKey;
+import com.styeeqan.community.common.redis.RedisUtil;
 import com.styeeqan.community.common.util.CommonUtil;
 import com.styeeqan.community.mapper.CommentMapper;
 import com.styeeqan.community.mapper.TopicMapper;
 import com.styeeqan.community.mapper.UserInfoMapper;
 import com.styeeqan.community.pojo.po.Comment;
+import com.styeeqan.community.pojo.po.UserDynamic;
 import com.styeeqan.community.pojo.po.UserInfo;
 import com.styeeqan.community.pojo.vo.CommentVO;
+import com.styeeqan.community.task.UserDynamicTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,13 +43,17 @@ public class CommentSev {
     @Autowired
     private TopicMapper topicMapper;
 
-    public CommentVO publish(String parentId, String commentContent, String account) {
+    @Autowired
+    private RedisUtil redisUtil;
+
+    public CommentVO publish(String parentId, String commentContent, String type, String account) {
 
         Comment comment = new Comment();
         String commentId = commonUtil.randomCode();
         comment.setId(commentId);
         comment.setParentId(parentId);
         comment.setCommentContent(commentContent);
+        comment.setType(type);
         comment.setCreateTime(new Date());
         comment.setUpdateTime(new Date());
         comment.setCreateUser(account);
@@ -67,6 +77,17 @@ public class CommentSev {
                 Comment parentComment = commentMapper.selectById(parentId);
                 topicMapper.incrCommentCount(parentComment.getParentId());
             }
+
+            // 生成动态放入Redis消息队列
+            UserDynamicTask userDynamicTask = new UserDynamicTask();
+            if (CommonField.REPLY_TOPIC_TYPE.equals(type)) {
+                userDynamicTask.setType(CommonField.REPLY_TOPIC_DYNAMIC_TYPE);
+            }
+            userDynamicTask.setCreateUser(account);
+            userDynamicTask.setUpdateUser(account);
+            userDynamicTask.setTargetId(parentId);
+            userDynamicTask.setSourceId(commentId);
+            redisUtil.pushListRightValue(RedisKey.USER_DYNAMIC_TASK_LIST, null, JSON.toJSONString(userDynamicTask));
 
             return commentVO;
         } else {

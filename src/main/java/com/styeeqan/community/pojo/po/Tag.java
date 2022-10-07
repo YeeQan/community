@@ -8,8 +8,8 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-@TableName("y_c_topic")
-public class Topic {
+@TableName("y_c_tag")
+public class Tag {
 
     /**
      * 主键
@@ -20,38 +20,8 @@ public class Topic {
     /**
      * 标题
      */
-    @TableField("topic_title")
-    private String topicTitle;
-
-    /**
-     * 内容
-     */
-    @TableField("topic_content")
-    private String topicContent;
-
-    /**
-     * 标签
-     */
-    @TableField("tags")
-    private String tags;
-
-    /**
-     * 评论数
-     */
-    @TableField("comment_count")
-    private Integer commentCount;
-
-    /**
-     * 浏览数
-     */
-    @TableField("view_count")
-    private Integer viewCount;
-
-    /**
-     * 最后一次评论时间
-     */
-    @TableField("last_comment_time")
-    private Date lastCommentTime;
+    @TableField("name")
+    private String name;
 
     /**
      * 创建时间

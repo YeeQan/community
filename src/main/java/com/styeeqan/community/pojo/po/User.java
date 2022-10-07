@@ -24,6 +24,12 @@ public class User {
     private String userInfoId;
 
     /**
+     * 主页id
+     */
+    @TableField("homepage_id")
+    private String homepageId;
+
+    /**
      * 创建时间
      */
     @TableField("create_time")

@@ -1,5 +1,6 @@
 package com.styeeqan.community.common.http.response;
 
+import com.google.common.collect.Lists;
 import com.styeeqan.community.common.constant.ServerStatusCode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,14 @@ public class ResponseEntity<T> {
      */
     private List<T> data;
 
+    public void setData(List<T> data) {
+        this.data = data;
+    }
+
+    public void setData(T data) {
+        this.data = Lists.newArrayList(data);
+    }
+
     public ResponseEntity(ServerStatusCode serverStatusCode) {
         this.code = serverStatusCode.getCode();
         this.description = serverStatusCode.getDesc();
@@ -44,5 +53,11 @@ public class ResponseEntity<T> {
         this.description = ServerStatusCode.SUCCESS.getDesc();
         this.data = new ArrayList<>();
         this.data.add(data);
+    }
+
+    public ResponseEntity(List<T> data) {
+        this.code = ServerStatusCode.SUCCESS.getCode();
+        this.description = ServerStatusCode.SUCCESS.getDesc();
+        this.data = data;
     }
 }

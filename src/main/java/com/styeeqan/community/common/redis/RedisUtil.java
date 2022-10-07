@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.time.Duration;
 import java.util.Optional;
 
 /**
@@ -49,35 +50,25 @@ public class RedisUtil {
     }
 
     /**
-     * 获取 Object-value
-     *
-     * @param clazz    对象类型
+     * 把 value 加到 list 尾部
      * @param redisKey redisKey
-     * @param id       id
-     * @return Object
+     * @param id id
+     * @param value value
      */
-    public Optional<?> getObjectValue(Class<?> clazz, RedisKey redisKey, String id) {
-        Object parseObject = null;
-        Optional<String> optional = getValue(redisKey, id);
-        if (optional.isPresent()) {
-            String value = optional.get();
-            parseObject = JSON.parseObject(value, clazz);
-        }
-        return Optional.ofNullable(parseObject);
+    public void pushListRightValue(RedisKey redisKey, String id, String value) {
+        template.opsForList().rightPush(redisKey.getKey(id), value);
     }
 
     /**
-     * 设置 Object-value
-     *
+     * 从 list 头部获取 value
      * @param redisKey redisKey
-     * @param id       id
-     * @param object   object
+     * @param id id
      */
-    public void setObjectValue(RedisKey redisKey, String id, Object object) {
-        if (redisKey.getTimeout() == null) {
-            template.opsForValue().set(redisKey.getKey(id), JSON.toJSONString(object));
-        } else {
-            template.opsForValue().set(redisKey.getKey(id), JSON.toJSONString(object), redisKey.getTimeout());
+    public Optional<String> popListLeftValue(RedisKey redisKey, String id, Duration timeout) {
+        String value = template.opsForList().leftPop(redisKey.getKey(id), timeout);
+        if (CommonField.REDIS_DEFAULT_VALUE.equals(value)) {
+            return Optional.empty();
         }
+        return Optional.ofNullable(value);
     }
 }

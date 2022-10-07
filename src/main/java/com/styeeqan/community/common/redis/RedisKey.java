@@ -17,6 +17,8 @@ public enum RedisKey {
     TOPIC(Duration.ofDays(7)),
     COMMENT(Duration.ofDays(7)),
     USER_INFO(Duration.ofDays(7)),
+
+    USER_DYNAMIC_TASK_LIST(null)
     ;
 
     /**

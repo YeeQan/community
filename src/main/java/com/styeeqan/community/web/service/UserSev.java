@@ -5,10 +5,7 @@ import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.constant.DictField;
 import com.styeeqan.community.common.constant.ServerStatusCode;
 import com.styeeqan.community.common.exception.CustomizeException;
-import com.styeeqan.community.common.util.CommonUtil;
-import com.styeeqan.community.common.util.CookieUtil;
-import com.styeeqan.community.common.util.DictUtil;
-import com.styeeqan.community.common.util.JwtUtil;
+import com.styeeqan.community.common.util.*;
 import com.styeeqan.community.mapper.UserInfoMapper;
 import com.styeeqan.community.mapper.UserMapper;
 import com.styeeqan.community.pojo.po.Dict;
@@ -50,6 +47,9 @@ public class UserSev {
     @Autowired
     private CookieUtil cookieUtil;
 
+    @Autowired
+    private PinYinUtil pinYinUtil;
+
     /**
      * 用户注册
      *
@@ -82,6 +82,7 @@ public class UserSev {
             User user = new User();
             user.setAccount(account);
             user.setUserInfoId(commonUtil.uuid());
+            user.setHomepageId(pinYinUtil.toPinyin(username));
             user.setCreateTime(new Date());
             user.setCreateUser(account);
             user.setUpdateTime(new Date());
@@ -163,6 +164,12 @@ public class UserSev {
         if (userInfoDB != null) {
             userVO.setUsername(userInfoDB.getUsername());
             userVO.setHeadPortrait(userInfoDB.getHeadPortrait());
+        }
+
+        User userDB = userMapper.selectById(account);
+        if (userDB != null) {
+            userVO.setHomepageId(userDB.getHomepageId());
+            userVO.setCreateTime(userDB.getCreateTime());
         }
 
         return userVO;

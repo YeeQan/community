@@ -20,11 +20,15 @@ public class TopicVO {
 
     private String createUserName;
 
+    private String createUserHomepageId;
+
     private Integer commentCount;
 
     private Integer viewCount;
 
-    private String headPortrait;
+    private String createUserHeadPortrait;
 
     private List<CommentVO> commentVOList;
+
+    private List<TagVO> tagVOList;
 }

@@ -67,7 +67,7 @@ public class ControllerLogAsp {
             PostMapping postMapping = method.getAnnotation(PostMapping.class);
             // 根据注解类型打印日志
             if (getMapping != null) {
-                log.info("user:{} getRequest send:{}", account, requestURI);
+                log.info("用户:{} 发送GET请求:{}", account, requestURI);
             }
             if (postMapping != null) {
                 // 方法参数
@@ -77,7 +77,7 @@ public class ControllerLogAsp {
                         requestParam = (BaseDTO) arg;
                     }
                 }
-                log.info("user:{} postRequest send:{}, requestParam: {}",
+                log.info("用户:{} 发送POST请求:{}, 请求参数: {}",
                         account, requestURI, requestParam == null ? "null" : JSON.toJSONString(requestParam));
             }
         }
@@ -112,7 +112,7 @@ public class ControllerLogAsp {
             PostMapping postMapping = method.getAnnotation(PostMapping.class);
             // 根据注解类型打印日志
             if (postMapping != null) {
-                log.info("user:{} postRequest finish:{}, result: {}",
+                log.info("用户:{} POST请求结束:{}, 返回结果: {}",
                         account, requestURI, responseEntity);
             }
         }

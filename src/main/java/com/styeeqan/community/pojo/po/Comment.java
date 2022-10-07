@@ -30,6 +30,12 @@ public class Comment {
     private String commentContent;
 
     /**
+     * 评论类型
+     */
+    @TableField("type")
+    private String type;
+
+    /**
      * 创建时间
      */
     @TableField("create_time")

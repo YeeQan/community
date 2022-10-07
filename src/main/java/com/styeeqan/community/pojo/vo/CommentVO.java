@@ -15,6 +15,8 @@ public class CommentVO {
 
     private String createUsername;
 
+    private String createUserHomepageId;
+
     private String headPortrait;
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")

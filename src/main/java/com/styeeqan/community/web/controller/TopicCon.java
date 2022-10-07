@@ -50,8 +50,7 @@ public class TopicCon {
     public ResponseEntity<TopicVO> publish(@RequestBody @Validated(Publish.class) TopicDTO topicDTO, HttpServletRequest request) {
         TopicVO topicVO = topicSev.publish(
                 topicDTO.getTopicId(), topicDTO.getTopicTitle(), topicDTO.getTopicContent(),
-                request.getAttribute(CommonField.ACCOUNT).toString()
-        );
+                topicDTO.getTags(), request.getAttribute(CommonField.ACCOUNT).toString());
         return new ResponseEntity<>(topicVO);
     }
 }

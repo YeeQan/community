@@ -14,13 +14,14 @@
             <div class="col-lg-1 text-center align-self-center">
                 <button type="button" class="btn btn-success" onclick="$(location).attr('href', '/community/publish')">发帖</button>
             </div>
-            <div class="col-lg-1 text-center align-self-center">
+            <div class="col-lg-1 align-self-center">
                 <div class="dropdown">
-                    <a role="button" data-toggle="dropdown" href="javascript:void(0)" id="userDropDown-button"></a>
+                    <a role="button" data-toggle="dropdown" href="javascript:void(0)" id="userDropDown-button">
+                        <img id="user-headportrait" width="32" height="32" class='rounded-circle' src='#' alt='头像'>
+                    </a>
                     <div id="userDropDown" class="dropdown-menu">
-                        <a class="dropdown-item" href="javascript:void(0)" id="logout">
-                            <span class="text-black-50">退出</span>
-                        </a>
+                        <a class="dropdown-item text-center" id="homepage">个人中心</a>
+                        <a class="dropdown-item text-center" href="javascript:void(0)" id="logout">退出</a>
                     </div>
                 </div>
             </div>

@@ -36,7 +36,7 @@ public class CommentCon {
     @PostMapping("publish")
     @ApiOperation(value = "发布评论")
     public ResponseEntity<?> publish(@RequestBody @Validated(Publish.class) CommentDTO commentDTO, HttpServletRequest request) {
-        CommentVO commentVO = commentSev.publish(commentDTO.getParentId(), commentDTO.getCommentContent(),
+        CommentVO commentVO = commentSev.publish(commentDTO.getParentId(), commentDTO.getCommentContent(), commentDTO.getType(),
                 request.getAttribute(CommonField.ACCOUNT).toString());
         return new ResponseEntity<>(commentVO);
     }

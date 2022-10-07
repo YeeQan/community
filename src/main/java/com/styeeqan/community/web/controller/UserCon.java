@@ -44,8 +44,23 @@ public class UserCon {
         return new ResponseEntity<>(ServerStatusCode.SUCCESS);
     }
 
+    @PostMapping("loginFlag")
+    @ApiOperation(value = "用户登录状态")
+    public ResponseEntity<?> loginFlag(HttpServletRequest request) {
+        ResponseEntity<String> response;
+        Object attribute = request.getAttribute(CommonField.ACCOUNT);
+        if (attribute == null) {
+            response = new ResponseEntity<>(ServerStatusCode.UNAUTHORIZED);
+            response.setData("/community/common/header-non-logined");
+        } else {
+            response = new ResponseEntity<>(ServerStatusCode.SUCCESS);
+            response.setData("/community/common/header-logined");
+        }
+        return response;
+    }
+
     @PostMapping("loginInfo")
-    @ApiOperation(value = "登录状态信息")
+    @ApiOperation(value = "用户登录信息")
     public ResponseEntity<UserVO> loginInfo(HttpServletRequest request) {
         UserVO userVO = userSev.getLoginInfo(request.getAttribute(CommonField.ACCOUNT).toString());
         return new ResponseEntity<>(userVO);

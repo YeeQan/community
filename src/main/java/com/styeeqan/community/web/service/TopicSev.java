@@ -1,23 +1,27 @@
 package com.styeeqan.community.web.service;
 
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.styeeqan.community.common.constant.CommonField;
+import com.styeeqan.community.common.redis.RedisKey;
+import com.styeeqan.community.common.redis.RedisUtil;
 import com.styeeqan.community.common.util.CommonUtil;
-import com.styeeqan.community.mapper.CommentMapper;
-import com.styeeqan.community.mapper.TopicMapper;
-import com.styeeqan.community.mapper.UserInfoMapper;
-import com.styeeqan.community.pojo.po.Comment;
-import com.styeeqan.community.pojo.po.Topic;
-import com.styeeqan.community.pojo.po.UserInfo;
+import com.styeeqan.community.mapper.*;
+import com.styeeqan.community.pojo.po.*;
 import com.styeeqan.community.pojo.vo.CommentVO;
 import com.styeeqan.community.pojo.vo.PageVO;
+import com.styeeqan.community.pojo.vo.TagVO;
 import com.styeeqan.community.pojo.vo.TopicVO;
+import com.styeeqan.community.task.UserDynamicTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +42,15 @@ public class TopicSev {
 
     @Autowired
     private CommonUtil commonUtil;
+
+    @Autowired
+    private RedisUtil redisUtil;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private TagMapper tagMapper;
 
     /**
      * 获取帖子分页
@@ -72,6 +85,22 @@ public class TopicSev {
                     UserInfo userInfo = userInfoMapper.selectbyAccount(po.getCreateUser());
                     if (userInfo != null) {
                         vo.setCreateUserName(userInfo.getUsername());
+                        vo.setCreateUserHeadPortrait(userInfo.getHeadPortrait());
+                    }
+                    User user = userMapper.selectById(po.getCreateUser());
+                    if (user != null) {
+                        vo.setCreateUserHomepageId(user.getHomepageId());
+                    }
+                    String tags = po.getTags();
+                    if (!StringUtils.isEmpty(tags)) {
+                        String[] split = tags.split(",");
+                        List<Tag> tagList = tagMapper.selectList(new QueryWrapper<Tag>().in("id", Arrays.asList(split)));
+                        vo.setTagVOList(tagList.stream().map(tag -> {
+                            TagVO tagVO = new TagVO();
+                            tagVO.setId(tag.getId());
+                            tagVO.setName(tag.getName());
+                            return tagVO;
+                        }).collect(Collectors.toList()));
                     }
                     return vo;
                 })
@@ -96,35 +125,54 @@ public class TopicSev {
             // 设置用户名和头像
             UserInfo userInfo = userInfoMapper.selectbyAccount(topic.getCreateUser());
             topicVO.setCreateUserName(userInfo.getUsername());
-            topicVO.setHeadPortrait(userInfo.getHeadPortrait());
+            topicVO.setCreateUserHeadPortrait(userInfo.getHeadPortrait());
+            // 设置用户信息
+            User user = userMapper.selectById(topic.getCreateUser());
+            topicVO.setCreateUserHomepageId(user.getHomepageId());
+            // 设置标签
+            String tags = topic.getTags();
+            if (!StringUtils.isEmpty(tags)) {
+                String[] split = tags.split(",");
+                List<Tag> tagList = tagMapper.selectList(new QueryWrapper<Tag>().in("id", Arrays.asList(split)));
+                topicVO.setTagVOList(tagList.stream().map(tag -> {
+                    TagVO tagVO = new TagVO();
+                    tagVO.setId(tag.getId());
+                    tagVO.setName(tag.getName());
+                    return tagVO;
+                }).collect(Collectors.toList()));
+            }
             // 设置该讨论下的所有评论
             List<Comment> commentList = commentMapper.selectCommentByParentId(topicId);
             // 一级评论
-            List<CommentVO> commentVOList = commentList.stream().map(comment -> {
-                CommentVO commentVO = new CommentVO();
-                UserInfo info = userInfoMapper.selectbyAccount(comment.getCreateUser());
-                commentVO.setCreateUsername(info.getUsername());
-                commentVO.setHeadPortrait(info.getHeadPortrait());
-                commentVO.setCommentId(comment.getId());
-                commentVO.setCommentContent(comment.getCommentContent());
-                commentVO.setCreateTime(comment.getCreateTime());
+            List<CommentVO> commentVOList1 = commentList.stream().map(comment1 -> {
+                CommentVO commentVO1 = new CommentVO();
+                UserInfo info1 = userInfoMapper.selectbyAccount(comment1.getCreateUser());
+                commentVO1.setCreateUsername(info1.getUsername());
+                commentVO1.setHeadPortrait(info1.getHeadPortrait());
+                commentVO1.setCommentId(comment1.getId());
+                commentVO1.setCommentContent(comment1.getCommentContent());
+                commentVO1.setCreateTime(comment1.getCreateTime());
+                User user1 = userMapper.selectById(comment1.getCreateUser());
+                commentVO1.setCreateUserHomepageId(user1.getHomepageId());
                 // 二级评论
-                List<Comment> commentList1 = commentMapper.selectCommentByParentId(comment.getId());
-                List<CommentVO> commentVOList1 = commentList1.stream().map(comment1 -> {
-                    CommentVO commentVO1 = new CommentVO();
-                    UserInfo info1 = userInfoMapper.selectbyAccount(comment1.getCreateUser());
-                    commentVO1.setCreateUsername(info1.getUsername());
-                    commentVO1.setHeadPortrait(info1.getHeadPortrait());
-                    commentVO1.setCommentId(comment1.getId());
-                    commentVO1.setCommentContent(comment1.getCommentContent());
-                    commentVO1.setCreateTime(comment1.getCreateTime());
-                    return commentVO1;
+                List<Comment> commentList2 = commentMapper.selectCommentByParentId(comment1.getId());
+                List<CommentVO> commentVOList2 = commentList2.stream().map(comment2 -> {
+                    CommentVO commentVO2 = new CommentVO();
+                    UserInfo info2 = userInfoMapper.selectbyAccount(comment2.getCreateUser());
+                    commentVO2.setCreateUsername(info2.getUsername());
+                    commentVO2.setHeadPortrait(info2.getHeadPortrait());
+                    commentVO2.setCommentId(comment2.getId());
+                    commentVO2.setCommentContent(comment2.getCommentContent());
+                    commentVO2.setCreateTime(comment2.getCreateTime());
+                    User user2 = userMapper.selectById(comment2.getCreateUser());
+                    commentVO2.setCreateUserHomepageId(user2.getHomepageId());
+                    return commentVO2;
                 }).collect(Collectors.toList());
-                commentVO.setCommentVOList(commentVOList1);
-                return commentVO;
+                commentVO1.setCommentVOList(commentVOList2);
+                return commentVO1;
             }).collect(Collectors.toList());
 
-            topicVO.setCommentVOList(commentVOList);
+            topicVO.setCommentVOList(commentVOList1);
 
             // 阅读数加一
             topicMapper.incrViewCount(topicId);
@@ -132,7 +180,7 @@ public class TopicSev {
         return topicVO;
     }
 
-    public TopicVO publish(String topicId, String topicTitle, String topicContent, String account) {
+    public TopicVO publish(String topicId, String topicTitle, String topicContent, String tags, String account) {
 
         TopicVO topicVO = new TopicVO();
 
@@ -140,6 +188,7 @@ public class TopicSev {
         topic.setId(StringUtils.isEmpty(topicId) ? commonUtil.randomCode() : topicId);
         topic.setTopicTitle(topicTitle);
         topic.setTopicContent(topicContent);
+        topic.setTags(tags);
         topic.setCommentCount(0);
         topic.setViewCount(0);
         topic.setUpdateUser(account);
@@ -152,6 +201,15 @@ public class TopicSev {
         } else {
             topicMapper.updateById(topic);
         }
+
+        // 生成动态放入Redis消息队列
+        UserDynamicTask userDynamicTask = new UserDynamicTask();
+        userDynamicTask.setType(CommonField.PUBLISH_DYNAMIC_TYPE);
+        userDynamicTask.setTargetId(topic.getId());
+        userDynamicTask.setSourceId(topic.getId());
+        userDynamicTask.setCreateUser(account);
+        userDynamicTask.setUpdateUser(account);
+        redisUtil.pushListRightValue(RedisKey.USER_DYNAMIC_TASK_LIST, null, JSON.toJSONString(userDynamicTask));
 
         topicVO.setId(topic.getId());
         return topicVO;

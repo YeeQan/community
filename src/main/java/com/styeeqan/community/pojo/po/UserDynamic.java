@@ -8,8 +8,8 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-@TableName("y_c_topic")
-public class Topic {
+@TableName("y_c_user_dynamic")
+public class UserDynamic {
 
     /**
      * 主键
@@ -18,40 +18,22 @@ public class Topic {
     private String id;
 
     /**
-     * 标题
+     * 动态类型
      */
-    @TableField("topic_title")
-    private String topicTitle;
+    @TableField("type")
+    private String type;
 
     /**
-     * 内容
+     * 目标id
      */
-    @TableField("topic_content")
-    private String topicContent;
+    @TableField("target_id")
+    private String targetId;
 
     /**
-     * 标签
+     * 源id
      */
-    @TableField("tags")
-    private String tags;
-
-    /**
-     * 评论数
-     */
-    @TableField("comment_count")
-    private Integer commentCount;
-
-    /**
-     * 浏览数
-     */
-    @TableField("view_count")
-    private Integer viewCount;
-
-    /**
-     * 最后一次评论时间
-     */
-    @TableField("last_comment_time")
-    private Date lastCommentTime;
+    @TableField("source_id")
+    private String sourceId;
 
     /**
      * 创建时间

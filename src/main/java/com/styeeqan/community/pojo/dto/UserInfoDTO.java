@@ -1,9 +1,11 @@
 package com.styeeqan.community.pojo.dto;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class UserInfoDTO {
+@EqualsAndHashCode(callSuper = true)
+public class UserInfoDTO extends BaseDTO {
 
     private String account;
     private String introduction;
