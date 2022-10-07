@@ -145,3 +145,14 @@ INSERT INTO `y_c_dict` VALUES ('1', 'user__head_portrait_monkey', 'https://comub
 INSERT INTO `y_c_dict` VALUES ('2', 'user_sex_male', '1', 'user_sex', '用户性别男', 1, '2021-12-18 12:52:26', '123456', '2021-12-18 12:52:33', '123456');
 INSERT INTO `y_c_dict` VALUES ('3', 'user_sex_female', '0', 'user_sex', '用户性别女', 2, '2021-12-18 12:53:27', '123456', '2021-12-18 12:53:32', '123456');
 INSERT INTO `y_c_dict` VALUES ('4', 'user_sex_unknown', '2', 'user_sex', '用户性别未知', 3, '2021-12-18 12:55:08', '123456', '2021-12-18 12:55:39', '123456');
+
+
+-- ----------------------------
+-- Records of y_c_tag
+-- ----------------------------
+INSERT INTO `community_db`.`y_c_tag` (`id`, `name`, `create_time`, `create_user`, `update_time`, `update_user`) VALUES ('104000000001', '生活', '2022-10-03 19:24:04', '1', '2022-10-03 19:24:09', '1');
+INSERT INTO `community_db`.`y_c_tag` (`id`, `name`, `create_time`, `create_user`, `update_time`, `update_user`) VALUES ('104000000002', '工作', '2022-10-03 19:24:34', '1', '2022-10-03 19:24:38', '1');
+INSERT INTO `community_db`.`y_c_tag` (`id`, `name`, `create_time`, `create_user`, `update_time`, `update_user`) VALUES ('104000000003', '灌水', '2022-10-03 19:25:29', '1', '2022-10-03 19:25:32', '1');
+INSERT INTO `community_db`.`y_c_tag` (`id`, `name`, `create_time`, `create_user`, `update_time`, `update_user`) VALUES ('104000000004', '娱乐', '2022-10-03 19:27:13', '1', '2022-10-03 19:27:16', '1');
+INSERT INTO `community_db`.`y_c_tag` (`id`, `name`, `create_time`, `create_user`, `update_time`, `update_user`) VALUES ('104000000005', '美容', '2022-10-03 19:27:35', '1', '2022-10-03 19:27:39', '1');
+INSERT INTO `community_db`.`y_c_tag` (`id`, `name`, `create_time`, `create_user`, `update_time`, `update_user`) VALUES ('104000000006', '舞蹈', '2022-10-03 19:27:55', '1', '2022-10-03 19:27:58', '1');
