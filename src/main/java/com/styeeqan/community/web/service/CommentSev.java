@@ -1,6 +1,7 @@
 package com.styeeqan.community.web.service;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.constant.ServerStatusCode;
 import com.styeeqan.community.common.exception.CustomizeException;
@@ -11,7 +12,6 @@ import com.styeeqan.community.mapper.CommentMapper;
 import com.styeeqan.community.mapper.TopicMapper;
 import com.styeeqan.community.mapper.UserInfoMapper;
 import com.styeeqan.community.pojo.po.Comment;
-import com.styeeqan.community.pojo.po.UserDynamic;
 import com.styeeqan.community.pojo.po.UserInfo;
 import com.styeeqan.community.pojo.vo.CommentVO;
 import com.styeeqan.community.task.UserDynamicTask;
@@ -64,7 +64,7 @@ public class CommentSev {
         Comment commentDB = commentMapper.selectById(commentId);
         if (commentDB != null) {
             CommentVO commentVO = new CommentVO();
-            UserInfo info = userInfoMapper.selectbyAccount(commentDB.getCreateUser());
+            UserInfo info = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", account));
             commentVO.setCreateUsername(info.getUsername());
             commentVO.setHeadPortrait(info.getHeadPortrait());
             commentVO.setCommentId(commentDB.getId());

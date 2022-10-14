@@ -82,7 +82,7 @@ public class TopicSev {
                     vo.setCreateTime(po.getCreateTime());
                     vo.setCommentCount(po.getCommentCount());
                     vo.setViewCount(po.getViewCount());
-                    UserInfo userInfo = userInfoMapper.selectbyAccount(po.getCreateUser());
+                    UserInfo userInfo = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", po.getCreateUser()));
                     if (userInfo != null) {
                         vo.setCreateUserName(userInfo.getUsername());
                         vo.setCreateUserHeadPortrait(userInfo.getHeadPortrait());
@@ -123,7 +123,7 @@ public class TopicSev {
             topicVO.setViewCount(topic.getViewCount());
             topicVO.setCommentCount(topic.getCommentCount());
             // 设置用户名和头像
-            UserInfo userInfo = userInfoMapper.selectbyAccount(topic.getCreateUser());
+            UserInfo userInfo = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", topic.getCreateUser()));
             topicVO.setCreateUserName(userInfo.getUsername());
             topicVO.setCreateUserHeadPortrait(userInfo.getHeadPortrait());
             // 设置用户信息
@@ -142,11 +142,11 @@ public class TopicSev {
                 }).collect(Collectors.toList()));
             }
             // 设置该讨论下的所有评论
-            List<Comment> commentList = commentMapper.selectCommentByParentId(topicId);
+            List<Comment> commentList = commentMapper.selectList(new QueryWrapper<Comment>().eq("parent_id", topicId));
             // 一级评论
             List<CommentVO> commentVOList1 = commentList.stream().map(comment1 -> {
                 CommentVO commentVO1 = new CommentVO();
-                UserInfo info1 = userInfoMapper.selectbyAccount(comment1.getCreateUser());
+                UserInfo info1 = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", comment1.getCreateUser()));
                 commentVO1.setCreateUsername(info1.getUsername());
                 commentVO1.setHeadPortrait(info1.getHeadPortrait());
                 commentVO1.setCommentId(comment1.getId());
@@ -155,10 +155,10 @@ public class TopicSev {
                 User user1 = userMapper.selectById(comment1.getCreateUser());
                 commentVO1.setCreateUserHomepageId(user1.getHomepageId());
                 // 二级评论
-                List<Comment> commentList2 = commentMapper.selectCommentByParentId(comment1.getId());
+                List<Comment> commentList2 = commentMapper.selectList(new QueryWrapper<Comment>().eq("parent_id", comment1.getId()));
                 List<CommentVO> commentVOList2 = commentList2.stream().map(comment2 -> {
                     CommentVO commentVO2 = new CommentVO();
-                    UserInfo info2 = userInfoMapper.selectbyAccount(comment2.getCreateUser());
+                    UserInfo info2 = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", comment2.getCreateUser()));
                     commentVO2.setCreateUsername(info2.getUsername());
                     commentVO2.setHeadPortrait(info2.getHeadPortrait());
                     commentVO2.setCommentId(comment2.getId());

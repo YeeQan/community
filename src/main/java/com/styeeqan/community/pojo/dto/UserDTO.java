@@ -1,12 +1,12 @@
 package com.styeeqan.community.pojo.dto;
 
+import com.styeeqan.community.common.annotation.group.user.Homepage;
 import com.styeeqan.community.common.annotation.group.user.Login;
 import com.styeeqan.community.common.annotation.group.user.Register;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @Data
@@ -24,4 +24,7 @@ public class UserDTO extends BaseDTO {
     @Pattern(regexp = "[a-zA-Z\\d]{1,16}", message = "密码格式错误，必须由字母、数字、下划线组成，不能超过16位",
             groups = {Register.class, Login.class})
     private String password;
+
+    @NotBlank(message = "参数不能为空", groups = {Homepage.class})
+    private String homepageId;
 }

@@ -1,6 +1,5 @@
 package com.styeeqan.community.common.redis;
 
-import com.alibaba.fastjson.JSON;
 import com.styeeqan.community.common.constant.CommonField;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;

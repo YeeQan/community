@@ -68,11 +68,8 @@ public class UserSev {
             throw new CustomizeException(ServerStatusCode.ACCOUNT_EXIST);
         }
 
-        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username", username);
-
         // 昵称已存在
-        if (userInfoMapper.selectOne(queryWrapper) != null) {
+        if (userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("username", username)) != null) {
             throw new CustomizeException(ServerStatusCode.USERNAME_EXIST);
         }
 
@@ -160,7 +157,7 @@ public class UserSev {
 
         UserVO userVO = new UserVO();
 
-        UserInfo userInfoDB = userInfoMapper.selectbyAccount(account);
+        UserInfo userInfoDB = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", account));
         if (userInfoDB != null) {
             userVO.setUsername(userInfoDB.getUsername());
             userVO.setHeadPortrait(userInfoDB.getHeadPortrait());

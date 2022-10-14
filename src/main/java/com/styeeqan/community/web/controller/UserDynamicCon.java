@@ -2,7 +2,6 @@ package com.styeeqan.community.web.controller;
 
 import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.http.response.ResponseEntity;
-import com.styeeqan.community.common.util.ThreadUtil;
 import com.styeeqan.community.pojo.vo.UserDynamicVO;
 import com.styeeqan.community.web.service.UserDynamicSev;
 import io.swagger.annotations.Api;

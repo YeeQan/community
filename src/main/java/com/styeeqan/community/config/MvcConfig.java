@@ -49,7 +49,7 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/common/header-non-logined",
                         "/common/footer",
                         "/topic/view/**",
-                        "/homepage/**");
+                        "/u/**");
         // RateLimiter 限流拦截器
         registry.addInterceptor(getRateLimiterInterceptor()).addPathPatterns("/**");
     }
