@@ -5,6 +5,8 @@ import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.constant.DictField;
 import com.styeeqan.community.common.constant.ServerStatusCode;
 import com.styeeqan.community.common.exception.CustomizeException;
+import com.styeeqan.community.common.redis.RedisKey;
+import com.styeeqan.community.common.redis.RedisUtil;
 import com.styeeqan.community.common.util.*;
 import com.styeeqan.community.mapper.UserInfoMapper;
 import com.styeeqan.community.mapper.UserMapper;
@@ -61,6 +63,9 @@ public class UserSev {
 
     @Autowired
     private DateUtil dateUtil;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 用户注册
@@ -131,8 +136,10 @@ public class UserSev {
             Optional<String> tokenOpt = jwtUtil.getToken(payloadMap);
             if (tokenOpt.isPresent()) {
                 String token = tokenOpt.get();
-                Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 7);
+                Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 365 * 10);
                 response.addCookie(cookie);
+                // 在 Redis 中保存
+                redisUtil.setValue(RedisKey.USER_TOKEN, account, token);
             }
         }
     }
@@ -160,8 +167,10 @@ public class UserSev {
         Optional<String> tokenOpt = jwtUtil.getToken(payloadMap);
         if (tokenOpt.isPresent()) {
             String token = tokenOpt.get();
-            Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 7);
+            Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 365 * 10);
             response.addCookie(cookie);
+            // 在 Redis 中保存
+            redisUtil.setValue(RedisKey.USER_TOKEN, account, token);
         }
     }
 
