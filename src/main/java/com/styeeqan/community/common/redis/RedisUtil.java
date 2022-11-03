@@ -49,6 +49,15 @@ public class RedisUtil {
     }
 
     /**
+     * 根据 key 删除
+     * @param redisKey redisKey
+     * @param id id
+     */
+    public void delete(RedisKey redisKey, String id) {
+        template.delete(redisKey.getKey(id));
+    }
+
+    /**
      * 把 value 加到 list 尾部
      * @param redisKey redisKey
      * @param id id

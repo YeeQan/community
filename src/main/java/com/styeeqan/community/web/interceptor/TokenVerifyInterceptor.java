@@ -92,7 +92,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
                                 // 将 token 中的 account 放到 request 里面，转发到业务
                                 request.setAttribute(CommonField.ACCOUNT, account);
                             } else {
-                                throw new CustomizeException(ServerStatusCode.UNAUTHORIZED);
+                                redisUtil.delete(RedisKey.USER_TOKEN, account);
                             }
                         }
                     }
@@ -119,6 +119,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
                     // 将 token 中的 account 放到 request 里面，转发到业务
                     request.setAttribute(CommonField.ACCOUNT, account);
                 } else {
+                    redisUtil.delete(RedisKey.USER_TOKEN, account);
                     throw new CustomizeException(ServerStatusCode.UNAUTHORIZED);
                 }
             }
