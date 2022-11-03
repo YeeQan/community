@@ -22,4 +22,21 @@ public class UserVO {
 
     @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")
     private Date createTime;
+
+    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")
+    private Date birthday;
+
+    private String sex;
+
+    private String city;
+
+    private String introduction;
+
+    private String school;
+
+    private String major;
+
+    private String company;
+
+    private String position;
 }

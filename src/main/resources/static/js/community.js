@@ -42,6 +42,101 @@ jQuery.extend({
     },
 
     /**
+     * 初始化个人资料
+     */
+    initProfile: function () {
+        $.initTop();
+        $.initFooter();
+        $.ajax({
+            type: "POST",
+            url: "/community/user/userInfo/get",
+            success: function (result) {
+                if (result == null) {
+                    $.snack('error', '系统错误，请稍后再试！', 3000)
+                } else {
+                    if (result.code !== "2000") {
+                        $.snack('error', result.description, 3000)
+                    } else {
+                        var userInfo = result.data[0];
+
+                        $("#personal-headPortrait-img").attr("src", userInfo.headPortrait)
+                        $("#personal-username").val(userInfo.username)
+                        $("#personal-birthday").val(userInfo.birthday)
+                        $("#personal-sex  option[value=" + userInfo.sex + "]").attr("selected", true)
+                        $("#personal-city").val(userInfo.city)
+                        $("#personal-introduction").val(userInfo.introduction)
+                        $("#personal-school").val(userInfo.school)
+                        $("#personal-major").val(userInfo.major)
+                        $("#personal-company").val(userInfo.company)
+                        $("#personal-position").val(userInfo.position)
+
+                        $("#personal-headPortrait-post").change(function () {
+                            var file = $("#personal-headPortrait-post").get(0).files[0];
+                            if (file != null) {
+                                var formData = new FormData();
+                                formData.append("file", file);
+                                $.ajax({
+                                    type: "POST",
+                                    data: formData,
+                                    url: "/community/user/headPortrait/upload",
+                                    contentType: false,
+                                    processData: false,
+                                    success: function (result) {
+                                        if (result == null) {
+                                            $.snack('error', '系统错误，请稍后再试！', 3000)
+                                        } else {
+                                            if (result.code !== "2000") {
+                                                $.snack('error', result.description, 3000)
+                                            } else {
+                                                var uri = result.data[0];
+                                                $.snack('success', "图片上传成功", 3000)
+                                                $("#personal-headPortrait-post").val('');
+                                                $("#personal-headPortrait-img").attr("src", uri)
+                                            }
+                                        }
+                                    },
+                                });
+                            }
+                        })
+
+                        $("#personal-info-commit").click(function () {
+                            var requestJson = {
+                                username: $("#personal-username").val(),
+                                birthday: $("#personal-birthday").val(),
+                                sex: $("#personal-sex").val(),
+                                city: $("#personal-city").val(),
+                                introduction: $("#personal-introduction").val(),
+                                school: $("#personal-school").val(),
+                                major: $("#personal-major").val(),
+                                company: $("#personal-company").val(),
+                                position: $("#personal-position").val(),
+                            };
+                            $.ajax({
+                                type: "POST",
+                                dataType: "json",
+                                contentType: "application/json",
+                                data: JSON.stringify(requestJson),
+                                url: "/community/user/userInfo/save",
+                                success: function (result) {
+                                    if (result == null) {
+                                        $.snack('error', '系统错误，请稍后再试！', 3000)
+                                    } else {
+                                        if (result.code !== "2000") {
+                                            $.snack('error', result.description, 3000)
+                                        } else {
+                                            $.snack('success', "保存成功", 3000)
+                                        }
+                                    }
+                                },
+                            });
+                        })
+                    }
+                }
+            },
+        });
+    },
+
+    /**
      * 初始化发布页
      */
     initPublish: function () {
@@ -115,16 +210,10 @@ jQuery.extend({
             url: "/community/tag/list",
             success: function (result) {
                 if(result === null) {
-                    $.alert({
-                        title: "出错啦!",
-                        content: "请稍后再试！",
-                    });
+                    $.snack('error', '系统错误，请稍后再试！', 3000)
                 } else {
                     if (result.code !== "2000") {
-                        $.alert({
-                            title: "出错啦!",
-                            content: result.description,
-                        });
+                        $.snack('error', result.description, 3000)
                     } else {
                         $.each(result.data, function (index, tag) {
                             let $tagList = $("#tag-list");
@@ -182,16 +271,10 @@ jQuery.extend({
             data: JSON.stringify(requestJson),
             success: function (result) {
                 if (result == null) {
-                    $.alert({
-                        title: "出错啦!",
-                        content: "请稍后再试！",
-                    });
+                    $.snack('error', '系统错误，请稍后再试！', 3000)
                 } else {
                     if (result.code !== "2000") {
-                        $.alert({
-                            title: "出错啦!",
-                            content: result.description,
-                        });
+                        $.snack('error', result.description, 3000)
                     } else {
                         $("#topicTitle-edit").val(result.data[0].topicTitle)
                         $("#topicDescription-edit").val(result.data[0].topicContent)
@@ -299,16 +382,10 @@ jQuery.extend({
             url: "/community/user/loginInfo",
             success: function (result) {
                 if (result == null) {
-                    $.alert({
-                        title: "出错啦!",
-                        content: "请稍后再试！",
-                    });
+                    $.snack('error', '系统错误，请稍后再试！', 3000)
                 } else {
                     if (result.code !== "2000") {
-                        $.alert({
-                            title: "出错啦!",
-                            content: result.description,
-                        });
+                        $.snack('error', result.description, 3000)
                     } else {
                         var headPortrait = result.data[0].headPortrait
                         var homepageId = result.data[0].homepageId
@@ -428,53 +505,80 @@ jQuery.extend({
     /**
      * 初始化个人主页
      */
-    initHomepage: function () {
+    initHomepage: function (homepageId) {
 
         $.initTop()
         $.initFooter()
 
-        $("title").text(sessionStorage.getItem("username") + " - Community");
+        var requestJson = {
+            homepageId: homepageId
+        };
 
-        var userInfoHtml =
-            "<div class='text-center my-lg-3'>" +
-            "   <a href='javascript:void(0)'>" +
-            "       <img src='" + sessionStorage.getItem("userHeadportrait") + "' alt='头像' width='160' height='160' class='rounded-circle'>" +
-            "   </a>" +
-            "</div>" +
-            "<div class='text-center my-lg-3'>" +
-            "   <h3>" + sessionStorage.getItem("username") + "</h3>" +
-            "</div>" +
-            "<div class='text-center my-lg-3'>" +
-            "   <a href='javascript:void(0)' role='button' class='btn btn-block btn-outline-success'>编辑个人资料</a>" +
-            "</div>" +
-            "<div class='text-center my-lg-3'>" +
-            "   <p class='text-secondary'>" + sessionStorage.getItem("createTime") + "&nbsp;加入</p>" +
-            "</div>"
-        $("#homepage-user-info").html(userInfoHtml)
+        $.ajax({
+            type: "POST",
+            url: "/community/user/homepage",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(requestJson),
+            success: function (result) {
+                if (result == null) {
+                    $.snack('error', '系统错误，请稍后再试！', 3000)
+                } else {
+                    if (result.code !== "2000") {
+                        $.snack('error', result.description, 3000)
+                    } else {
+                        var userHomepage = result.data[0]
 
-        $.renderDynamicList()
-        $("#dynamic").click(function () {
-            $("#homepage-list").clear()
-            $.renderDynamicList()
-        })
+                        $("title").text(userHomepage.username + " - Community");
+
+                        var userInfoHtml =
+                            "<div class='text-center my-lg-3'>" +
+                            "   <a href='javascript:void(0)'>" +
+                            "       <img src='" + userHomepage.headPortrait + "' alt='头像' width='160' height='160' class='rounded-circle'>" +
+                            "   </a>" +
+                            "</div>" +
+                            "<div class='text-center my-lg-3'>" +
+                            "   <h3>" + userHomepage.username + "</h3>" +
+                            "</div>" +
+                            "<div class='text-center my-lg-3'>" +
+                            (userHomepage.self ?
+                                "<a href='/community/user/setting/profile' role='button' class='btn btn-block btn-outline-success'>编辑个人资料</a>" :
+                                "<a href='javascript:void(0)' role='button' class='btn btn-block btn-outline-success'>关注Ta</a>" +
+                                "<a href='javascript:void(0)' role='button' class='btn btn-block btn-outline-success'>发私信</a>"
+                            ) +
+                            "</div>" +
+                            "<div class='text-center my-lg-3'>" +
+                            "   <p class='text-secondary'>" + userHomepage.joinTime + "&nbsp;加入</p>" +
+                            "</div>"
+                        $("#homepage-user-info").html(userInfoHtml)
+
+                        $.renderDynamicList(homepageId)
+                        $("#dynamic").click(function () {
+                            $("#homepage-list").clear()
+                            $.renderDynamicList(homepageId)
+                        })
+                    }
+                }
+            },
+        });
     },
 
-    renderDynamicList: function () {
+    renderDynamicList: function (homepageId) {
+        var requestJson = {
+            homepageId: homepageId
+        };
         $.ajax({
             type: "POST",
             url: "/community/user/dynamic/list",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(requestJson),
             success: function (result) {
                 if (result == null) {
-                    $.alert({
-                        title: "出错啦!",
-                        content: "请稍后再试！",
-                    });
+                    $.snack('error', '系统错误，请稍后再试！', 3000)
                 } else {
                     if (result.code !== "2000") {
-                        $.alert({
-                            title: "出错啦!",
-                            content: result.description,
-                        });
+                        $.snack('error', result.description, 3000)
                     } else {
                         var dynamicList = result.data
                         $.each(dynamicList, function (index, dynamic) {
@@ -530,16 +634,10 @@ jQuery.extend({
             data: JSON.stringify(requestJson),
             success: function (result) {
                 if (result == null) {
-                    $.alert({
-                        title: "出错啦!",
-                        content: "请稍后再试！",
-                    });
+                    $.snack('error', '系统错误，请稍后再试！', 3000)
                 } else {
                     if (result.code !== "2000") {
-                        $.alert({
-                            title: "出错啦!",
-                            content: result.description,
-                        });
+                        $$.snack('error', result.description, 3000)
                     } else {
                         $.renderIndexPage(result);
                         $.setTopicPagination(result);
@@ -718,16 +816,10 @@ jQuery.extend({
             data: JSON.stringify(requestJson),
             success: function (result) {
                 if (result == null) {
-                    $.alert({
-                        title: "出错啦!",
-                        content: "请稍后再试！",
-                    });
+                    $.snack('error', '系统错误，请稍后再试！', 3000)
                 } else {
                     if (result.code !== "2000") {
-                        $.alert({
-                            title: "出错啦!",
-                            content: result.description,
-                        });
+                        $.snack('error', result.description, 3000)
                     } else {
                         var data = result.data[0];
 

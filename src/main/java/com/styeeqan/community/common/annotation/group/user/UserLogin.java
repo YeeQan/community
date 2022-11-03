@@ -1,5 +1,5 @@
 package com.styeeqan.community.common.annotation.group.user;
 
-public interface Register {
+public interface UserLogin {
 
 }

@@ -1,8 +1,8 @@
 package com.styeeqan.community.web.controller;
 
 import com.styeeqan.community.common.annotation.RateLimiterAnnotation;
-import com.styeeqan.community.common.annotation.group.topic.Publish;
-import com.styeeqan.community.common.annotation.group.topic.Visit;
+import com.styeeqan.community.common.annotation.group.topic.TopicPublish;
+import com.styeeqan.community.common.annotation.group.topic.TopicVisit;
 import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.http.response.ResponseEntity;
 import com.styeeqan.community.pojo.dto.TopicDTO;
@@ -39,7 +39,7 @@ public class TopicCon {
 
     @PostMapping("visit")
     @ApiOperation(value = "访问帖子")
-    public ResponseEntity<TopicVO> visit(@RequestBody @Validated(Visit.class) TopicDTO topicDTO) {
+    public ResponseEntity<TopicVO> visit(@RequestBody @Validated(TopicVisit.class) TopicDTO topicDTO) {
         TopicVO topicVO = topicSev.visit(topicDTO.getTopicId());
         return new ResponseEntity<>(topicVO);
     }
@@ -47,7 +47,7 @@ public class TopicCon {
     @PostMapping("publish")
     @ApiOperation(value = "发布帖子")
     @RateLimiterAnnotation(permitsPerSecond = 2.0)
-    public ResponseEntity<TopicVO> publish(@RequestBody @Validated(Publish.class) TopicDTO topicDTO, HttpServletRequest request) {
+    public ResponseEntity<TopicVO> publish(@RequestBody @Validated(TopicPublish.class) TopicDTO topicDTO, HttpServletRequest request) {
         TopicVO topicVO = topicSev.publish(
                 topicDTO.getTopicId(), topicDTO.getTopicTitle(), topicDTO.getTopicContent(),
                 topicDTO.getTags(), request.getAttribute(CommonField.ACCOUNT).toString());

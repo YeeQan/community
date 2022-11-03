@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <title>个人资料 - Community</title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="/community/images/logo.png" type="image/x-icon" />
+  <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap.css" />
+  <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap-grid.min.css" />
+  <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap-reboot.min.css" />
+  <link rel="stylesheet" href="/community/css/community.css" />
+  <link rel="stylesheet" href="/community/bootstrap-4.6.0/icons-1.5.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/community/css/editormd.min.css">
+  <link rel="stylesheet" href="/community/css/editormd.preview.min.css">
+  <link rel="stylesheet" href="/community/css/jquery-confirm.css">
+  <link rel="stylesheet" href="/community/css/toast.css">
+</head>
+
+<body>
+
+  <header id="header"></header>
+
+  <div class="container mt-lg-5">
+    <div class="row">
+      <div class="col-lg-2">
+        <div class="row">
+          <div class="col-lg-12">
+            <nav class="nav nav-pills flex-column">
+              <a class="nav-link text-success" href="#">账号设置</a>
+              <a class="nav-link text-success active" href="/community/user/setting/profile">个人资料</a>
+              <a class="nav-link text-success" href="#">通知私信</a>
+              <a class="nav-link text-success" href="#">隐私设置</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-4 card bg-white">
+              <div class="card-header bg-white">
+                <strong>基本信息</strong>
+              </div>
+              <div class="card-body">
+                <form>
+                  <div class="row mb-3">
+                    <div class="col">
+                      <label class="col-form-label">个人头像</label>
+                      <div class="d-flex mt-2">
+                        <img id="personal-headPortrait-img" src="#" alt="个人头像" width="96" height="96" class="rounded-circle">
+                        <div class="ml-3">
+                          <button class="btn btn-outline-secondary btn-sm" type="button" onclick="$('#personal-headPortrait-post').click()">开始上传</button>
+                          <input type="file" id="personal-headPortrait-post" style="display: none">
+                          <p class="mt-3 small text-muted">支持 jpg/jpeg/png 格式，大小不要超过 2MB<br>图片尺寸 1:1，推荐分辨率：256*256px</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <label class="col-form-label" for="personal-username">昵称</label>
+                      <input type="text" class="form-control" id="personal-username" placeholder='昵称'>
+                    </div>
+                    <div class="col">
+                      <label class="col-form-label" for="personal-birthday">生日</label>
+                      <input type="text" class="form-control" id="personal-birthday" placeholder='如：1990-01-01'>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <label class="col-form-label" for="personal-sex">性别</label>
+                      <select class="form-control" id="personal-sex" placeholder='性别'>
+                        <option value="1">男</option>
+                        <option value="0">女</option>
+                        <option value="2">保密</option>
+                      </select>
+                    </div>
+                    <div class="col">
+                      <label class="col-form-label" for="personal-city">现居城市</label>
+                      <input type="text" class="form-control" id="personal-city" placeholder='现居城市'>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-4 card bg-white">
+              <div class="card-header bg-white">
+                <strong>自我介绍</strong>
+              </div>
+              <div class="card-body">
+                <form>
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <label class="col-form-label" for="personal-introduction">个人简介</label>
+                      <textarea class='form-control' style='resize: none' rows='3' placeholder='好好介绍一下自己吧~' id='personal-introduction'></textarea>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-4 card bg-white">
+              <div class="card-header bg-white">
+                <strong>社会角色</strong>
+              </div>
+              <div class="card-body">
+                <form>
+                  <div class="row">
+                    <div class="col">
+                      <label class="col-form-label" for="personal-school">毕业/在读院校</label>
+                      <input type="text" class="form-control" id="personal-school" placeholder='院校名称'>
+                    </div>
+                    <div class="col">
+                      <label class="col-form-label" for="personal-major">所学专业</label>
+                      <input type="text" class="form-control" id="personal-major" placeholder='如：计算机科学与技术'>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <label class="col-form-label" for="personal-company">就职公司/组织</label>
+                      <input type="text" class="form-control" id="personal-company" placeholder='公司/组织名称'>
+                    </div>
+                    <div class="col">
+                      <label class="col-form-label" for="personal-position">职位头衔</label>
+                      <input type="text" class="form-control" id="personal-position" placeholder='如：Java工程师'>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <button class='btn btn-block btn-outline-success' id="personal-info-commit">提交</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer id="footer"></footer>
+
+</body>
+
+<script src="/community/js/jquery-3.6.0.js"></script>
+<script src="/community/js/jquery.cookie.js"></script>
+<script src="/community/bootstrap-4.6.0/js/bootstrap.bundle.min.js"></script>
+<script src="/community/bootstrap-4.6.0/js/bootstrap.min.js"></script>
+<script src="/community/js/editormd.min.js"></script>
+<script src="/community/js/community.js"></script>
+<script src="/community/js/community.js"></script>
+<script src="/community/js/jquery-confirm.js"></script>
+<script src="/community/editor.md/lib/marked.min.js"></script>
+<script src="/community/editor.md/lib/prettify.min.js"></script>
+<script src="/community/editor.md/lib/raphael.min.js"></script>
+<script src="/community/editor.md/lib/underscore.min.js"></script>
+<script src="/community/editor.md/lib/sequence-diagram.min.js"></script>
+<script src="/community/editor.md/lib/flowchart.min.js"></script>
+<script src="/community/editor.md/lib/jquery.flowchart.min.js"></script>
+<script src="/community/js/toast.js"></script>
+
+<script>
+  $.initProfile()
+</script>
+
+</html>

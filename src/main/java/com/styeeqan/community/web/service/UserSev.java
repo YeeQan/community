@@ -8,21 +8,27 @@ import com.styeeqan.community.common.exception.CustomizeException;
 import com.styeeqan.community.common.util.*;
 import com.styeeqan.community.mapper.UserInfoMapper;
 import com.styeeqan.community.mapper.UserMapper;
+import com.styeeqan.community.pojo.dto.UserDTO;
 import com.styeeqan.community.pojo.po.Dict;
 import com.styeeqan.community.pojo.po.User;
 import com.styeeqan.community.pojo.po.UserInfo;
+import com.styeeqan.community.pojo.vo.UserHomepageVO;
 import com.styeeqan.community.pojo.vo.UserVO;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -49,6 +55,12 @@ public class UserSev {
 
     @Autowired
     private PinYinUtil pinYinUtil;
+
+    @Autowired
+    private AliyunOssUtil aliyunOssUtil;
+
+    @Autowired
+    private DateUtil dateUtil;
 
     /**
      * 用户注册
@@ -176,5 +188,133 @@ public class UserSev {
         // 设置 Cookie 失效
         Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, null, 0);
         response.addCookie(cookie);
+    }
+
+    public UserHomepageVO loadHomepage(String homepageId, String account) {
+
+        UserHomepageVO userHomepageVO = new UserHomepageVO();
+
+        User userDB = userMapper.selectOne(new QueryWrapper<User>().eq("homepage_id", homepageId));
+        if (userDB == null) {
+            throw new CustomizeException(ServerStatusCode.UNKNOWN);
+        }
+
+        // 是否本人主页
+        if (userDB.getAccount().equals(account)) {
+            userHomepageVO.setSelf(Boolean.TRUE);
+        }
+
+        UserInfo userInfoDB = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", userDB.getAccount()));
+        if (userInfoDB != null) {
+            userHomepageVO.setUserInfoId(userInfoDB.getId());
+            userHomepageVO.setJoinTime(userInfoDB.getCreateTime());
+            userHomepageVO.setHeadPortrait(userInfoDB.getHeadPortrait());
+            userHomepageVO.setUsername(userInfoDB.getUsername());
+        }
+
+        return userHomepageVO;
+    }
+
+    public UserVO getUserInfo(String account) {
+
+        UserVO userVO = new UserVO();
+
+        UserInfo infoDB = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", account));
+
+        if (infoDB != null) {
+            userVO.setUsername(infoDB.getUsername());
+            userVO.setHeadPortrait(infoDB.getHeadPortrait());
+            userVO.setBirthday(infoDB.getBirthday());
+            List<Dict> dictList = dictUtil.getDictByType(DictField.Type.user_sex);
+            for (Dict dict : dictList) {
+                if (dict.getValue().equals(infoDB.getSex())) {
+                    userVO.setSex(dict.getLabel());
+                    break;
+                }
+            }
+            userVO.setCity(infoDB.getCity());
+            userVO.setIntroduction(infoDB.getIntroduction());
+            userVO.setSchool(infoDB.getSchool());
+            userVO.setMajor(infoDB.getMajor());
+            userVO.setCompany(infoDB.getCompany());
+            userVO.setPosition(infoDB.getPosition());
+        }
+
+        return userVO;
+    }
+
+    public UserVO saveUserInfo(UserDTO userDTO) {
+
+        UserVO userVO = new UserVO();
+
+        UserInfo userInfo = new UserInfo();
+
+        User user = userMapper.selectById(userDTO.getAccount());
+
+        userInfo.setId(user.getUserInfoId());
+        userInfo.setUsername(userDTO.getUsername());
+        userInfo.setBirthday(dateUtil.parseDate(userDTO.getBirthday(), DateUtil.parse_date_pattern_1));
+        userInfo.setSex(userDTO.getSex());
+        userInfo.setCity(userDTO.getCity());
+        userInfo.setIntroduction(userDTO.getIntroduction());
+        userInfo.setSchool(userDTO.getSchool());
+        userInfo.setMajor(userDTO.getMajor());
+        userInfo.setCompany(userDTO.getCompany());
+        userInfo.setPosition(userDTO.getPosition());
+
+        if (userInfoMapper.updateById(userInfo) > 0) {
+            userVO.setUsername(userInfo.getUsername());
+            userVO.setBirthday(userInfo.getBirthday());
+            userVO.setSex(userInfo.getSex());
+            userVO.setCity(userInfo.getCity());
+            userVO.setIntroduction(userInfo.getIntroduction());
+            userVO.setSchool(userInfo.getSchool());
+            userVO.setMajor(userInfo.getMajor());
+            userVO.setCompany(userInfo.getCompany());
+            userVO.setPosition(userInfo.getPosition());
+        }
+
+        return userVO;
+    }
+
+    @SneakyThrows
+    public String uploadHeadPortrait(String account, MultipartFile multipartFile) {
+
+        String url = null;
+
+        // 参数不能为空
+        if (multipartFile == null && multipartFile.isEmpty()) {
+            throw new CustomizeException(ServerStatusCode.PARAM_ERROR);
+        }
+
+        // 必须是图片类型
+        String contentType = multipartFile.getContentType();
+        if (!("image/png".equals(contentType) || "image/jpg".equals(contentType) || "image/jpeg".equals(contentType))) {
+            throw new CustomizeException(ServerStatusCode.IMAGE_TYPE_ERROR);
+        }
+
+        // 图片不能大于2M
+        if (multipartFile.getSize() > 2 * 1024 * 1024) {
+            throw new CustomizeException(ServerStatusCode.IMAGE_SIZE_ERROR);
+        }
+
+        // 上传Aliyun oss
+        Optional<String> optional = aliyunOssUtil.upload("static/headPortrait/" + account + "." + contentType.split("/")[1], multipartFile.getInputStream());
+
+        // 获取返回结果
+        if (optional.isPresent()) {
+            url = optional.get();
+        }
+
+        // 更新头像信息
+        if (!StringUtils.isEmpty(url)) {
+            userInfoMapper
+                    .update(new UserInfo().setHeadPortrait(url),
+                            new QueryWrapper<UserInfo>().eq("account", account));
+        } else {
+            throw new CustomizeException(ServerStatusCode.UNKNOWN);
+        }
+
+        return url;
     }
 }

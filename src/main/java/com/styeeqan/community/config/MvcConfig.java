@@ -30,26 +30,7 @@ public class MvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // token 校验拦截器
-        registry.addInterceptor(getTokenVerifyInterceptor()).addPathPatterns("/**")
-                .excludePathPatterns(
-                        "/css/**",
-                        "/bootstrap-4.6.0/**",
-                        "/editor.md/**",
-                        "/fonts/**",
-                        "/images/**",
-                        "/js/**",
-                        "/",
-                        "/index",
-                        "/user/login",
-                        "/user/register",
-                        "/topic/page",
-                        "/topic/visit",
-                        "/topic/view/**",
-                        "/common/header-logined",
-                        "/common/header-non-logined",
-                        "/common/footer",
-                        "/topic/view/**",
-                        "/u/**");
+        registry.addInterceptor(getTokenVerifyInterceptor()).addPathPatterns("/**");
         // RateLimiter 限流拦截器
         registry.addInterceptor(getRateLimiterInterceptor()).addPathPatterns("/**");
     }

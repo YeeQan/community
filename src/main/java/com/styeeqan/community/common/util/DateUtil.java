@@ -1,7 +1,11 @@
 package com.styeeqan.community.common.util;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
+import java.security.PrivateKey;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -24,6 +28,20 @@ public class DateUtil {
     private final String ONE_DAY_AGO = "天前";
     private final String ONE_MONTH_AGO = "月前";
     private final String ONE_YEAR_AGO = "年前";
+
+    public static final String parse_date_pattern_1 = "yyyy-MM-dd";
+
+    public Date parseDate(String dateStr, String pattern) {
+        try {
+            if (StringUtils.isEmpty(dateStr) || StringUtils.isEmpty(pattern)) {
+                throw new RuntimeException("日期格式转换错误");
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+            return sdf.parse(dateStr);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * 获取当前相对时间

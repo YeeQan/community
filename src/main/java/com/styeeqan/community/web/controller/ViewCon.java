@@ -29,6 +29,18 @@ public class ViewCon {
         return "topic";
     }
 
+    @GetMapping("/u/**")
+    @ApiOperation(value = "个人主页")
+    public String homepage() {
+        return "homepage";
+    }
+
+    @GetMapping("/user/setting/profile")
+    @ApiOperation(value = "个人资料页面")
+    public String setting() {
+        return "profile";
+    }
+
     @GetMapping("/common/header-logined")
     @ApiOperation(value = "顶部栏已登录")
     public String headerLogined() {
@@ -51,11 +63,5 @@ public class ViewCon {
     @ApiOperation(value = "错误页面")
     public String error() {
         return "error";
-    }
-
-    @GetMapping("/u/**")
-    @ApiOperation(value = "错误页面")
-    public String homepage() {
-        return "homepage";
     }
 }

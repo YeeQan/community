@@ -1,6 +1,6 @@
 package com.styeeqan.community.web.controller;
 
-import com.styeeqan.community.common.annotation.group.comment.Publish;
+import com.styeeqan.community.common.annotation.group.comment.CommentPublish;
 import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.http.response.ResponseEntity;
 import com.styeeqan.community.pojo.dto.CommentDTO;
@@ -33,7 +33,7 @@ public class CommentCon {
 
     @PostMapping("publish")
     @ApiOperation(value = "发布评论")
-    public ResponseEntity<?> publish(@RequestBody @Validated(Publish.class) CommentDTO commentDTO, HttpServletRequest request) {
+    public ResponseEntity<?> publish(@RequestBody @Validated(CommentPublish.class) CommentDTO commentDTO, HttpServletRequest request) {
         CommentVO commentVO = commentSev.publish(commentDTO.getParentId(), commentDTO.getCommentContent(), commentDTO.getType(),
                 request.getAttribute(CommonField.ACCOUNT).toString());
         return new ResponseEntity<>(commentVO);

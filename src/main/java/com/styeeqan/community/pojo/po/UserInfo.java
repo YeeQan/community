@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 
 @Data
 @Slf4j
+@Accessors(chain = true)
 @TableName("y_c_user_info")
 public class UserInfo {
 
@@ -66,6 +68,30 @@ public class UserInfo {
      */
     @TableField("head_portrait")
     private String headPortrait;
+
+    /**
+     * 生日
+     */
+    @TableField("birthday")
+    private Date birthday;
+
+    /**
+     * 现居城市
+     */
+    @TableField("city")
+    private String city;
+
+    /**
+     * 学校
+     */
+    @TableField("school")
+    private String school;
+
+    /**
+     * 专业
+     */
+    @TableField("major")
+    private String major;
 
     /**
      * 创建时间

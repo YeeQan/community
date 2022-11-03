@@ -5,5 +5,4 @@ import com.styeeqan.community.pojo.po.UserInfo;
 
 public interface UserInfoMapper extends BaseMapper<UserInfo> {
 
-    UserInfo selectbyAccount(String account);
 }

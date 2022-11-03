@@ -1,5 +1,5 @@
 package com.styeeqan.community.common.annotation.group.user;
 
-public interface Homepage {
+public interface UserHomepage {
 
 }

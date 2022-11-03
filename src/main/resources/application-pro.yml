@@ -39,7 +39,7 @@ pagehelper:
 # 阿里云 oss 参数
 aliyun:
   oss:
-    endpoint: aaaaaaaaaaaaa
-    accessKeyId: aaaaaaaaaa
-    accessKeySecret: aaaaaaaaaaaaa
+    endpoint: oss-cn-shenzhen-internal.aliyuncs.com
+    accessKeyId: LTAI5tPYMm3SzsPRGfk6dyiH
+    accessKeySecret: vj8FvQ7rLufQZcymiAHh5yhS252MUv
     bucketName: comubucket

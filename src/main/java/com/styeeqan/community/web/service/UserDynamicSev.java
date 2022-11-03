@@ -2,14 +2,8 @@ package com.styeeqan.community.web.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.styeeqan.community.common.constant.CommonField;
-import com.styeeqan.community.mapper.CommentMapper;
-import com.styeeqan.community.mapper.TopicMapper;
-import com.styeeqan.community.mapper.UserDynamicMapper;
-import com.styeeqan.community.mapper.UserInfoMapper;
-import com.styeeqan.community.pojo.po.Comment;
-import com.styeeqan.community.pojo.po.Topic;
-import com.styeeqan.community.pojo.po.UserDynamic;
-import com.styeeqan.community.pojo.po.UserInfo;
+import com.styeeqan.community.mapper.*;
+import com.styeeqan.community.pojo.po.*;
 import com.styeeqan.community.pojo.vo.UserDynamicVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +30,14 @@ public class UserDynamicSev {
     @Autowired
     private UserInfoMapper userInfoMapper;
 
-    public List<UserDynamicVO> getDynamicList(String account) {
+    @Autowired
+    private UserMapper userMapper;
 
-        List<UserDynamic> dynamicList = userDynamicMapper.selectList(new QueryWrapper<UserDynamic>().eq("create_user", account));
+    public List<UserDynamicVO> getDynamicList(String homepageId) {
+
+        User userDB = userMapper.selectOne(new QueryWrapper<User>().eq("homepage_id", homepageId));
+
+        List<UserDynamic> dynamicList = userDynamicMapper.selectList(new QueryWrapper<UserDynamic>().eq("create_user", userDB.getAccount()));
 
         return dynamicList.stream().map(dynamic -> {
 
