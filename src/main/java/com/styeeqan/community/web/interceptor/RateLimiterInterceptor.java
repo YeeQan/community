@@ -48,7 +48,7 @@ public class RateLimiterInterceptor implements HandlerInterceptor {
             String account = attribute.toString();
             boolean acquire = rateLimiterUtil.tryAcquire(account, rateLimiterAnnotation.permitsPerSecond());
             if (!acquire) {
-                log.error("User:{} visit uri:{} frequently", account, request.getRequestURI());
+                log.error("User:{}  uri:{} visit frequently", account, request.getRequestURI());
                 throw new CustomizeException(ServerStatusCode.USER_VISIT_FREQUENTLY);
             }
         }

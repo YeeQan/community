@@ -36,6 +36,12 @@ public class Comment {
     private String type;
 
     /**
+     * 评论TaId
+     */
+    @TableField("reply_ta_id")
+    private String replyTaId;
+
+    /**
      * 创建时间
      */
     @TableField("create_time")

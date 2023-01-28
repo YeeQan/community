@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PageVO<T> {
+public class PageVo<T> {
 
     /**
      * 当前页

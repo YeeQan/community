@@ -1,3 +1,5 @@
+let publicKey;
+
 jQuery.extend({
 
     /**
@@ -432,12 +434,31 @@ jQuery.extend({
      * 初始化未登录顶部栏
      */
     initNonLoginedHeader: function () {
+        // 获取公钥对密码加密
+        $.ajax({
+            type: "GET",
+            url: "/community/publicKey",
+            success: function (result) {
+                console.log(JSON.stringify(result))
+                if (result != null && result.code === "2000") {
+                    publicKey = result.data[0];
+                } else {
+                    console.log("获取公钥失败,不做加密处理")
+                }
+            },
+        });
         // 初始化注册按钮
         $("#register-button").click(function () {
+            var password = $("#registerPassword").val();
+            if(publicKey) {
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey(publicKey);
+                password = encrypt.encrypt(password);
+            }
             var requestJson = {
                 account: $("#registerAccount").val(),
                 username: $("#registerName").val(),
-                password: $("#registerPassword").val()
+                password: password
             };
             console.log(requestJson);
             $.ajax({
@@ -469,10 +490,18 @@ jQuery.extend({
         });
         // 初始化登录按钮
         $("#login-button").click(function () {
+            var password = $("#loginPassword").val();
+            if(publicKey) {
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey(publicKey);
+                password = encrypt.encrypt(password);
+            }
             var requestJson = {
                 account: $("#loginAccount").val(),
-                password: $("#loginPassword").val()
+                password: password,
+                publicKey: publicKey,
             };
+            console.log(requestJson)
             $.ajax({
                 contentType: "application/json",
                 type: "POST",
@@ -597,7 +626,7 @@ jQuery.extend({
                                     "   </div>" +
                                     "   <div>" + dynamic.sourceContent + "</div>" +
                                     "</div>"
-                            } else {
+                            } else if("2" === type) {
                                 dynamicHtml =
                                     "<div class='py-3 list-group-item'>" +
                                     "   <div class='small text-secondary mb-2'>" +
@@ -611,10 +640,12 @@ jQuery.extend({
                                     "   <div class='p-3 bg-light border-0'>" +
                                     "       <strong class='text-success'>" + dynamic.sourceCreateUsername + ":&nbsp;</strong>" +
                                     "       <span>" + dynamic.sourceContent + "</span>" +
-                                        "</div>" +
+                                    "   </div>" +
                                     "</div>"
                             }
-                            $("#homepage-list").append(dynamicHtml)
+                            if (dynamicHtml) {
+                                $("#homepage-list").append(dynamicHtml);
+                            }
                         });
                     }
                 }
@@ -659,7 +690,7 @@ jQuery.extend({
                 "   <div class='media'>" +
                 "       <div class='num-card mr-lg-1 align-self-center " + (topic.commentCount === 0 ? 'text-secondary' : 'num-card-comment') + "'>" +
                 "           <span>" + topic.commentCount + "</span>" +
-                "           <span>回答</span>" +
+                "           <span>回复</span>" +
                 "       </div>" +
                 "       <div class='num-card mr-lg-2 align-self-center " + (topic.viewCount < 100 ? 'text-secondary' : 'num-card-read') + "'>" +
                 "           <span>" + topic.viewCount + "</span>" +
@@ -822,8 +853,8 @@ jQuery.extend({
                         $.snack('error', result.description, 3000)
                     } else {
                         var data = result.data[0];
-
-                        $("title").text(data.topicTitle + " - Community");
+                        console.log(data);
+                        $("title").text(data.topicTitle + " - 码客Mark");
                         var topicDetail =
                             "<div class='card p-lg-3'>" +
                             "   <div class='card-body'>" +
@@ -883,7 +914,7 @@ jQuery.extend({
                             "</div>"
                         $("#comment-area").append(commentArea)
 
-                        $.each(data.commentVOList, function (index, comment) {
+                        $.each(data.commentVoList, function (index, comment) {
 
                             var commentHtml =
                                 "<div class='list-group-item'>" +
@@ -907,7 +938,7 @@ jQuery.extend({
                                 "                   </div>" +
                                 "               </div>" +
                                 "               <div>" +
-                                "                   <button type='button' class='btn btn-sm btn-primary pull-right' id='reply-other-commit-" + comment.commentId + "'>提交评论</button>" +
+                                "                   <button type='button' class='btn btn-sm btn-primary pull-right' id='reply-other-commit-" + comment.commentId + "' ta-id=''>提交评论</button>" +
                                 "               </div>" +
                                 "           </div>" +
                                 "       </div>" +
@@ -922,11 +953,30 @@ jQuery.extend({
                             });
 
                             $("#reply-other-commit-" + comment.commentId).click(function () {
-                                var requestJson = {
-                                    parentId: comment.commentId,
-                                    commentContent: $("#reply-other-content-" + comment.commentId).val(),
-                                    type: "2"
-                                };
+                                var requestJson
+                                var $replyOtherCt = $("#reply-other-content-" + comment.commentId);
+                                var at = $replyOtherCt.val().charAt(0);
+                                if (at === '@' && $(this).attr("ta-id")) {
+                                    var colonIndex = $replyOtherCt.val().indexOf('：');
+                                    if(colonIndex === -1) {
+                                        $.snack('error', '评论格式错误,请重新输入', 3000)
+                                        $replyOtherCt.val("")
+                                        return;
+                                    }
+                                    requestJson = {
+                                        parentId: comment.commentId,
+                                        replyTaId: $(this).attr("ta-id"),
+                                        commentContent: $replyOtherCt.val().substring(colonIndex + 1, $replyOtherCt.length),
+                                        type: "3"
+                                    };
+                                } else {
+                                    requestJson = {
+                                        parentId: comment.commentId,
+                                        commentContent: $replyOtherCt.val(),
+                                        type: "2"
+                                    };
+                                }
+                                $(this).attr("ta-id", null)
                                 $.ajax({
                                     contentType: "application/json",
                                     type: "POST",
@@ -949,21 +999,44 @@ jQuery.extend({
                                                 $.snack('success', '评论成功', 3000)
                                                 var comment1 = result.data[0];
                                                 $("#reply-other-content-" + comment.commentId).val("")
-                                                var comment1Html =
-                                                    "<div class='bg-light border-0 rounded' id='reply-other-success-" + comment.commentId + "'>" +
-                                                    "   <div class='py-lg-1 px-lg-3'>" +
-                                                    "       <div>" +
-                                                    "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
-                                                    "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
-                                                    "           </a>" +
-                                                    "           <span class='small'>" + comment1.commentContent + "</span>" +
-                                                    "       </div>" +
-                                                    "       <div class='card-text'>" +
-                                                    "           <a href='javascript:void(0)' class='text-secondary small'>回复&nbsp;&nbsp;</a>" +
-                                                    "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
-                                                    "       </div>" +
-                                                    "   <div>" +
-                                                    "</div>"
+                                                var comment1Html
+                                                if(comment1.type === '2') {
+                                                    comment1Html =
+                                                        "<div class='bg-light border-0 rounded' id='reply-other-success-" + comment.commentId + "'>" +
+                                                        "   <div class='py-lg-1 px-lg-3'>" +
+                                                        "       <div>" +
+                                                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
+                                                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
+                                                        "           </a>" +
+                                                        "           <span class='small'>" + comment1.commentContent + "</span>" +
+                                                        "       </div>" +
+                                                        "       <div class='card-text'>" +
+                                                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
+                                                        "       </div>" +
+                                                        "   <div>" +
+                                                        "</div>"
+                                                } else if(comment1.type === '3') {
+                                                    comment1Html =
+                                                        "<div class='bg-light border-0 rounded' id='reply-other-success-" + comment.commentId + "'>" +
+                                                        "   <div class='py-lg-1 px-lg-3'>" +
+                                                        "       <div>" +
+                                                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
+                                                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
+                                                        "           </a>" +
+                                                        "           <span class='small'>" +
+                                                        "               <a href='/community/u/" + comment1.replyHomepageId + "'>" +
+                                                        "                   <strong class='text-success small'>" +
+                                                        "                       @" + comment1.replyUsername +
+                                                        "                   </strong>" +
+                                                        "               </a>" + "&nbsp;" + comment1.commentContent +
+                                                        "           </span>" +
+                                                        "       </div>" +
+                                                        "       <div class='card-text'>" +
+                                                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
+                                                        "       </div>" +
+                                                        "   <div>" +
+                                                        "</div>"
+                                                }
                                                 $("#reply-area-" + comment.commentId).append(comment1Html)
                                                 $("#comment-count").html(commentCount + 1)
                                                 $("html,body").animate({scrollTop:$("#reply-other-success-" + comment.commentId).offset().top},1000);
@@ -973,23 +1046,55 @@ jQuery.extend({
                                 });
                             });
 
-                            $.each(comment.commentVOList, function (index, comment1) {
-                                var comment1Html =
-                                    "<div class='bg-light border-0 rounded'>" +
-                                    "   <div class='py-lg-1 px-lg-3'>" +
-                                    "       <div>" +
-                                    "           <a href='javascript:void(0)'>" +
-                                    "               <strong class='text-success'>" + comment1.createUsername + ":&nbsp;</strong>" +
-                                    "           </a>" +
-                                    "           <span class='small'>" + comment1.commentContent + "</span>" +
-                                    "       </div>" +
-                                    "       <div class='card-text'>" +
-                                    "           <a href='javascript:void(0)' class='text-secondary small'>回复&nbsp;&nbsp;</a>" +
-                                    "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
-                                    "       </div>" +
-                                    "   <div>" +
-                                    "</div>"
+                            $.each(comment.commentVoList, function (index, comment1) {
+                                var comment1Html
+                                if(comment1.type === '2') {
+                                    comment1Html =
+                                        "<div class='bg-light border-0 rounded'>" +
+                                        "   <div class='py-lg-1 px-lg-3'>" +
+                                        "       <div>" +
+                                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
+                                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
+                                        "           </a>" +
+                                        "           <span class='small'>" + comment1.commentContent + "</span>" +
+                                        "       </div>" +
+                                        "       <div class='card-text'>" +
+                                        "           <a href='javascript:void(0)' class='text-secondary small' id='reply-ta-show-" + comment1.commentId + "'>回复&nbsp;&nbsp;</a>" +
+                                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
+                                        "       </div>" +
+                                        "   <div>" +
+                                        "</div>"
+                                } else if(comment1.type === '3') {
+                                    comment1Html =
+                                        "<div class='bg-light border-0 rounded'>" +
+                                        "   <div class='py-lg-1 px-lg-3'>" +
+                                        "       <div>" +
+                                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
+                                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
+                                        "           </a>" +
+                                        "           <span class='small'>" +
+                                        "               <a href='/community/u/" + comment1.replyHomepageId + "'>" +
+                                        "                   <strong class='text-success small'>" +
+                                        "                       @" + comment1.replyUsername +
+                                        "                   </strong>" +
+                                        "               </a>" + "&nbsp;" + comment1.commentContent +
+                                        "           </span>" +
+                                        "       </div>" +
+                                        "       <div class='card-text'>" +
+                                        "           <a href='javascript:void(0)' class='text-secondary small' id='reply-ta-show-" + comment1.commentId + "'>回复&nbsp;&nbsp;</a>" +
+                                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
+                                        "       </div>" +
+                                        "   <div>" +
+                                        "</div>"
+                                }
                                 $("#reply-area-" + comment.commentId).append(comment1Html)
+                                $("#reply-ta-show-" + comment1.commentId).click(function () {
+                                    let $replyOther = $("#reply-other-" + comment.commentId);
+                                    $replyOther.show()
+                                    $("#reply-other-commit-" + comment.commentId).attr("ta-id", comment1.commentId)
+                                    $("#reply-other-content-" + comment.commentId).val("@" + comment1.createUsername + "：")
+                                    $("html,body").animate({scrollTop:$replyOther.offset().top},1000);
+                                });
                             })
                         })
 
@@ -1036,13 +1141,80 @@ jQuery.extend({
                                                 "           <span class='text-secondary'>&nbsp;&nbsp;发布于&nbsp;" + comment.createTime + "</span>" +
                                                 "       </div>" +
                                                 "       <div class='py-lg-2'>" + comment.commentContent + "</div>" +
-                                                "       <div class='py-lg-2'>" +
+                                                "       <div class='py-lg-2' id='show-reply-other-" + comment.commentId + "'>" +
                                                 "           <a href='javascript:void(0)' class='text-secondary'>回复</a>" +
                                                 "       </div>" +
+                                                "       <div class='bg-light border-0 card' id='reply-other-" + comment.commentId + "' style='display: none'>" +
+                                                "           <div class='card-body'>" +
+                                                "               <div class='media-body'>" +
+                                                "                   <div class='mb-lg-3'>" +
+                                                "                       <textarea class='form-control form-control-sm' style='resize: none' rows='1' placeholder='友善的评论是交流的起点' id='reply-other-content-" + comment.commentId + "'></textarea>" +
+                                                "                   </div>" +
+                                                "               </div>" +
+                                                "               <div>" +
+                                                "                   <button type='button' class='btn btn-sm btn-primary pull-right' id='reply-other-commit-" + comment.commentId + "'>提交评论</button>" +
+                                                "               </div>" +
+                                                "           </div>" +
+                                                "       </div>" +
+                                                "       <div id='reply-area-" + comment.commentId + "' class='mt-lg-2'></div>" +
                                                 "   </div>" +
                                                 "</div>"
                                             $("#comment-count").html(commentCount + 1)
                                             $("#comment-list").append(commentHtml)
+                                            $("#show-reply-other-" + comment.commentId).click(function () {
+                                                $("#reply-other-" + comment.commentId).toggle();
+                                            });
+
+                                            $("#reply-other-commit-" + comment.commentId).click(function () {
+                                                var requestJson = {
+                                                    parentId: comment.commentId,
+                                                    commentContent: $("#reply-other-content-" + comment.commentId).val(),
+                                                    type: "2"
+                                                };
+                                                $.ajax({
+                                                    contentType: "application/json",
+                                                    type: "POST",
+                                                    url: "/community/comment/publish",
+                                                    dataType: "json",
+                                                    data: JSON.stringify(requestJson),
+                                                    success: function (result) {
+                                                        if (result == null) {
+                                                            $.alert({
+                                                                title: "出错啦!",
+                                                                content: "请稍后再试！",
+                                                            });
+                                                        } else {
+                                                            if (result.code !== "2000") {
+                                                                $.alert({
+                                                                    title: "出错啦!",
+                                                                    content: result.description,
+                                                                });
+                                                            } else {
+                                                                $.snack('success', '评论成功', 3000)
+                                                                var comment1 = result.data[0];
+                                                                $("#reply-other-content-" + comment.commentId).val("")
+                                                                var comment1Html =
+                                                                    "<div class='bg-light border-0 rounded' id='reply-other-success-" + comment.commentId + "'>" +
+                                                                    "   <div class='py-lg-1 px-lg-3'>" +
+                                                                    "       <div>" +
+                                                                    "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
+                                                                    "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
+                                                                    "           </a>" +
+                                                                    "           <span class='small'>" + comment1.commentContent + "</span>" +
+                                                                    "       </div>" +
+                                                                    "       <div class='card-text'>" +
+                                                                    "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
+                                                                    "       </div>" +
+                                                                    "   <div>" +
+                                                                    "</div>"
+                                                                $("#reply-area-" + comment.commentId).append(comment1Html)
+                                                                $("#comment-count").html(commentCount + 1)
+                                                                $("html,body").animate({scrollTop:$("#reply-other-success-" + comment.commentId).offset().top},1000);
+                                                            }
+                                                        }
+                                                    },
+                                                });
+                                            });
                                             $("html,body").animate({scrollTop:$("#reply-topic-suceess-" + comment.commentId).offset().top},1000);
                                         }
                                     }

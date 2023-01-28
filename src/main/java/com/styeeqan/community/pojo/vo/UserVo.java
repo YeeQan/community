@@ -12,7 +12,7 @@ import java.util.Date;
  * @date 2021/11/21
  */
 @Data
-public class UserVO {
+public class UserVo {
 
     private String username;
 

@@ -1,5 +1,5 @@
 package com.styeeqan.community.pojo.dto;
 
-public abstract class BaseDTO {
+public abstract class BaseDto {
 
 }

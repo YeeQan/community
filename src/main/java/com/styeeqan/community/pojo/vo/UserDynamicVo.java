@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class UserDynamicVO {
+public class UserDynamicVo {
 
     private String type;
 

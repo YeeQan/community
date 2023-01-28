@@ -1,7 +1,7 @@
 package com.styeeqan.community.web.service;
 
 import com.styeeqan.community.mapper.TagMapper;
-import com.styeeqan.community.pojo.vo.TagVO;
+import com.styeeqan.community.pojo.vo.TagVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,9 +18,9 @@ public class TagSev {
     @Autowired
     private TagMapper tagMapper;
 
-    public List<TagVO> getTagList() {
+    public List<TagVo> getTagList() {
         return tagMapper.selectList(null).stream().map(tag -> {
-            TagVO tagVO = new TagVO();
+            TagVo tagVO = new TagVo();
             tagVO.setId(tag.getId());
             tagVO.setName(tag.getName());
             return tagVO;

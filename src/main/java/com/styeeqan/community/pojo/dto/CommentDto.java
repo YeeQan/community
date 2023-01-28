@@ -9,10 +9,12 @@ import javax.validation.constraints.Size;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CommentDTO extends BaseDTO {
+public class CommentDto extends BaseDto {
 
     @NotBlank(groups = {CommentPublish.class}, message = "参数为空")
     private String parentId;
+
+    private String replyTaId;
 
     @NotBlank(groups = {CommentPublish.class}, message = "内容不能为空")
     @Size(min = 1, max = 500, groups = {CommentPublish.class}, message = "内容不能超过500个字符")

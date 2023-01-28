@@ -10,12 +10,12 @@ import com.styeeqan.community.common.redis.RedisUtil;
 import com.styeeqan.community.common.util.*;
 import com.styeeqan.community.mapper.UserInfoMapper;
 import com.styeeqan.community.mapper.UserMapper;
-import com.styeeqan.community.pojo.dto.UserDTO;
+import com.styeeqan.community.pojo.dto.UserDto;
 import com.styeeqan.community.pojo.po.Dict;
 import com.styeeqan.community.pojo.po.User;
 import com.styeeqan.community.pojo.po.UserInfo;
-import com.styeeqan.community.pojo.vo.UserHomepageVO;
-import com.styeeqan.community.pojo.vo.UserVO;
+import com.styeeqan.community.pojo.vo.UserHomepageVo;
+import com.styeeqan.community.pojo.vo.UserVo;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -66,6 +65,9 @@ public class UserSev {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private RsaUtil rsaUtil;
 
     /**
      * 用户注册
@@ -174,9 +176,9 @@ public class UserSev {
         }
     }
 
-    public UserVO getLoginInfo(String account) {
+    public UserVo getLoginInfo(String account) {
 
-        UserVO userVO = new UserVO();
+        UserVo userVO = new UserVo();
 
         UserInfo userInfoDB = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", account));
         if (userInfoDB != null) {
@@ -199,9 +201,9 @@ public class UserSev {
         response.addCookie(cookie);
     }
 
-    public UserHomepageVO loadHomepage(String homepageId, String account) {
+    public UserHomepageVo loadHomepage(String homepageId, String account) {
 
-        UserHomepageVO userHomepageVO = new UserHomepageVO();
+        UserHomepageVo userHomepageVO = new UserHomepageVo();
 
         User userDB = userMapper.selectOne(new QueryWrapper<User>().eq("homepage_id", homepageId));
         if (userDB == null) {
@@ -224,9 +226,9 @@ public class UserSev {
         return userHomepageVO;
     }
 
-    public UserVO getUserInfo(String account) {
+    public UserVo getUserInfo(String account) {
 
-        UserVO userVO = new UserVO();
+        UserVo userVO = new UserVo();
 
         UserInfo infoDB = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", account));
 
@@ -252,9 +254,9 @@ public class UserSev {
         return userVO;
     }
 
-    public UserVO saveUserInfo(UserDTO userDTO) {
+    public UserVo saveUserInfo(UserDto userDTO) {
 
-        UserVO userVO = new UserVO();
+        UserVo userVO = new UserVo();
 
         UserInfo userInfo = new UserInfo();
 

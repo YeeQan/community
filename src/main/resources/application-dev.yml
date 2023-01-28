@@ -14,7 +14,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/community_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useAffectedRows=true
     username: root
-    password: cxm548698
+    password: 123
     type: com.alibaba.druid.pool.DruidDataSource
   redis:
     host: 127.0.0.1

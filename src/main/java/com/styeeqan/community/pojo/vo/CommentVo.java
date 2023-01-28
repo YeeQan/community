@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-public class CommentVO {
+public class CommentVo {
 
     private String commentId;
 
@@ -22,5 +22,15 @@ public class CommentVO {
     @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")
     private Date createTime;
 
-    private List<CommentVO> commentVOList;
+    private String parentUserName;
+
+    private String parentId;
+
+    private String replyUsername;
+
+    private String replyHomepageId;
+
+    private String type;
+
+    private List<CommentVo> commentVoList;
 }

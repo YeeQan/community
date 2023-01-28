@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class TopicDTO extends BaseDTO  {
+public class TopicDto extends BaseDto {
 
     private int pageNum;
     private int pageSize;

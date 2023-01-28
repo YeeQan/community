@@ -10,10 +10,10 @@ import com.styeeqan.community.common.redis.RedisUtil;
 import com.styeeqan.community.common.util.CommonUtil;
 import com.styeeqan.community.mapper.*;
 import com.styeeqan.community.pojo.po.*;
-import com.styeeqan.community.pojo.vo.CommentVO;
-import com.styeeqan.community.pojo.vo.PageVO;
-import com.styeeqan.community.pojo.vo.TagVO;
-import com.styeeqan.community.pojo.vo.TopicVO;
+import com.styeeqan.community.pojo.vo.CommentVo;
+import com.styeeqan.community.pojo.vo.PageVo;
+import com.styeeqan.community.pojo.vo.TagVo;
+import com.styeeqan.community.pojo.vo.TopicVo;
 import com.styeeqan.community.task.UserDynamicTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,9 +59,9 @@ public class TopicSev {
      * @param pageSize 页数
      * @return PageVO<TopicVO>
      */
-    public PageVO<TopicVO> getPage(Integer pageNum, Integer pageSize) {
+    public PageVo<TopicVo> getPage(Integer pageNum, Integer pageSize) {
 
-        PageVO<TopicVO> pageVO = new PageVO<>();
+        PageVo<TopicVo> pageVO = new PageVo<>();
 
         // 是否开启分页
         if (pageNum > 0 && pageSize > 0) {
@@ -74,9 +74,9 @@ public class TopicSev {
         pageVO.setPages(pageInfo.getPages());
         pageVO.setNavigatepageNums(pageInfo.getNavigatepageNums());
 
-        List<TopicVO> topicVOList = topicList.stream()
+        List<TopicVo> topicVoList = topicList.stream()
                 .map(po -> {
-                    TopicVO vo = new TopicVO();
+                    TopicVo vo = new TopicVo();
                     vo.setId(po.getId());
                     vo.setTopicTitle(po.getTopicTitle());
                     vo.setCreateTime(po.getCreateTime());
@@ -95,8 +95,8 @@ public class TopicSev {
                     if (!StringUtils.isEmpty(tags)) {
                         String[] split = tags.split(",");
                         List<Tag> tagList = tagMapper.selectList(new QueryWrapper<Tag>().in("id", Arrays.asList(split)));
-                        vo.setTagVOList(tagList.stream().map(tag -> {
-                            TagVO tagVO = new TagVO();
+                        vo.setTagVoList(tagList.stream().map(tag -> {
+                            TagVo tagVO = new TagVo();
                             tagVO.setId(tag.getId());
                             tagVO.setName(tag.getName());
                             return tagVO;
@@ -106,13 +106,13 @@ public class TopicSev {
                 })
                 .collect(Collectors.toList());
 
-        pageVO.setList(topicVOList);
+        pageVO.setList(topicVoList);
         return pageVO;
     }
 
-    public TopicVO visit(String topicId) {
+    public TopicVo visit(String topicId) {
 
-        TopicVO topicVO = new TopicVO();
+        TopicVo topicVO = new TopicVo();
 
         Topic topic = topicMapper.selectById(topicId);
         if (topic != null) {
@@ -134,8 +134,8 @@ public class TopicSev {
             if (!StringUtils.isEmpty(tags)) {
                 String[] split = tags.split(",");
                 List<Tag> tagList = tagMapper.selectList(new QueryWrapper<Tag>().in("id", Arrays.asList(split)));
-                topicVO.setTagVOList(tagList.stream().map(tag -> {
-                    TagVO tagVO = new TagVO();
+                topicVO.setTagVoList(tagList.stream().map(tag -> {
+                    TagVo tagVO = new TagVo();
                     tagVO.setId(tag.getId());
                     tagVO.setName(tag.getName());
                     return tagVO;
@@ -144,35 +144,50 @@ public class TopicSev {
             // 设置该讨论下的所有评论
             List<Comment> commentList = commentMapper.selectList(new QueryWrapper<Comment>().eq("parent_id", topicId));
             // 一级评论
-            List<CommentVO> commentVOList1 = commentList.stream().map(comment1 -> {
-                CommentVO commentVO1 = new CommentVO();
+            List<CommentVo> commentVoList1 = commentList.stream().map(comment1 -> {
+                CommentVo commentVo1 = new CommentVo();
                 UserInfo info1 = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", comment1.getCreateUser()));
-                commentVO1.setCreateUsername(info1.getUsername());
-                commentVO1.setHeadPortrait(info1.getHeadPortrait());
-                commentVO1.setCommentId(comment1.getId());
-                commentVO1.setCommentContent(comment1.getCommentContent());
-                commentVO1.setCreateTime(comment1.getCreateTime());
+                commentVo1.setCreateUsername(info1.getUsername());
+                commentVo1.setHeadPortrait(info1.getHeadPortrait());
+                commentVo1.setCommentId(comment1.getId());
+                commentVo1.setCommentContent(comment1.getCommentContent());
+                commentVo1.setType(comment1.getType());
+                commentVo1.setCreateTime(comment1.getCreateTime());
                 User user1 = userMapper.selectById(comment1.getCreateUser());
-                commentVO1.setCreateUserHomepageId(user1.getHomepageId());
+                commentVo1.setCreateUserHomepageId(user1.getHomepageId());
+                commentVo1.setParentId(topicId);
+                commentVo1.setParentUserName(userInfo.getUsername());
                 // 二级评论
                 List<Comment> commentList2 = commentMapper.selectList(new QueryWrapper<Comment>().eq("parent_id", comment1.getId()));
-                List<CommentVO> commentVOList2 = commentList2.stream().map(comment2 -> {
-                    CommentVO commentVO2 = new CommentVO();
+                List<CommentVo> commentVoList2 = commentList2.stream().map(comment2 -> {
+                    CommentVo commentVo2 = new CommentVo();
                     UserInfo info2 = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", comment2.getCreateUser()));
-                    commentVO2.setCreateUsername(info2.getUsername());
-                    commentVO2.setHeadPortrait(info2.getHeadPortrait());
-                    commentVO2.setCommentId(comment2.getId());
-                    commentVO2.setCommentContent(comment2.getCommentContent());
-                    commentVO2.setCreateTime(comment2.getCreateTime());
+                    commentVo2.setCreateUsername(info2.getUsername());
+                    commentVo2.setHeadPortrait(info2.getHeadPortrait());
+                    commentVo2.setCommentId(comment2.getId());
+                    commentVo2.setCommentContent(comment2.getCommentContent());
+                    commentVo2.setType(comment2.getType());
+                    commentVo2.setCreateTime(comment2.getCreateTime());
                     User user2 = userMapper.selectById(comment2.getCreateUser());
-                    commentVO2.setCreateUserHomepageId(user2.getHomepageId());
-                    return commentVO2;
+                    commentVo2.setCreateUserHomepageId(user2.getHomepageId());
+                    commentVo2.setParentId(comment1.getId());
+                    commentVo2.setParentUserName(info1.getUsername());
+
+                    String replyTaId = comment2.getReplyTaId();
+                    if (!StringUtils.isEmpty(replyTaId) && CommonField.LV3_COMMMENT_TYPE.equals(comment2.getType())) {
+                        Comment comment3 = commentMapper.selectById(replyTaId);
+                        UserInfo info3 = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", comment3.getCreateUser()));
+                        commentVo2.setReplyUsername(info3.getUsername());
+                        User user3 = userMapper.selectById(comment3.getCreateUser());
+                        commentVo2.setReplyHomepageId(user3.getHomepageId());
+                    }
+                    return commentVo2;
                 }).collect(Collectors.toList());
-                commentVO1.setCommentVOList(commentVOList2);
-                return commentVO1;
+                commentVo1.setCommentVoList(commentVoList2);
+                return commentVo1;
             }).collect(Collectors.toList());
 
-            topicVO.setCommentVOList(commentVOList1);
+            topicVO.setCommentVoList(commentVoList1);
 
             // 阅读数加一
             topicMapper.incrViewCount(topicId);
@@ -180,9 +195,9 @@ public class TopicSev {
         return topicVO;
     }
 
-    public TopicVO publish(String topicId, String topicTitle, String topicContent, String tags, String account) {
+    public TopicVo publish(String topicId, String topicTitle, String topicContent, String tags, String account) {
 
-        TopicVO topicVO = new TopicVO();
+        TopicVo topicVO = new TopicVo();
 
         Topic topic = new Topic();
         topic.setId(StringUtils.isEmpty(topicId) ? commonUtil.randomCode() : topicId);

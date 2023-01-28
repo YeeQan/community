@@ -3,7 +3,7 @@ package com.styeeqan.community.pojo.vo;
 import lombok.Data;
 
 @Data
-public class TagVO {
+public class TagVo {
 
     private String id;
 

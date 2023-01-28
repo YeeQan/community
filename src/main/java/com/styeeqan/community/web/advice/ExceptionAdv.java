@@ -28,7 +28,6 @@ public class ExceptionAdv {
     @ResponseBody
     @ExceptionHandler(value = CustomizeException.class)
     public ResponseEntity<?> handleCustomizeException(CustomizeException e) {
-        log.error("自定义异常: {}", e.getMessage(), e);
         return new ResponseEntity<>(e.getError());
     }
 

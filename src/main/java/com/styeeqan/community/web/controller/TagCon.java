@@ -1,7 +1,7 @@
 package com.styeeqan.community.web.controller;
 
 import com.styeeqan.community.common.http.response.ResponseEntity;
-import com.styeeqan.community.pojo.vo.TagVO;
+import com.styeeqan.community.pojo.vo.TagVo;
 import com.styeeqan.community.web.service.TagSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +22,7 @@ public class TagCon {
 
     @PostMapping("list")
     @ApiOperation(value = "获取标签")
-    public ResponseEntity<TagVO> list() {
+    public ResponseEntity<TagVo> list() {
         return new ResponseEntity<>(tagSev.getTagList());
     }
 }

@@ -19,6 +19,8 @@ public enum RedisKey {
     USER_INFO(Duration.ofDays(7)),
     USER_DYNAMIC_TASK_LIST(null),
     USER_TOKEN(Duration.ofDays(30)),
+    PUBLIC_KEY(null),
+    PRIVATE_KEY(null),
     ;
 
     /**

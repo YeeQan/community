@@ -20,6 +20,7 @@ public enum ServerStatusCode {
     ACCOUNT_NOT_EXIST("4009", "账号不存在或密码错误"),
     IMAGE_TYPE_ERROR("4010", "图片类型错误"),
     IMAGE_SIZE_ERROR("4011", "图片大小错误"),
+    GET_PUBLIC_KEY_ERROR("4012", "获取公钥失败"),
     UNAUTHORIZED("4020", "请先完成登录操作"),
     PASSWORD_ERROR("4024", "密码错误"),
     USER_VISIT_FREQUENTLY("4025", "访问太频繁，请稍后再试")

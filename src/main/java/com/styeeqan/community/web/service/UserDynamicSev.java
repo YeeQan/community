@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.mapper.*;
 import com.styeeqan.community.pojo.po.*;
-import com.styeeqan.community.pojo.vo.UserDynamicVO;
+import com.styeeqan.community.pojo.vo.UserDynamicVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class UserDynamicSev {
     @Autowired
     private UserMapper userMapper;
 
-    public List<UserDynamicVO> getDynamicList(String homepageId) {
+    public List<UserDynamicVo> getDynamicList(String homepageId) {
 
         User userDB = userMapper.selectOne(new QueryWrapper<User>().eq("homepage_id", homepageId));
 
@@ -41,7 +41,7 @@ public class UserDynamicSev {
 
         return dynamicList.stream().map(dynamic -> {
 
-            UserDynamicVO dynamicVO = new UserDynamicVO();
+            UserDynamicVo dynamicVO = new UserDynamicVo();
 
             String type = dynamic.getType();
             String targetId = dynamic.getTargetId();

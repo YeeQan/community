@@ -7,9 +7,9 @@ import com.styeeqan.community.common.annotation.group.user.UserRegister;
 import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.constant.ServerStatusCode;
 import com.styeeqan.community.common.http.response.ResponseEntity;
-import com.styeeqan.community.pojo.dto.UserDTO;
-import com.styeeqan.community.pojo.vo.UserHomepageVO;
-import com.styeeqan.community.pojo.vo.UserVO;
+import com.styeeqan.community.pojo.dto.UserDto;
+import com.styeeqan.community.pojo.vo.UserHomepageVo;
+import com.styeeqan.community.pojo.vo.UserVo;
 import com.styeeqan.community.web.service.UserSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -35,14 +34,14 @@ public class UserCon {
 
     @PostMapping("register")
     @ApiOperation(value = "用户注册")
-    public ResponseEntity<?> register(@RequestBody @Validated(UserRegister.class) UserDTO userDTO, HttpServletResponse response) throws Exception {
+        public ResponseEntity<?> register(@RequestBody @Validated(UserRegister.class) UserDto userDTO, HttpServletResponse response) throws Exception {
         userSev.register(userDTO.getAccount(), userDTO.getUsername(), userDTO.getPassword(), response);
         return new ResponseEntity<>(ServerStatusCode.SUCCESS);
     }
 
     @PostMapping("login")
     @ApiOperation(value = "用户登录")
-    public ResponseEntity<?> login(@RequestBody @Validated(UserLogin.class) UserDTO userDTO, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody @Validated(UserLogin.class) UserDto userDTO, HttpServletResponse response) {
         userSev.login(userDTO.getAccount(), userDTO.getPassword(), response);
         return new ResponseEntity<>(ServerStatusCode.SUCCESS);
     }
@@ -64,8 +63,8 @@ public class UserCon {
 
     @PostMapping("loginInfo")
     @ApiOperation(value = "用户登录信息")
-    public ResponseEntity<UserVO> loginInfo(HttpServletRequest request) {
-        UserVO userVO = userSev.getLoginInfo(request.getAttribute(CommonField.ACCOUNT).toString());
+    public ResponseEntity<UserVo> loginInfo(HttpServletRequest request) {
+        UserVo userVO = userSev.getLoginInfo(request.getAttribute(CommonField.ACCOUNT).toString());
         return new ResponseEntity<>(userVO);
     }
 
@@ -78,21 +77,21 @@ public class UserCon {
 
     @PostMapping("homepage")
     @ApiOperation(value = "用户主页")
-    public ResponseEntity<?> homepage(@RequestBody @Validated(UserHomepage.class) UserDTO userDTO, HttpServletRequest request) {
+    public ResponseEntity<?> homepage(@RequestBody @Validated(UserHomepage.class) UserDto userDTO, HttpServletRequest request) {
         Object attribute = request.getAttribute(CommonField.ACCOUNT);
-        UserHomepageVO userHomepageVO = userSev.loadHomepage(userDTO.getHomepageId(), attribute == null ? null : attribute.toString());
+        UserHomepageVo userHomepageVO = userSev.loadHomepage(userDTO.getHomepageId(), attribute == null ? null : attribute.toString());
         return new ResponseEntity<>(userHomepageVO);
     }
 
     @PostMapping("userInfo/get")
     @ApiOperation(value = "获取个人资料")
-    public ResponseEntity<UserVO> getUserInfo(HttpServletRequest request) {
+    public ResponseEntity<UserVo> getUserInfo(HttpServletRequest request) {
         return new ResponseEntity<>(userSev.getUserInfo(request.getAttribute(CommonField.ACCOUNT).toString()));
     }
 
     @PostMapping("userInfo/save")
     @ApiOperation(value = "保存个人资料")
-    public ResponseEntity<UserVO> saveUserInfo(@RequestBody @Validated(UserInfoSave.class) UserDTO userDTO, HttpServletRequest request) {
+    public ResponseEntity<UserVo> saveUserInfo(@RequestBody @Validated(UserInfoSave.class) UserDto userDTO, HttpServletRequest request) {
         userDTO.setAccount(request.getAttribute(CommonField.ACCOUNT).toString());
         return new ResponseEntity<>(userSev.saveUserInfo(userDTO));
     }

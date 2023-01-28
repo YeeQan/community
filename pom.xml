@@ -183,7 +183,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.3.7.RELEASE</version>
                 <configuration>
-                    <mainClass>com.styeeqan.community.Application</mainClass>
+                    <mainClass>com.styeeqan.community.App</mainClass>
                 </configuration>
                 <executions>
                     <execution>

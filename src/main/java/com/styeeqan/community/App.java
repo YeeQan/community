@@ -11,9 +11,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @SpringBootApplication
 @MapperScan("com.styeeqan.community.mapper")
-public class Application {
+public class App {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(App.class, args);
     }
 }

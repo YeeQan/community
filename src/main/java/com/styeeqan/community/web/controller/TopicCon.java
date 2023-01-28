@@ -5,9 +5,9 @@ import com.styeeqan.community.common.annotation.group.topic.TopicPublish;
 import com.styeeqan.community.common.annotation.group.topic.TopicVisit;
 import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.http.response.ResponseEntity;
-import com.styeeqan.community.pojo.dto.TopicDTO;
-import com.styeeqan.community.pojo.vo.PageVO;
-import com.styeeqan.community.pojo.vo.TopicVO;
+import com.styeeqan.community.pojo.dto.TopicDto;
+import com.styeeqan.community.pojo.vo.PageVo;
+import com.styeeqan.community.pojo.vo.TopicVo;
 import com.styeeqan.community.web.service.TopicSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,23 +32,23 @@ public class TopicCon {
 
     @PostMapping("page")
     @ApiOperation(value = "获取帖子分页")
-    public ResponseEntity<PageVO> page(@RequestBody TopicDTO topicDTO) {
-        PageVO<TopicVO> pageVO = topicSev.getPage(topicDTO.getPageNum(), topicDTO.getPageSize());
+    public ResponseEntity<PageVo> page(@RequestBody TopicDto topicDTO) {
+        PageVo<TopicVo> pageVO = topicSev.getPage(topicDTO.getPageNum(), topicDTO.getPageSize());
         return new ResponseEntity<>(pageVO);
     }
 
     @PostMapping("visit")
     @ApiOperation(value = "访问帖子")
-    public ResponseEntity<TopicVO> visit(@RequestBody @Validated(TopicVisit.class) TopicDTO topicDTO) {
-        TopicVO topicVO = topicSev.visit(topicDTO.getTopicId());
+    public ResponseEntity<TopicVo> visit(@RequestBody @Validated(TopicVisit.class) TopicDto topicDTO) {
+        TopicVo topicVO = topicSev.visit(topicDTO.getTopicId());
         return new ResponseEntity<>(topicVO);
     }
 
     @PostMapping("publish")
     @ApiOperation(value = "发布帖子")
     @RateLimiterAnnotation(permitsPerSecond = 2.0)
-    public ResponseEntity<TopicVO> publish(@RequestBody @Validated(TopicPublish.class) TopicDTO topicDTO, HttpServletRequest request) {
-        TopicVO topicVO = topicSev.publish(
+    public ResponseEntity<TopicVo> publish(@RequestBody @Validated(TopicPublish.class) TopicDto topicDTO, HttpServletRequest request) {
+        TopicVo topicVO = topicSev.publish(
                 topicDTO.getTopicId(), topicDTO.getTopicTitle(), topicDTO.getTopicContent(),
                 topicDTO.getTags(), request.getAttribute(CommonField.ACCOUNT).toString());
         return new ResponseEntity<>(topicVO);

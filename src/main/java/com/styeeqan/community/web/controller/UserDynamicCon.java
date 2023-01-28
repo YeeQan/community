@@ -2,8 +2,8 @@ package com.styeeqan.community.web.controller;
 
 import com.styeeqan.community.common.annotation.group.user.UserDynamicList;
 import com.styeeqan.community.common.http.response.ResponseEntity;
-import com.styeeqan.community.pojo.dto.UserDTO;
-import com.styeeqan.community.pojo.vo.UserDynamicVO;
+import com.styeeqan.community.pojo.dto.UserDto;
+import com.styeeqan.community.pojo.vo.UserDynamicVo;
 import com.styeeqan.community.web.service.UserDynamicSev;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,8 +28,8 @@ public class UserDynamicCon {
 
     @PostMapping("list")
     @ApiOperation(value = "用户动态列表")
-    public ResponseEntity<?> list(@RequestBody @Validated(UserDynamicList.class) UserDTO userDTO) {
-        List<UserDynamicVO> list = userDynamicSev.getDynamicList(userDTO.getHomepageId());
+    public ResponseEntity<?> list(@RequestBody @Validated(UserDynamicList.class) UserDto userDTO) {
+        List<UserDynamicVo> list = userDynamicSev.getDynamicList(userDTO.getHomepageId());
         return new ResponseEntity<>(list);
     }
 }

@@ -1,9 +1,11 @@
 package com.styeeqan.community.web.interceptor;
 
+import com.alibaba.fastjson.JSONObject;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.constant.ServerStatusCode;
 import com.styeeqan.community.common.exception.CustomizeException;
+import com.styeeqan.community.common.http.request.RequestWrapper;
 import com.styeeqan.community.common.redis.RedisKey;
 import com.styeeqan.community.common.redis.RedisUtil;
 import com.styeeqan.community.common.util.JwtUtil;
@@ -13,11 +15,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import javax.annotation.meta.When;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * token 拦截器
@@ -58,13 +61,24 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
             "/topic/view/**",
             "/u/**",
             "/user/homepage",
-            "/user/dynamic/list"
+            "/user/dynamic/list",
+            "/publicKey"
     );
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
-        Cookie[] cookies = request.getCookies();
+        RequestWrapper requestWrapper = (RequestWrapper) request;
+
+        JSONObject jsonObject;
+        String body = requestWrapper.getBody();
+        if (StringUtils.isEmpty(body)) {
+            jsonObject = new JSONObject();
+        } else {
+            jsonObject = JSONObject.parseObject(body);
+        }
+
+        Cookie[] cookies = requestWrapper.getCookies();
         String token = null;
         if (cookies != null && cookies.length != 0) {
             for (Cookie cookie : cookies) {
@@ -75,7 +89,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
         }
 
         // 如果在白名单,解析 token 直接返回
-        String requestURI = request.getRequestURI();
+        String requestURI = requestWrapper.getRequestURI();
         for (String whiteUri : WHITE_URI_LIST) {
             if (requestURI.contains(whiteUri)) {
                 if (!StringUtils.isEmpty(token)) {
@@ -91,6 +105,8 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
                                 redisUtil.setValue(RedisKey.USER_TOKEN, account, token);
                                 // 将 token 中的 account 放到 request 里面，转发到业务
                                 request.setAttribute(CommonField.ACCOUNT, account);
+                                jsonObject.put(CommonField.ACCOUNT, account);
+                                ((RequestWrapper) request).setBody(jsonObject.toJSONString());
                             } else {
                                 redisUtil.delete(RedisKey.USER_TOKEN, account);
                             }
@@ -118,6 +134,8 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
                     redisUtil.setValue(RedisKey.USER_TOKEN, account, token);
                     // 将 token 中的 account 放到 request 里面，转发到业务
                     request.setAttribute(CommonField.ACCOUNT, account);
+                    jsonObject.put(CommonField.ACCOUNT, account);
+                    ((RequestWrapper) request).setBody(jsonObject.toJSONString());
                 } else {
                     redisUtil.delete(RedisKey.USER_TOKEN, account);
                     throw new CustomizeException(ServerStatusCode.UNAUTHORIZED);

@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-public class TopicVO {
+public class TopicVo {
 
     private String id;
 
@@ -28,7 +28,7 @@ public class TopicVO {
 
     private String createUserHeadPortrait;
 
-    private List<CommentVO> commentVOList;
+    private List<CommentVo> commentVoList;
 
-    private List<TagVO> tagVOList;
+    private List<TagVo> tagVoList;
 }
