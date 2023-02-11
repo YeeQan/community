@@ -8,6 +8,7 @@ import com.styeeqan.community.common.exception.CustomizeException;
 import com.styeeqan.community.common.http.request.RequestWrapper;
 import com.styeeqan.community.common.redis.RedisKey;
 import com.styeeqan.community.common.redis.RedisUtil;
+import com.styeeqan.community.common.util.HttpUtil;
 import com.styeeqan.community.common.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private HttpUtil httpUtil;
 
     /**
      * token 校验白名单
@@ -68,17 +72,21 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
-        RequestWrapper requestWrapper = (RequestWrapper) request;
-
         JSONObject jsonObject;
-        String body = requestWrapper.getBody();
+        // 解析body为json
+        Optional<String> jsonDataOp = httpUtil.getJsonData(request);
+        if (jsonDataOp.isEmpty()) {
+            return true;
+        }
+
+        String body = jsonDataOp.get();
         if (StringUtils.isEmpty(body)) {
             jsonObject = new JSONObject();
         } else {
             jsonObject = JSONObject.parseObject(body);
         }
 
-        Cookie[] cookies = requestWrapper.getCookies();
+        Cookie[] cookies = request.getCookies();
         String token = null;
         if (cookies != null && cookies.length != 0) {
             for (Cookie cookie : cookies) {
@@ -89,7 +97,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
         }
 
         // 如果在白名单,解析 token 直接返回
-        String requestURI = requestWrapper.getRequestURI();
+        String requestURI = request.getRequestURI();
         for (String whiteUri : WHITE_URI_LIST) {
             if (requestURI.contains(whiteUri)) {
                 if (!StringUtils.isEmpty(token)) {

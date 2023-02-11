@@ -1,8 +1,8 @@
 package com.styeeqan.community.aspect;
 
 import com.alibaba.fastjson.JSON;
-import com.styeeqan.community.common.http.request.RequestWrapper;
 import com.styeeqan.community.common.http.response.ResponseEntity;
+import com.styeeqan.community.common.util.HttpUtil;
 import com.styeeqan.community.common.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -17,6 +17,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 /**
  * Controller日志切面
@@ -33,6 +34,9 @@ public class ControllerLogAsp {
     @Autowired
     private IpUtil ipUtil;
 
+    @Autowired
+    private HttpUtil httpUtil;
+
     @Pointcut("execution(* com.styeeqan.community.web.controller.*.*(..))")
     public void controllerMethod() {}
 
@@ -43,11 +47,12 @@ public class ControllerLogAsp {
     public void LogRequestInfo() {
         // 持有上下文的 request 容器
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        RequestWrapper requestWrapper = (RequestWrapper) attributes.getRequest();
-        String ip = ipUtil.getRealIp(requestWrapper);
-        String uri = requestWrapper.getRequestURI();
-        String method = requestWrapper.getMethod();
-        String jsonData = requestWrapper.getBody();
+        HttpServletRequest request = attributes.getRequest();
+        String ip = ipUtil.getRealIp(request);
+        String uri = request.getRequestURI();
+        String method = request.getMethod();
+        Optional<String> jsonDataOp = httpUtil.getJsonData(request);
+        String jsonData = jsonDataOp.orElse(null);
         log.info("开始执行请求, method:{}, ip:{}, uri:{}, request-datas:{}",
                 method, ip, uri, StringUtils.isEmpty(jsonData) ? "no-datas" : JSON.toJSONString(jsonData).replaceAll("\\\\", ""));
     }

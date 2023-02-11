@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.styeeqan.community.common.http.request.RequestWrapper;
 import com.styeeqan.community.common.redis.RedisKey;
 import com.styeeqan.community.common.redis.RedisUtil;
-import com.styeeqan.community.common.util.IpUtil;
+import com.styeeqan.community.common.util.HttpUtil;
 import com.styeeqan.community.common.util.RsaUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +34,19 @@ public class DecryptInterceptor implements HandlerInterceptor {
     private RedisUtil redisUtil;
 
     @Autowired
-    private IpUtil ipUtil;
+    private HttpUtil httpUtil;
 
     @Override
-
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
         String uri = request.getRequestURI();
 
         // 解析body为json
-        RequestWrapper requestWrapper = (RequestWrapper) request;
-
-        String body = requestWrapper.getBody();
-        if (StringUtils.isEmpty(body)) {
+        Optional<String> jsonDataOp = httpUtil.getJsonData(request);
+        if (jsonDataOp.isEmpty()) {
             return true;
         }
+        String body = jsonDataOp.get();
 
         JSONObject jsonData = JSON.parseObject(body);
 

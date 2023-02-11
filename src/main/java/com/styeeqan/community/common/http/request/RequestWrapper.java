@@ -10,8 +10,6 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 
     private String body = "";
 
-    private ByteArrayInputStream byteArrayInputStream;
-
     public RequestWrapper(HttpServletRequest request) {
         super(request);
         StringBuilder sb = new StringBuilder();
@@ -28,7 +26,6 @@ public class RequestWrapper extends HttpServletRequestWrapper {
                 }
             }
             body = sb.toString();
-            byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -53,6 +50,8 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     public ServletInputStream getInputStream() {
 
         return new ServletInputStream() {
+
+            private final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
 
             @Override
             public int read() {
@@ -87,6 +86,5 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 
     public void setBody(String body) {
         this.body = body;
-        byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
     }
 }
