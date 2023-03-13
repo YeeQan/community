@@ -26,7 +26,7 @@ public class HttpUtil {
                String json = baos.toString();
                return StringUtils.isEmpty(json) ? Optional.empty() : Optional.of(json);
           } catch (Exception e) {
-               log.info("Http请求信息转化Json失败", e);
+               log.info("Http请求信息转化Json失败,uri:{}", request.getRequestURI(), e);
                return Optional.empty();
           } finally {
                try {
@@ -37,7 +37,7 @@ public class HttpUtil {
                          baos.close();
                     }
                } catch (IOException e) {
-                    log.info("Http请求信息转化Json失败", e);
+                    log.info("Http请求信息转化Json失败,uri:{}", request.getRequestURI(), e);
                }
           }
      }
