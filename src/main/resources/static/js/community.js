@@ -10,9 +10,92 @@ jQuery.extend({
         $.initFooter();
         var requestJson = {
             pageNum: 1,
-            pageSize: 20
+            pageSize: 10,
+            sortOrder: "1",
         };
         $.postIndexPage(requestJson);
+        $.initHotTag();
+        $("#topic-page-new").click(function () {
+            var requestJson = {
+                pageNum: 1,
+                pageSize: 10,
+                sortOrder: "1",
+            };
+            $(this).attr("class", "nav-link text-secondary active")
+            $.postIndexPage(requestJson);
+        })
+        $("#contribution-all-10").click(function () {
+            $.initContributeList("all")
+        })
+        $("#contribution-day-10").click(function () {
+            $.initContributeList("day")
+        })
+        $.initContributeList("all")
+    },
+
+    /**
+     * 初始化贡献榜
+     */
+    initContributeList: function (type) {
+        // 初始化贡献榜
+        $.get("/community/contributeList/" + type, function (result) {
+            if (result == null) {
+                $.alert({
+                    title: "出错啦!",
+                    content: "请稍后再试！",
+                });
+            } else {
+                if (result.code !== "2000") {
+                    $.alert({
+                        title: "出错啦!",
+                        content: result.description,
+                    });
+                } else {
+                    var $cl = $("#contribution-list")
+                    $cl.empty()
+                    $.each(result.data, function (index, vo) {
+                        var html =
+                            "<div class='row mt-lg-2'>" +
+                            "   <div class='col-lg-9'>" +
+                                    (index < 3 ? `<span class='text-danger mr-2'>${index + 1}</span>` : `<span class='text-muted mr-2'>${index + 1}</span>`) +
+                            "       <a href='" + "/community/u/" + vo.homepageId + "'>" +
+                            "           <img class='rounded-circle' width='26' height='26' alt='头像' src='" + vo.headPortrait + "'>" +
+                            "           <span class='text-success'>" + vo.username + "</span>" +
+                            "       </a>" +
+                            "   </div>" +
+                            "   <div class='col-lg-3'>+" + vo.userContribute + "</div>" +
+                            "</div>"
+                        $cl.append(html)
+                    });
+                }
+            }
+        });
+    },
+
+    /**
+     * 初始化热门标签
+     */
+    initHotTag: function () {
+        $.ajax({
+            type: "POST",
+            url: "/community/tag/hotTagList",
+            success: function (result) {
+                if (result == null) {
+                    $.snack('error', '系统错误，请稍后再试！', 3000)
+                } else {
+                    if (result.code !== "2000") {
+                        $.snack('error', result.description, 3000)
+                    } else {
+                        $.each(result.data, function (index, tag) {
+                            let $hotTagList = $("#hot-tag-list");
+                            var hotTagHtml =
+                                "<a class='badge-tag m-1' href='javascript:void(0)'>" + tag.name + "</a>"
+                            $hotTagList.append(hotTagHtml)
+                        });
+                    }
+                }
+            }
+        })
     },
 
     /**
@@ -167,15 +250,13 @@ jQuery.extend({
                     console.log(index + ":" + $tag.attr("data-id"))
                     tags += $tag.attr("data-id")
                     console.log(tags)
-                    if ($select.length + 1 !== index) {
-                        tags += ","
-                    }
+                    tags += ","
                     console.log(tags)
                 })
                 var requestJson = {
                         topicTitle: $("#topic-title").val(),
                         topicContent: editor.getMarkdown(),
-                        tags: tags
+                        tags: tags.substring(0, tags.length - 1)
                 };
                 $.ajax({
                     contentType: "application/json",
@@ -458,7 +539,8 @@ jQuery.extend({
             var requestJson = {
                 account: $("#registerAccount").val(),
                 username: $("#registerName").val(),
-                password: password
+                password: password,
+                publicKey: publicKey,
             };
             console.log(requestJson);
             $.ajax({
@@ -716,7 +798,7 @@ jQuery.extend({
                 "   </div>" +
                 "</div>"
             $topicList.append(html);
-            $.each(topic.tagVOList, function (index, tagVO) {
+            $.each(topic.tagVoList, function (index, tagVO) {
                 $("#topic-tags-" + topic.id).append("<a class='badge-tag mx-1' href='javascript:void(0)'>" + tagVO.name + "</a>")
             })
         });
@@ -743,7 +825,7 @@ jQuery.extend({
             var $pageFirst = $(pageFirst).click(function () {
                 var requestJson = {
                     pageNum: 1,
-                    pageSize: 20
+                    pageSize: 10
                 };
                 $.postIndexPage(requestJson);
             })
@@ -752,7 +834,7 @@ jQuery.extend({
             var $pagePrevious = $(pagePrevious).click(function () {
                 var requestJson = {
                     pageNum: currentPage - 1,
-                    pageSize: 20
+                    pageSize: 10
                 };
                 $.postIndexPage(requestJson);
             })
@@ -761,7 +843,7 @@ jQuery.extend({
             var $pageNext = $(pageNext).click(function () {
                 var requestJson = {
                     pageNum: currentPage + 1,
-                    pageSize: 20
+                    pageSize: 10
                 };
                 $.postIndexPage(requestJson);
             })
@@ -770,7 +852,7 @@ jQuery.extend({
             var $pageLast = $(pageLast).click(function () {
                 var requestJson = {
                     pageNum: 99999,
-                    pageSize: 20
+                    pageSize: 10
                 };
                 $.postIndexPage(requestJson);
             })
@@ -793,7 +875,7 @@ jQuery.extend({
                     var $pageItem = $(pageItem).click(function () {
                         var requestJson = {
                             pageNum: num,
-                            pageSize: 20
+                            pageSize: 10
                         };
                         $.postIndexPage(requestJson);
                     })
@@ -820,7 +902,7 @@ jQuery.extend({
                     var $pageItem = $(pageItem).click(function () {
                         var requestJson = {
                             pageNum: num,
-                            pageSize: 20
+                            pageSize: 10
                         };
                         $.postIndexPage(requestJson);
                     })
@@ -854,7 +936,7 @@ jQuery.extend({
                     } else {
                         var data = result.data[0];
                         console.log(data);
-                        $("title").text(data.topicTitle + " - 码客Mark");
+                        $("title").text(data.topicTitle + " - ITHUB");
                         var topicDetail =
                             "<div class='card p-lg-3'>" +
                             "   <div class='card-body'>" +
@@ -900,7 +982,7 @@ jQuery.extend({
                         });
                         // 去掉 editormd 的默认样式
                         $("#topic-content").removeClass("editormd-html-preview")
-                        $.each(data.tagVOList, function (index, tagVO) {
+                        $.each(data.tagVoList, function (index, tagVO) {
                             $("#topic-detail-tags-" + data.createUserHomepageId).append("<a class='badge-tag mx-1' href='javascript:void(0)'>" + tagVO.name + "</a>")
                         })
 

@@ -6,7 +6,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.time.Duration;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Redis 工具类
@@ -78,5 +80,58 @@ public class RedisUtil {
             return Optional.empty();
         }
         return Optional.ofNullable(value);
+    }
+
+    /**
+     * 设置 hash-key 对应 value 自增 delta
+     * @param redisKey redisKey
+     * @param key hashkey
+     * @param delta delta
+     */
+    public void setHashIncr(RedisKey redisKey, String key, long delta) {
+        template.opsForHash().increment(redisKey.getKey(null), key, delta);
+    }
+
+    /**
+     * 获取HashMap
+     * @param redisKey redisKey
+     * @return Map<Object, Object>
+     */
+    public Map<Object, Object> getHashMap(RedisKey redisKey) {
+        return template.opsForHash().entries(redisKey.getKey(null));
+    }
+
+    /**
+     * 设置 Zset-Value
+     * @param redisKey redisKey
+     * @param id id
+     * @param value value
+     * @param score score
+     */
+    public void setZSetValue(RedisKey redisKey, String id, String value, Integer score) {
+        template.opsForZSet().incrementScore(redisKey.getKey(id), value, score);
+    }
+
+    /**
+     * 获取 Zset 排名内的值
+     * @param redisKey redisKey
+     * @param id id
+     * @param start start
+     * @param end end
+     * @return Set<String>
+     */
+    public Set<String> reverseRangeZSet(RedisKey redisKey, String id, int start, int end) {
+        return template.opsForZSet().reverseRange(redisKey.getKey(id), start, end);
+    }
+
+    /**
+     * 获取 Zset 指定 socre
+     * @param redisKey
+     * @param id
+     * @param value
+     * @return
+     */
+    public Double scoreZSet(RedisKey redisKey, String id, String value) {
+        return template.opsForZSet().score(redisKey.getKey(id), value);
     }
 }

@@ -6,7 +6,8 @@ import org.springframework.util.StringUtils;
 import java.security.PrivateKey;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * 时间工具类
@@ -31,6 +32,52 @@ public class DateUtil {
 
     public static final String parse_date_pattern_1 = "yyyy-MM-dd";
 
+    /**
+     * 获取两个日期之间的所有日期
+     */
+    public List<Date> getBetweenDate(Date start, Date end) {
+        List<Date> list = new LinkedList<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(start);
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        while (calendar.before(end)) {
+            list.add(calendar.getTime());
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        return list;
+    }
+
+    /**
+     * 获取当前周周一的日期
+     */
+    public Date getCurWeekMonday() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+
+    /**
+     * 日期对象转字符串
+     */
+    public String getDateStr(Date date, String pattern) {
+        try {
+            if (date == null || StringUtils.isEmpty(pattern)) {
+                throw new RuntimeException("日期格式转换错误");
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+            return sdf.format(date);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 日期字符串转日期对象
+     */
     public Date parseDate(String dateStr, String pattern) {
         try {
             if (StringUtils.isEmpty(dateStr) || StringUtils.isEmpty(pattern)) {

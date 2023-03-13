@@ -15,7 +15,7 @@ public class UserDto extends BaseDto {
             groups = {UserRegister.class, UserLogin.class})
     private String account;
 
-    @Pattern(regexp = "[a-zA-Z\\d]{1,16}", message = "密码格式错误，必须由字母、数字、下划线组成，不能超过16位",
+    @Pattern(regexp = "\\w{1,16}", message = "密码格式错误，必须由字母、数字、下划线组成，不能超过16位",
             groups = {UserRegister.class, UserLogin.class})
     private String password;
 

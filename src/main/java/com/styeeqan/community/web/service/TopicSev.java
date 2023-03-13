@@ -14,6 +14,7 @@ import com.styeeqan.community.pojo.vo.CommentVo;
 import com.styeeqan.community.pojo.vo.PageVo;
 import com.styeeqan.community.pojo.vo.TagVo;
 import com.styeeqan.community.pojo.vo.TopicVo;
+import com.styeeqan.community.task.UserContributeDayRankTask;
 import com.styeeqan.community.task.UserDynamicTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,9 @@ public class TopicSev {
     @Autowired
     private TagMapper tagMapper;
 
+    @Autowired
+    private UserContributeMapper contributeMapper;
+
     /**
      * 获取帖子分页
      *
@@ -59,15 +63,22 @@ public class TopicSev {
      * @param pageSize 页数
      * @return PageVO<TopicVO>
      */
-    public PageVo<TopicVo> getPage(Integer pageNum, Integer pageSize) {
+    public PageVo<TopicVo> getPage(Integer pageNum, Integer pageSize, String sortOrder) {
 
         PageVo<TopicVo> pageVO = new PageVo<>();
+
+        QueryWrapper<Topic> topicQueryWrapper = new QueryWrapper<>();
+
+        // 是否有排序条件,默认按最后一次评论时间倒序
+        if (!StringUtils.isEmpty(sortOrder)) {
+            setSortOrder(sortOrder, topicQueryWrapper);
+        }
 
         // 是否开启分页
         if (pageNum > 0 && pageSize > 0) {
             PageHelper.startPage(pageNum, pageSize);
         }
-        List<Topic> topicList = topicMapper.selectList(null);
+        List<Topic> topicList = topicMapper.selectList(topicQueryWrapper);
         PageInfo<Topic> pageInfo = new PageInfo<>(topicList);
 
         pageVO.setPageNum(pageInfo.getPageNum());
@@ -208,6 +219,7 @@ public class TopicSev {
         topic.setViewCount(0);
         topic.setUpdateUser(account);
         topic.setUpdateTime(new Date());
+        topic.setLastCommentTime(new Date());
 
         if (StringUtils.isEmpty(topicId)) {
             topic.setCreateUser(account);
@@ -216,6 +228,16 @@ public class TopicSev {
         } else {
             topicMapper.updateById(topic);
         }
+
+        User user = userMapper.selectById(account);
+        UserInfo userInfo = userInfoMapper.selectById(user.getUserInfoId());
+
+        // 个人综合贡献值+10
+        contributeMapper.incrUserContributeAll(account, 10);
+
+        // 日榜贡献值+10
+        UserContributeDayRankTask dayRankTask = new UserContributeDayRankTask(account, userInfo.getUsername(), userInfo.getHeadPortrait(), user.getHomepageId());
+        redisUtil.pushListRightValue(RedisKey.USER_CONTRIBUTE_DAY_TASK_LIST, null, JSON.toJSONString(dayRankTask));
 
         // 生成动态放入Redis消息队列
         UserDynamicTask userDynamicTask = new UserDynamicTask();
@@ -226,7 +248,21 @@ public class TopicSev {
         userDynamicTask.setUpdateUser(account);
         redisUtil.pushListRightValue(RedisKey.USER_DYNAMIC_TASK_LIST, null, JSON.toJSONString(userDynamicTask));
 
+        // 标签热度加一
+        for (String tag : tags.split(",")) {
+            redisUtil.setHashIncr(RedisKey.TAG_HOT_HASH, tag, 1L);
+        }
+
         topicVO.setId(topic.getId());
         return topicVO;
+    }
+
+    /**
+     * 设置排序方式
+     */
+    private void setSortOrder(String sortOrder, QueryWrapper<Topic> queryWrapper) {
+        if (CommonField.SORT_BY_LAST_COMMENT_TIME_DESC.equals(sortOrder)) {
+            queryWrapper.orderByDesc("last_comment_time");
+        }
     }
 }

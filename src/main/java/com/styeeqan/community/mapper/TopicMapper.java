@@ -8,4 +8,6 @@ public interface TopicMapper extends BaseMapper<Topic> {
     void incrViewCount(String topicId);
 
     int incrCommentCount(String topicId);
+
+    void updateLastCommentTime(String topicId);
 }

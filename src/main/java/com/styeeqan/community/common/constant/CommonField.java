@@ -29,11 +29,6 @@ public class CommonField {
     public static final String LV1_COMMMENT_TYPE = "1";
 
     /**
-     * 评论类型——二级评论
-     */
-    public static final String LV2_COMMMENT_TYPE = "2";
-
-    /**
      * 评论类型——三级评论
      */
     public static final String LV3_COMMMENT_TYPE = "3";
@@ -49,7 +44,22 @@ public class CommonField {
     public static final String REPLY_TOPIC_DYNAMIC_TYPE = "2";
 
     /**
-     * 动态类型——回复Ta
+     * 根据最后一次评论时间倒序
      */
-    public static final String REPLY_TA_DYNAMIC_TYPE = "3";
+    public static final String SORT_BY_LAST_COMMENT_TIME_DESC = "1";
+
+    /**
+     * 综合贡献
+     */
+    public static final String CONTRIBUTE_TYPE_ALL = "all";
+
+    /**
+     * 贡献周榜
+     */
+    public static final String CONTRIBUTE_TYPE_WEEK_RANK = "week";
+
+    /**
+     * 贡献日榜
+     */
+    public static final String CONTRIBUTE_TYPE_DAY_RANK = "day";
 }

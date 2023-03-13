@@ -33,7 +33,7 @@ public class TopicCon {
     @PostMapping("page")
     @ApiOperation(value = "获取帖子分页")
     public ResponseEntity<PageVo> page(@RequestBody TopicDto topicDTO) {
-        PageVo<TopicVo> pageVO = topicSev.getPage(topicDTO.getPageNum(), topicDTO.getPageSize());
+        PageVo<TopicVo> pageVO = topicSev.getPage(topicDTO.getPageNum(), topicDTO.getPageSize(), topicDTO.getSortOrder());
         return new ResponseEntity<>(pageVO);
     }
 

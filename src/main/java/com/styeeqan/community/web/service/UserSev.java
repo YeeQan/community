@@ -8,11 +8,13 @@ import com.styeeqan.community.common.exception.CustomizeException;
 import com.styeeqan.community.common.redis.RedisKey;
 import com.styeeqan.community.common.redis.RedisUtil;
 import com.styeeqan.community.common.util.*;
+import com.styeeqan.community.mapper.UserContributeMapper;
 import com.styeeqan.community.mapper.UserInfoMapper;
 import com.styeeqan.community.mapper.UserMapper;
 import com.styeeqan.community.pojo.dto.UserDto;
 import com.styeeqan.community.pojo.po.Dict;
 import com.styeeqan.community.pojo.po.User;
+import com.styeeqan.community.pojo.po.UserContribute;
 import com.styeeqan.community.pojo.po.UserInfo;
 import com.styeeqan.community.pojo.vo.UserHomepageVo;
 import com.styeeqan.community.pojo.vo.UserVo;
@@ -43,6 +45,9 @@ public class UserSev {
     private UserInfoMapper userInfoMapper;
 
     @Autowired
+    private UserContributeMapper userContributeMapper;
+
+    @Autowired
     private CommonUtil commonUtil;
 
     @Autowired
@@ -65,9 +70,6 @@ public class UserSev {
 
     @Autowired
     private RedisUtil redisUtil;
-
-    @Autowired
-    private RsaUtil rsaUtil;
 
     /**
      * 用户注册
@@ -131,6 +133,17 @@ public class UserSev {
             userInfo.setUpdateTime(new Date());
             userInfo.setUpdateUser(user.getAccount());
             userInfoMapper.insert(userInfo);
+
+            // 设置贡献初始值
+            UserContribute userContribute = new UserContribute();
+            userContribute.setAccount(account);
+            userContribute.setUserContributeId(commonUtil.uuid());
+            userContribute.setUserContributeAll(0);
+            userContribute.setCreateTime(new Date());
+            userContribute.setCreateUser(user.getAccount());
+            userContribute.setUpdateTime(new Date());
+            userContribute.setUpdateUser(user.getAccount());
+            userContributeMapper.insert(userContribute);
 
             // 设置 token
             Map<String, String> payloadMap = new HashMap<>(2);

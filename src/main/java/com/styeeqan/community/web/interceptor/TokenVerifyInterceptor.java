@@ -72,20 +72,6 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
-        JSONObject jsonObject;
-        // 解析body为json
-        Optional<String> jsonDataOp = httpUtil.getJsonData(request);
-        if (jsonDataOp.isEmpty()) {
-            return true;
-        }
-
-        String body = jsonDataOp.get();
-        if (StringUtils.isEmpty(body)) {
-            jsonObject = new JSONObject();
-        } else {
-            jsonObject = JSONObject.parseObject(body);
-        }
-
         Cookie[] cookies = request.getCookies();
         String token = null;
         if (cookies != null && cookies.length != 0) {
@@ -113,8 +99,6 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
                                 redisUtil.setValue(RedisKey.USER_TOKEN, account, token);
                                 // 将 token 中的 account 放到 request 里面，转发到业务
                                 request.setAttribute(CommonField.ACCOUNT, account);
-                                jsonObject.put(CommonField.ACCOUNT, account);
-                                ((RequestWrapper) request).setBody(jsonObject.toJSONString());
                             } else {
                                 redisUtil.delete(RedisKey.USER_TOKEN, account);
                             }
@@ -142,8 +126,6 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
                     redisUtil.setValue(RedisKey.USER_TOKEN, account, token);
                     // 将 token 中的 account 放到 request 里面，转发到业务
                     request.setAttribute(CommonField.ACCOUNT, account);
-                    jsonObject.put(CommonField.ACCOUNT, account);
-                    ((RequestWrapper) request).setBody(jsonObject.toJSONString());
                 } else {
                     redisUtil.delete(RedisKey.USER_TOKEN, account);
                     throw new CustomizeException(ServerStatusCode.UNAUTHORIZED);

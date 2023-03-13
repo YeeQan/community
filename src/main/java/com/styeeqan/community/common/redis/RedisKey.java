@@ -18,9 +18,12 @@ public enum RedisKey {
     COMMENT(Duration.ofDays(7)),
     USER_INFO(Duration.ofDays(7)),
     USER_DYNAMIC_TASK_LIST(null),
+    USER_CONTRIBUTE_DAY_TASK_LIST(null),
     USER_TOKEN(Duration.ofDays(30)),
     PUBLIC_KEY(null),
     PRIVATE_KEY(null),
+    TAG_HOT_HASH(null),
+    USER_CONTRIBUTE_DAY(Duration.ofDays(7)),
     ;
 
     /**

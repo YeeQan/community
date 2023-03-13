@@ -10,4 +10,8 @@
         update y_c_topic set comment_count = comment_count + 1 where id = #{topicId}
     </update>
 
+    <update id="updateLastCommentTime">
+        update y_c_topic set last_comment_time = NOW() where id = #{topicId}
+    </update>
+
 </mapper>

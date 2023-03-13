@@ -1,5 +1,6 @@
 package com.styeeqan.community.task;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.styeeqan.community.common.util.CommonUtil;
 import com.styeeqan.community.common.util.SpringBeanUtil;
 import com.styeeqan.community.mapper.UserDynamicMapper;
@@ -22,8 +23,10 @@ public class UserDynamicTask implements Serializable {
 
     private String updateUser;
 
+    @JsonIgnore
     private final CommonUtil commonUtil = SpringBeanUtil.getBean(CommonUtil.class);
 
+    @JsonIgnore
     private final UserDynamicMapper userDynamicMapper = SpringBeanUtil.getBean(UserDynamicMapper.class);
 
     public void execute() {

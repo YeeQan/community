@@ -25,4 +25,10 @@ public class TagCon {
     public ResponseEntity<TagVo> list() {
         return new ResponseEntity<>(tagSev.getTagList());
     }
+
+    @PostMapping("hotTagList")
+    @ApiOperation(value = "获取热门标签")
+    public ResponseEntity<TagVo> hotTagList() {
+        return new ResponseEntity<>(tagSev.getHotTagList());
+    }
 }

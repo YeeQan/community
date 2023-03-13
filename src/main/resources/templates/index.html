@@ -3,7 +3,7 @@
 
 <head>
 
-  <title>码客Mark</title>
+  <title>ITHUB</title>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,6 +21,7 @@
   <script src="/community/bootstrap-4.6.0/js/bootstrap.min.js"></script>
   <script src="/community/js/community.js"></script>
   <script src="/community/js/jquery-confirm.js"></script>
+  <script src="/community/js/toast.js"></script>
 
 </head>
 
@@ -30,8 +31,13 @@
 
   <div class="container mt-lg-5">
     <div class="row">
-      <div class="col-lg-8">
+      <div class="col-lg-7">
         <h4>讨论</h4>
+      </div>
+      <div class="col-lg-1">
+        <nav class="nav nav-pills">
+          <a class="nav-link text-secondary active" href="javascript:void(0)" id="topic-page-new">最新</a>
+        </nav>
       </div>
       <div class="col-lg-4">
         <h6 class="text-secondary">公告 | 暂时没有公告</h6>
@@ -61,8 +67,34 @@
         <div class="row mt-lg-3">
           <div class="col-lg-12">
             <div class="bg-white p-lg-3 shadow-sm rounded">
-              <h4>Community 宣言</h4>
+              <h4>ITHUB 宣言</h4>
               <p>欢迎你加入本社区~</p>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-lg-3">
+          <div class="col-lg-12">
+            <div class="bg-white p-lg-3 shadow-sm rounded">
+              <p class="font-weight-bold">热门标签</p>
+              <div id="hot-tag-list"></div>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-lg-3">
+          <div class="col-lg-12">
+            <div class="bg-white p-lg-3 shadow-sm rounded">
+              <div class="row border border-top-0 border-left-0 border-right-0">
+                <div class="col-lg-7 mb-lg-2">
+                  <span class="font-weight-bold">社区贡献榜</span>
+                </div>
+                <div class="col-lg-5 mb-lg-2">
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-success" id="contribution-day-10">日榜</button>
+                    <button type="button" class="btn btn-outline-success" id="contribution-all-10">综合</button>
+                  </div>
+                </div>
+              </div>
+              <div id="contribution-list"></div>
             </div>
           </div>
         </div>
