@@ -1,6 +1,5 @@
 package com.styeeqan.community.web.service;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -8,6 +7,7 @@ import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.redis.RedisKey;
 import com.styeeqan.community.common.redis.RedisUtil;
 import com.styeeqan.community.common.util.CommonUtil;
+import com.styeeqan.community.common.util.ThreadUtil;
 import com.styeeqan.community.mapper.*;
 import com.styeeqan.community.pojo.po.*;
 import com.styeeqan.community.pojo.vo.CommentVo;
@@ -55,6 +55,9 @@ public class TopicSev {
 
     @Autowired
     private UserContributeMapper contributeMapper;
+
+    @Autowired
+    private ThreadUtil threadUtil;
 
     /**
      * 获取帖子分页
@@ -117,11 +120,11 @@ public class TopicSev {
                 })
                 .collect(Collectors.toList());
 
-        pageVO.setList(topicVoList);
+        pageVO.setData(topicVoList);
         return pageVO;
     }
 
-    public TopicVo visit(String topicId) {
+    public TopicVo visit(String topicId, Integer commentPageNum, Integer commentPageSize) {
 
         TopicVo topicVO = new TopicVo();
 
@@ -152,8 +155,19 @@ public class TopicSev {
                     return tagVO;
                 }).collect(Collectors.toList()));
             }
-            // 设置该讨论下的所有评论
-            List<Comment> commentList = commentMapper.selectList(new QueryWrapper<Comment>().eq("parent_id", topicId));
+            // 设置该讨论下的所有评论(默认每十条分页)
+            if (commentPageNum > 0 && commentPageSize > 0) {
+                PageHelper.startPage(commentPageNum, commentPageSize);
+            }
+            PageHelper.startPage(commentPageNum, commentPageSize);
+            List<Comment> commentList = commentMapper.selectList(
+                    new QueryWrapper<Comment>()
+                            .eq("parent_id", topicId));
+            PageInfo<Comment> commentPageInfo = new PageInfo<>(commentList);
+            PageVo<CommentVo> commentPageVo = new PageVo<>();
+            commentPageVo.setPageNum(commentPageInfo.getPageNum());
+            commentPageVo.setPages(commentPageInfo.getPages());
+            commentPageVo.setNavigatepageNums(commentPageInfo.getNavigatepageNums());
             // 一级评论
             List<CommentVo> commentVoList1 = commentList.stream().map(comment1 -> {
                 CommentVo commentVo1 = new CommentVo();
@@ -198,7 +212,8 @@ public class TopicSev {
                 return commentVo1;
             }).collect(Collectors.toList());
 
-            topicVO.setCommentVoList(commentVoList1);
+            commentPageVo.setData(commentVoList1);
+            topicVO.setCommentPageVo(commentPageVo);
 
             // 阅读数加一
             topicMapper.incrViewCount(topicId);
@@ -237,16 +252,12 @@ public class TopicSev {
 
         // 日榜贡献值+10
         UserContributeDayRankTask dayRankTask = new UserContributeDayRankTask(account, userInfo.getUsername(), userInfo.getHeadPortrait(), user.getHomepageId());
-        redisUtil.pushListRightValue(RedisKey.USER_CONTRIBUTE_DAY_TASK_LIST, null, JSON.toJSONString(dayRankTask));
+        threadUtil.execute(dayRankTask);
 
-        // 生成动态放入Redis消息队列
-        UserDynamicTask userDynamicTask = new UserDynamicTask();
-        userDynamicTask.setType(CommonField.PUBLISH_DYNAMIC_TYPE);
-        userDynamicTask.setTargetId(topic.getId());
-        userDynamicTask.setSourceId(topic.getId());
-        userDynamicTask.setCreateUser(account);
-        userDynamicTask.setUpdateUser(account);
-        redisUtil.pushListRightValue(RedisKey.USER_DYNAMIC_TASK_LIST, null, JSON.toJSONString(userDynamicTask));
+        // 生成动态放入线程池
+        UserDynamicTask userDynamicTask
+                = new UserDynamicTask(CommonField.PUBLISH_DYNAMIC_TYPE, topic.getId(), topic.getId(),account, account);
+        threadUtil.execute(userDynamicTask);
 
         // 标签热度加一
         for (String tag : tags.split(",")) {

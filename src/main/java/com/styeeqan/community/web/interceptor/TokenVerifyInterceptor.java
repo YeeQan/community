@@ -39,34 +39,32 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
     @Autowired
     private RedisUtil redisUtil;
 
-    @Autowired
-    private HttpUtil httpUtil;
-
     /**
      * token 校验白名单
      */
     private final List<String> WHITE_URI_LIST = Arrays.asList(
-            "/css/**",
-            "/bootstrap-4.6.0/**",
-            "/editor.md/**",
-            "/fonts/**",
-            "/images/**",
-            "/js/**",
-            "/",
+            "/css/",
+            "/bootstrap-4.6.0/",
+            "/editor.md/",
+            "/fonts/",
+            "/images/",
+            "/js/",
             "/index",
             "/user/login",
             "/user/register",
             "/topic/page",
             "/topic/visit",
-            "/topic/view/**",
+            "/topic/view/",
             "/common/header-logined",
             "/common/header-non-logined",
             "/common/footer",
-            "/topic/view/**",
-            "/u/**",
+            "/topic/view/",
+            "/u/",
             "/user/homepage",
             "/user/dynamic/list",
-            "/publicKey"
+            "/publicKey",
+            "/contributeList/",
+            "/tag/"
     );
 
     @Override
@@ -85,7 +83,7 @@ public class TokenVerifyInterceptor implements HandlerInterceptor {
         // 如果在白名单,解析 token 直接返回
         String requestURI = request.getRequestURI();
         for (String whiteUri : WHITE_URI_LIST) {
-            if (requestURI.contains(whiteUri)) {
+            if (requestURI.equals("/community/") || requestURI.contains(whiteUri)) {
                 if (!StringUtils.isEmpty(token)) {
                     Optional<DecodedJWT> optional = jwtUtil.getTokenInfo(token);
                     if (optional.isPresent()) {

@@ -1,26 +1,32 @@
 package com.styeeqan.community.web.service;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.styeeqan.community.common.constant.CommonField;
 import com.styeeqan.community.common.constant.ServerStatusCode;
 import com.styeeqan.community.common.exception.CustomizeException;
-import com.styeeqan.community.common.redis.RedisKey;
 import com.styeeqan.community.common.redis.RedisUtil;
 import com.styeeqan.community.common.util.CommonUtil;
+import com.styeeqan.community.common.util.ThreadUtil;
 import com.styeeqan.community.mapper.*;
 import com.styeeqan.community.pojo.po.Comment;
+import com.styeeqan.community.pojo.po.Topic;
 import com.styeeqan.community.pojo.po.User;
 import com.styeeqan.community.pojo.po.UserInfo;
 import com.styeeqan.community.pojo.vo.CommentVo;
+import com.styeeqan.community.pojo.vo.PageVo;
 import com.styeeqan.community.task.UserContributeDayRankTask;
 import com.styeeqan.community.task.UserDynamicTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author yeeq
@@ -44,13 +50,13 @@ public class CommentSev {
     private TopicMapper topicMapper;
 
     @Autowired
-    private RedisUtil redisUtil;
-
-    @Autowired
     private UserMapper userMapper;
 
     @Autowired
     private UserContributeMapper userContributeMapper;
+
+    @Autowired
+    private ThreadUtil threadUtil;
 
     public CommentVo publish(String parentId, String commentContent, String type, String replyTaId, String account) {
 
@@ -96,18 +102,13 @@ public class CommentSev {
 
             // 日榜贡献值+10
             UserContributeDayRankTask dayRankTask = new UserContributeDayRankTask(account, info.getUsername(), info.getHeadPortrait(), user.getHomepageId());
-            redisUtil.pushListRightValue(RedisKey.USER_CONTRIBUTE_DAY_TASK_LIST, null, JSON.toJSONString(dayRankTask));
+            threadUtil.execute(dayRankTask);
 
             if (CommonField.LV1_COMMMENT_TYPE.equals(type)) {
-                // 生成动态放入Redis消息队列
-                UserDynamicTask userDynamicTask = new UserDynamicTask();
-                userDynamicTask.setTargetId(parentId);
-                userDynamicTask.setType(CommonField.REPLY_TOPIC_DYNAMIC_TYPE);
-                userDynamicTask.setCreateUser(account);
-                userDynamicTask.setUpdateUser(account);
-                userDynamicTask.setTargetId(parentId);
-                userDynamicTask.setSourceId(commentId);
-                redisUtil.pushListRightValue(RedisKey.USER_DYNAMIC_TASK_LIST, null, JSON.toJSONString(userDynamicTask));
+                // 生成动态放入线程池
+                UserDynamicTask userDynamicTask
+                        = new UserDynamicTask(CommonField.REPLY_TOPIC_DYNAMIC_TYPE, parentId, commentId, account, account);
+                threadUtil.execute(userDynamicTask);
             } else if(CommonField.LV3_COMMMENT_TYPE.equals(type)) {
                 Comment replyComment = commentMapper.selectById(commentDB.getReplyTaId());
                 UserInfo replyTaUserInfo = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", replyComment.getCreateUser()));

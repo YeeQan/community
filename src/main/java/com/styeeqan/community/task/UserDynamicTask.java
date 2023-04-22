@@ -1,17 +1,17 @@
 package com.styeeqan.community.task;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.styeeqan.community.common.util.CommonUtil;
 import com.styeeqan.community.common.util.SpringBeanUtil;
 import com.styeeqan.community.mapper.UserDynamicMapper;
 import com.styeeqan.community.pojo.po.UserDynamic;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Data
-public class UserDynamicTask implements Serializable {
+@AllArgsConstructor
+public class UserDynamicTask implements Runnable {
 
     private String type;
 
@@ -23,13 +23,12 @@ public class UserDynamicTask implements Serializable {
 
     private String updateUser;
 
-    @JsonIgnore
     private final CommonUtil commonUtil = SpringBeanUtil.getBean(CommonUtil.class);
 
-    @JsonIgnore
     private final UserDynamicMapper userDynamicMapper = SpringBeanUtil.getBean(UserDynamicMapper.class);
 
-    public void execute() {
+    @Override
+    public void run() {
         UserDynamic userDynamic = new UserDynamic();
         userDynamic.setId(commonUtil.randomCode());
         userDynamic.setType(type);

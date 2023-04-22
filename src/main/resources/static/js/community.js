@@ -40,16 +40,10 @@ jQuery.extend({
         // 初始化贡献榜
         $.get("/community/contributeList/" + type, function (result) {
             if (result == null) {
-                $.alert({
-                    title: "出错啦!",
-                    content: "请稍后再试！",
-                });
+                $.snack('error', '系统错误，请稍后再试！', 3000)
             } else {
                 if (result.code !== "2000") {
-                    $.alert({
-                        title: "出错啦!",
-                        content: result.description,
-                    });
+                    $.snack('error', result.description, 3000)
                 } else {
                     var $cl = $("#contribution-list")
                     $cl.empty()
@@ -57,7 +51,7 @@ jQuery.extend({
                         var html =
                             "<div class='row mt-lg-2'>" +
                             "   <div class='col-lg-9'>" +
-                                    (index < 3 ? `<span class='text-danger mr-2'>${index + 1}</span>` : `<span class='text-muted mr-2'>${index + 1}</span>`) +
+                            (index < 3 ? `<span class='text-danger mr-2'>${index + 1}</span>` : `<span class='text-muted mr-2'>${index + 1}</span>`) +
                             "       <a href='" + "/community/u/" + vo.homepageId + "'>" +
                             "           <img class='rounded-circle' width='26' height='26' alt='头像' src='" + vo.headPortrait + "'>" +
                             "           <span class='text-success'>" + vo.username + "</span>" +
@@ -254,9 +248,9 @@ jQuery.extend({
                     console.log(tags)
                 })
                 var requestJson = {
-                        topicTitle: $("#topic-title").val(),
-                        topicContent: editor.getMarkdown(),
-                        tags: tags.substring(0, tags.length - 1)
+                    topicTitle: $("#topic-title").val(),
+                    topicContent: editor.getMarkdown(),
+                    tags: tags.substring(0, tags.length - 1)
                 };
                 $.ajax({
                     contentType: "application/json",
@@ -266,16 +260,10 @@ jQuery.extend({
                     data: JSON.stringify(requestJson),
                     success: function (result) {
                         if (result == null) {
-                            $.alert({
-                                title: "出错啦!",
-                                content: "请稍后再试！",
-                            });
+                            $.snack('error', '系统错误，请稍后再试！', 3000)
                         } else {
                             if (result.code !== "2000") {
-                                $.alert({
-                                    title: "出错啦!",
-                                    content: result.description,
-                                });
+                                $.snack('error', result.description, 3000)
                             } else {
                                 var topic = result.data[0];
                                 $(location).attr(
@@ -292,7 +280,7 @@ jQuery.extend({
             type: "POST",
             url: "/community/tag/list",
             success: function (result) {
-                if(result === null) {
+                if (result === null) {
                     $.snack('error', '系统错误，请稍后再试！', 3000)
                 } else {
                     if (result.code !== "2000") {
@@ -305,7 +293,7 @@ jQuery.extend({
                             $tagList.append(tagHtml)
                             $tagList.children().eq(-1).click(function () {
                                 var $selectTags = $("#select-tags");
-                                if($selectTags.children().length >= 5) {
+                                if ($selectTags.children().length >= 5) {
                                     $.snack('warning', '最多添加5个标签', 3000)
                                 } else {
                                     var flag = Boolean(true)
@@ -370,16 +358,10 @@ jQuery.extend({
         // 初始化专栏
         $.post("/community/section/list", function (result) {
             if (result == null) {
-                $.alert({
-                    title: "出错啦!",
-                    content: "请稍后再试！",
-                });
+                $.snack('error', '系统错误，请稍后再试！', 3000)
             } else {
                 if (result.code !== "2000") {
-                    $.alert({
-                        title: "出错啦!",
-                        content: result.description,
-                    });
+                    $.snack('error', result.description, 3000)
                 } else {
                     var selectSectionEdit = $("#selectSection-edit");
 
@@ -430,16 +412,10 @@ jQuery.extend({
                     data: JSON.stringify(requestJson),
                     success: function (result) {
                         if (result == null) {
-                            $.alert({
-                                title: "出错啦!",
-                                content: "请稍后再试！",
-                            });
+                            $.snack('error', '系统错误，请稍后再试！', 3000)
                         } else {
                             if (result.code !== "2000") {
-                                $.alert({
-                                    title: "出错啦!",
-                                    content: result.description,
-                                });
+                                $.snack('error', result.description, 3000)
                             } else {
                                 var topic = result.data[0];
                                 $(location).attr(
@@ -492,16 +468,10 @@ jQuery.extend({
                 url: "/community/user/logout",
                 success: function (result) {
                     if (result == null) {
-                        $.alert({
-                            title: "出错啦!",
-                            content: "请稍后再试！",
-                        });
+                        $.snack('error', '系统错误，请稍后再试！', 3000)
                     } else {
                         if (result.code !== "2000") {
-                            $.alert({
-                                title: "出错啦!",
-                                content: result.description,
-                            });
+                            $.snack('error', result.description, 3000)
                         } else {
                             location.reload();
                         }
@@ -531,7 +501,7 @@ jQuery.extend({
         // 初始化注册按钮
         $("#register-button").click(function () {
             var password = $("#registerPassword").val();
-            if(publicKey) {
+            if (publicKey) {
                 var encrypt = new JSEncrypt();
                 encrypt.setPublicKey(publicKey);
                 password = encrypt.encrypt(password);
@@ -551,13 +521,10 @@ jQuery.extend({
                 data: JSON.stringify(requestJson),
                 success: function (result) {
                     if (result == null) {
-                        $.alert({
-                            title: "出错啦!",
-                            content: "请稍后再试！",
-                        });
+                        $.snack('error', '系统错误，请稍后再试！', 3000)
                     } else {
                         if (result.code !== "2000") {
-                            var registerErrorMsg = 
+                            var registerErrorMsg =
                                 "<div class='alert alert-danger alert-dismissible fade show'>" +
                                 "   <button type='button' class='close' data-dismiss='alert'>&times;</button>" +
                                 "   <span>" + result.description + "</span>" +
@@ -573,7 +540,7 @@ jQuery.extend({
         // 初始化登录按钮
         $("#login-button").click(function () {
             var password = $("#loginPassword").val();
-            if(publicKey) {
+            if (publicKey) {
                 var encrypt = new JSEncrypt();
                 encrypt.setPublicKey(publicKey);
                 password = encrypt.encrypt(password);
@@ -592,10 +559,7 @@ jQuery.extend({
                 data: JSON.stringify(requestJson),
                 success: function (result) {
                     if (result == null) {
-                        $.alert({
-                            title: "出错啦!",
-                            content: "请稍后再试！",
-                        });
+                        $.snack('error', '系统错误，请稍后再试！', 3000)
                     } else {
                         if (result.code !== "2000") {
                             var loginErrorMsg =
@@ -653,9 +617,9 @@ jQuery.extend({
                             "</div>" +
                             "<div class='text-center my-lg-3'>" +
                             (userHomepage.self ?
-                                "<a href='/community/user/setting/profile' role='button' class='btn btn-block btn-outline-success'>编辑个人资料</a>" :
-                                "<a href='javascript:void(0)' role='button' class='btn btn-block btn-outline-success'>关注Ta</a>" +
-                                "<a href='javascript:void(0)' role='button' class='btn btn-block btn-outline-success'>发私信</a>"
+                                    "<a href='/community/user/setting/profile' role='button' class='btn btn-block btn-outline-success'>编辑个人资料</a>" :
+                                    "<a href='javascript:void(0)' role='button' class='btn btn-block btn-outline-success'>关注Ta</a>" +
+                                    "<a href='javascript:void(0)' role='button' class='btn btn-block btn-outline-success'>发私信</a>"
                             ) +
                             "</div>" +
                             "<div class='text-center my-lg-3'>" +
@@ -695,7 +659,7 @@ jQuery.extend({
                         $.each(dynamicList, function (index, dynamic) {
                             var dynamicHtml;
                             var type = dynamic.type
-                            if("1" === type) {
+                            if ("1" === type) {
                                 dynamicHtml =
                                     "<div class='py-3 list-group-item'>" +
                                     "   <div class='small text-secondary mb-2'>" +
@@ -708,7 +672,7 @@ jQuery.extend({
                                     "   </div>" +
                                     "   <div>" + dynamic.sourceContent + "</div>" +
                                     "</div>"
-                            } else if("2" === type) {
+                            } else if ("2" === type) {
                                 dynamicHtml =
                                     "<div class='py-3 list-group-item'>" +
                                     "   <div class='small text-secondary mb-2'>" +
@@ -753,11 +717,194 @@ jQuery.extend({
                         $$.snack('error', result.description, 3000)
                     } else {
                         $.renderIndexPage(result);
-                        $.setTopicPagination(result);
+                        $.setPagination(result.data[0], "topic-pagination", $.postIndexPage);
                     }
                 }
             },
         });
+    },
+
+    /**
+     * 渲染一级评论
+     */
+    renderCommentPage: function (pageInfo) {
+        $.each(pageInfo.data, function (index, comment) {
+            var commentHtml =
+                "<div class='list-group-item'>" +
+                "   <div class='p-lg-3'>" +
+                "       <div class='py-lg-2'>" +
+                "           <a href='/community/u/" + comment.createUserHomepageId + "'>" +
+                "               <img class='rounded-circle' width='32' height='32' alt='头像' src='" + comment.headPortrait + "'>" +
+                "               <strong class='text-success'>&nbsp;" + comment.createUsername + "</strong>" +
+                "           </a>" +
+                "           <span class='text-secondary'>&nbsp;&nbsp;发布于&nbsp;" + comment.createTime + "</span>" +
+                "       </div>" +
+                "       <div class='py-lg-2'>" + comment.commentContent + "</div>" +
+                "       <div class='py-lg-2' id='show-reply-other-" + comment.commentId + "'>" +
+                "           <a href='javascript:void(0)' class='text-secondary'>回复</a>" +
+                "       </div>" +
+                "       <div class='bg-light border-0 card' id='reply-other-" + comment.commentId + "' style='display: none'>" +
+                "           <div class='card-body'>" +
+                "               <div class='media-body'>" +
+                "                   <div class='mb-lg-3'>" +
+                "                       <textarea class='form-control form-control-sm' style='resize: none' rows='1' placeholder='友善的评论是交流的起点' id='reply-other-content-" + comment.commentId + "'></textarea>" +
+                "                   </div>" +
+                "               </div>" +
+                "               <div>" +
+                "                   <button type='button' class='btn btn-sm btn-primary pull-right' id='reply-other-commit-" + comment.commentId + "' ta-id=''>提交评论</button>" +
+                "               </div>" +
+                "           </div>" +
+                "       </div>" +
+                "       <div id='reply-area-" + comment.commentId + "' class='mt-lg-2'></div>" +
+                "   </div>" +
+                "</div>"
+
+            $("#comment-list").append(commentHtml)
+
+            $("#show-reply-other-" + comment.commentId).click(function () {
+                $("#reply-other-" + comment.commentId).toggle();
+            });
+
+            $("#reply-other-commit-" + comment.commentId).click(function () {
+                var requestJson
+                var $replyOtherCt = $("#reply-other-content-" + comment.commentId);
+                var at = $replyOtherCt.val().charAt(0);
+                if (at === '@' && $(this).attr("ta-id")) {
+                    var colonIndex = $replyOtherCt.val().indexOf('：');
+                    if (colonIndex === -1) {
+                        $.snack('error', '评论格式错误,请重新输入', 3000)
+                        $replyOtherCt.val("")
+                        $(this).attr("ta-id", "")
+                        return;
+                    }
+                    requestJson = {
+                        parentId: comment.commentId,
+                        replyTaId: $(this).attr("ta-id"),
+                        commentContent: $replyOtherCt.val().substring(colonIndex + 1, $replyOtherCt.val().length),
+                        type: "3"
+                    };
+                } else {
+                    requestJson = {
+                        parentId: comment.commentId,
+                        commentContent: $replyOtherCt.val(),
+                        type: "2"
+                    };
+                }
+                $(this).attr("ta-id", null)
+                $.ajax({
+                    contentType: "application/json",
+                    type: "POST",
+                    url: "/community/comment/publish",
+                    dataType: "json",
+                    data: JSON.stringify(requestJson),
+                    success: function (result) {
+                        if (result == null) {
+                            $.snack('error', '出错啦，请稍后再试！', 3000)
+                        } else {
+                            if (result.code !== "2000") {
+                                $.snack('error', result.description, 3000)
+                            } else {
+                                $.snack('success', '评论成功', 3000)
+                                var comment1 = result.data[0];
+                                $("#reply-other-content-" + comment.commentId).val("")
+                                var comment1Html
+                                if (comment1.type === '2') {
+                                    comment1Html =
+                                        "<div class='bg-light border-0 rounded' id='reply-other-success-" + comment.commentId + "'>" +
+                                        "   <div class='py-lg-1 px-lg-3'>" +
+                                        "       <div>" +
+                                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
+                                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
+                                        "           </a>" +
+                                        "           <span class='small'>" + comment1.commentContent + "</span>" +
+                                        "       </div>" +
+                                        "       <div class='card-text'>" +
+                                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
+                                        "       </div>" +
+                                        "   <div>" +
+                                        "</div>"
+                                } else if (comment1.type === '3') {
+                                    comment1Html =
+                                        "<div class='bg-light border-0 rounded' id='reply-other-success-" + comment.commentId + "'>" +
+                                        "   <div class='py-lg-1 px-lg-3'>" +
+                                        "       <div>" +
+                                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
+                                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
+                                        "           </a>" +
+                                        "           <span class='small'>" +
+                                        "               <a href='/community/u/" + comment1.replyHomepageId + "'>" +
+                                        "                   <strong class='text-success small'>" +
+                                        "                       @" + comment1.replyUsername +
+                                        "                   </strong>" +
+                                        "               </a>" + "&nbsp;" + comment1.commentContent +
+                                        "           </span>" +
+                                        "       </div>" +
+                                        "       <div class='card-text'>" +
+                                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
+                                        "       </div>" +
+                                        "   <div>" +
+                                        "</div>"
+                                }
+                                $("#reply-area-" + comment.commentId).append(comment1Html)
+                                $("#comment-count").html(commentCount + 1)
+                                $("html,body").animate({scrollTop: $("#reply-other-success-" + comment.commentId).offset().top}, 1000);
+                            }
+                        }
+                    },
+                });
+            });
+
+            $.each(comment.commentVoList, function (index, comment1) {
+                var comment1Html
+                if (comment1.type === '2') {
+                    comment1Html =
+                        "<div class='bg-light border-0 rounded'>" +
+                        "   <div class='py-lg-1 px-lg-3'>" +
+                        "       <div>" +
+                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
+                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
+                        "           </a>" +
+                        "           <span class='small'>" + comment1.commentContent + "</span>" +
+                        "       </div>" +
+                        "       <div class='card-text'>" +
+                        "           <a href='javascript:void(0)' class='text-secondary small' id='reply-ta-show-" + comment1.commentId + "'>回复&nbsp;&nbsp;</a>" +
+                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
+                        "       </div>" +
+                        "   <div>" +
+                        "</div>"
+                } else if (comment1.type === '3') {
+                    comment1Html =
+                        "<div class='bg-light border-0 rounded'>" +
+                        "   <div class='py-lg-1 px-lg-3'>" +
+                        "       <div>" +
+                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
+                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
+                        "           </a>" +
+                        "           <span class='small'>" +
+                        "               <a href='/community/u/" + comment1.replyHomepageId + "'>" +
+                        "                   <strong class='text-success small'>" +
+                        "                       @" + comment1.replyUsername +
+                        "                   </strong>" +
+                        "               </a>" + "&nbsp;" + comment1.commentContent +
+                        "           </span>" +
+                        "       </div>" +
+                        "       <div class='card-text'>" +
+                        "           <a href='javascript:void(0)' class='text-secondary small' id='reply-ta-show-" + comment1.commentId + "'>回复&nbsp;&nbsp;</a>" +
+                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
+                        "       </div>" +
+                        "   <div>" +
+                        "</div>"
+                }
+                $("#reply-area-" + comment.commentId).append(comment1Html)
+                $("#reply-ta-show-" + comment1.commentId).click(function () {
+                    let $replyOther = $("#reply-other-" + comment.commentId);
+                    $replyOther.show()
+                    $("#reply-other-commit-" + comment.commentId).attr("ta-id", comment1.commentId)
+                    $("#reply-other-content-" + comment.commentId).val("@" + comment1.createUsername + "：")
+                    $("html,body").animate({scrollTop: $replyOther.offset().top}, 1000);
+                });
+            })
+        })
     },
 
     /**
@@ -766,7 +913,7 @@ jQuery.extend({
     renderIndexPage: function (pageInfo) {
         var $topicList = $("#topic-list");
         $topicList.empty();
-        $.each(pageInfo.data[0].list, function (index, topic) {
+        $.each(pageInfo.data[0].data, function (index, topic) {
             var html =
                 "<div class='px-lg-3 py-lg-4 border border-top-0 border-left-0 border-right-0'>" +
                 "   <div class='media'>" +
@@ -802,20 +949,21 @@ jQuery.extend({
                 $("#topic-tags-" + topic.id).append("<a class='badge-tag mx-1' href='javascript:void(0)'>" + tagVO.name + "</a>")
             })
         });
-    },
+    }
+    ,
 
     /**
-     * 渲染讨论分页
+     * 渲染分页
      */
-    setTopicPagination: function (pageInfo) {
+    setPagination: function (pageInfo, paginationId, callback) {
         // 当前页
-        var currentPage = pageInfo.data[0].pageNum;
+        var currentPage = pageInfo.pageNum;
         // 得到总页数
-        var pageCount = pageInfo.data[0].pages;
+        var pageCount = pageInfo.pages;
         // 所有导航页号
-        var navigatepageNums = pageInfo.data[0].navigatepageNums;
+        var navigatepageNums = pageInfo.navigatepageNums;
 
-        var $pagination = $("#topic-pagination");
+        var $pagination = $("#" + paginationId);
 
         $pagination.empty();
 
@@ -827,7 +975,7 @@ jQuery.extend({
                     pageNum: 1,
                     pageSize: 10
                 };
-                $.postIndexPage(requestJson);
+                callback(requestJson);
             })
 
             var pagePrevious = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>&lt;上一页</a></li>"
@@ -836,7 +984,7 @@ jQuery.extend({
                     pageNum: currentPage - 1,
                     pageSize: 10
                 };
-                $.postIndexPage(requestJson);
+                callback(requestJson);
             })
 
             var pageNext = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>下一页&gt;</a></li>"
@@ -845,7 +993,7 @@ jQuery.extend({
                     pageNum: currentPage + 1,
                     pageSize: 10
                 };
-                $.postIndexPage(requestJson);
+                callback(requestJson);
             })
 
             var pageLast = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>尾页</a></li>"
@@ -854,7 +1002,7 @@ jQuery.extend({
                     pageNum: 99999,
                     pageSize: 10
                 };
-                $.postIndexPage(requestJson);
+                callback(requestJson);
             })
 
             $pagination
@@ -867,7 +1015,7 @@ jQuery.extend({
             if (pageCount <= 5) {
                 $.each(navigatepageNums, function (index, num) {
                     var pageItem
-                    if(num === currentPage) {
+                    if (num === currentPage) {
                         pageItem = "<li class='page-item active'><a class='page-link' href='javascript:void(0)'>" + num + "</a></li>"
                     } else {
                         pageItem = "<li class='page-item'><a class='page-link' href='javascript:void(0)'>" + num + "</a></li>"
@@ -877,7 +1025,7 @@ jQuery.extend({
                             pageNum: num,
                             pageSize: 10
                         };
-                        $.postIndexPage(requestJson);
+                        callback(requestJson);
                     })
                     $pageNext.before($pageItem);
                 });
@@ -904,13 +1052,14 @@ jQuery.extend({
                             pageNum: num,
                             pageSize: 10
                         };
-                        $.postIndexPage(requestJson);
+                        callback(requestJson);
                     })
                     $pageNext.before($pageItem);
                 });
             }
         }
-    },
+    }
+    ,
 
     /**
      * 初始化帖子内容
@@ -919,8 +1068,14 @@ jQuery.extend({
         $.initTop()
         $.initFooter()
         var requestJson = {
-            topicId: topicId
+            topicId: topicId,
+            commentPageNum: 1,
+            commentPageSize: 10
         };
+        $.postTopicDetail(requestJson);
+    },
+
+    postTopicDetail: function (requestJson) {
         $.ajax({
             contentType: "application/json",
             type: "POST",
@@ -935,7 +1090,10 @@ jQuery.extend({
                         $.snack('error', result.description, 3000)
                     } else {
                         var data = result.data[0];
-                        console.log(data);
+
+                        var $topicDetail = $("#topic-detail");
+                        $topicDetail.empty();
+
                         $("title").text(data.topicTitle + " - ITHUB");
                         var topicDetail =
                             "<div class='card p-lg-3'>" +
@@ -970,7 +1128,9 @@ jQuery.extend({
                             "       </div>" +
                             "   </div>" +
                             "</div>"
-                        $("#topic-detail").append(topicDetail)
+
+                        $topicDetail.append(topicDetail)
+                        $topicDetail.attr("data-id", requestJson.topicId)
                         $("#topic-textarea").val(data.topicContent);
                         editormd.markdownToHTML("topic-content", {
                             htmlDecode: "style,script,iframe",
@@ -986,6 +1146,9 @@ jQuery.extend({
                             $("#topic-detail-tags-" + data.createUserHomepageId).append("<a class='badge-tag mx-1' href='javascript:void(0)'>" + tagVO.name + "</a>")
                         })
 
+                        var $commentArea = $("#comment-area");
+                        $commentArea.empty()
+
                         commentCount = data.commentCount
 
                         var commentArea =
@@ -994,194 +1157,15 @@ jQuery.extend({
                             "       <strong><span id='comment-count'>" + commentCount + "</span>&nbsp;个评论</strong>" +
                             "   </div>" +
                             "</div>"
-                        $("#comment-area").append(commentArea)
+                        $commentArea.append(commentArea)
 
-                        $.each(data.commentVoList, function (index, comment) {
+                        $.renderCommentPage(data.commentPageVo)
 
-                            var commentHtml =
-                                "<div class='list-group-item'>" +
-                                "   <div class='p-lg-3'>" +
-                                "       <div class='py-lg-2'>" +
-                                "           <a href='/community/u/" + comment.createUserHomepageId + "'>" +
-                                "               <img class='rounded-circle' width='32' height='32' alt='头像' src='" + comment.headPortrait + "'>" +
-                                "               <strong class='text-success'>&nbsp;" + comment.createUsername + "</strong>" +
-                                "           </a>" +
-                                "           <span class='text-secondary'>&nbsp;&nbsp;发布于&nbsp;" + comment.createTime + "</span>" +
-                                "       </div>" +
-                                "       <div class='py-lg-2'>" + comment.commentContent + "</div>" +
-                                "       <div class='py-lg-2' id='show-reply-other-" + comment.commentId + "'>" +
-                                "           <a href='javascript:void(0)' class='text-secondary'>回复</a>" +
-                                "       </div>" +
-                                "       <div class='bg-light border-0 card' id='reply-other-" + comment.commentId + "' style='display: none'>" +
-                                "           <div class='card-body'>" +
-                                "               <div class='media-body'>" +
-                                "                   <div class='mb-lg-3'>" +
-                                "                       <textarea class='form-control form-control-sm' style='resize: none' rows='1' placeholder='友善的评论是交流的起点' id='reply-other-content-" + comment.commentId + "'></textarea>" +
-                                "                   </div>" +
-                                "               </div>" +
-                                "               <div>" +
-                                "                   <button type='button' class='btn btn-sm btn-primary pull-right' id='reply-other-commit-" + comment.commentId + "' ta-id=''>提交评论</button>" +
-                                "               </div>" +
-                                "           </div>" +
-                                "       </div>" +
-                                "       <div id='reply-area-" + comment.commentId + "' class='mt-lg-2'></div>" +
-                                "   </div>" +
-                                "</div>"
-
-                            $("#comment-list").append(commentHtml)
-
-                            $("#show-reply-other-" + comment.commentId).click(function () {
-                                $("#reply-other-" + comment.commentId).toggle();
-                            });
-
-                            $("#reply-other-commit-" + comment.commentId).click(function () {
-                                var requestJson
-                                var $replyOtherCt = $("#reply-other-content-" + comment.commentId);
-                                var at = $replyOtherCt.val().charAt(0);
-                                if (at === '@' && $(this).attr("ta-id")) {
-                                    var colonIndex = $replyOtherCt.val().indexOf('：');
-                                    if(colonIndex === -1) {
-                                        $.snack('error', '评论格式错误,请重新输入', 3000)
-                                        $replyOtherCt.val("")
-                                        return;
-                                    }
-                                    requestJson = {
-                                        parentId: comment.commentId,
-                                        replyTaId: $(this).attr("ta-id"),
-                                        commentContent: $replyOtherCt.val().substring(colonIndex + 1, $replyOtherCt.length),
-                                        type: "3"
-                                    };
-                                } else {
-                                    requestJson = {
-                                        parentId: comment.commentId,
-                                        commentContent: $replyOtherCt.val(),
-                                        type: "2"
-                                    };
-                                }
-                                $(this).attr("ta-id", null)
-                                $.ajax({
-                                    contentType: "application/json",
-                                    type: "POST",
-                                    url: "/community/comment/publish",
-                                    dataType: "json",
-                                    data: JSON.stringify(requestJson),
-                                    success: function (result) {
-                                        if (result == null) {
-                                            $.alert({
-                                                title: "出错啦!",
-                                                content: "请稍后再试！",
-                                            });
-                                        } else {
-                                            if (result.code !== "2000") {
-                                                $.alert({
-                                                    title: "出错啦!",
-                                                    content: result.description,
-                                                });
-                                            } else {
-                                                $.snack('success', '评论成功', 3000)
-                                                var comment1 = result.data[0];
-                                                $("#reply-other-content-" + comment.commentId).val("")
-                                                var comment1Html
-                                                if(comment1.type === '2') {
-                                                    comment1Html =
-                                                        "<div class='bg-light border-0 rounded' id='reply-other-success-" + comment.commentId + "'>" +
-                                                        "   <div class='py-lg-1 px-lg-3'>" +
-                                                        "       <div>" +
-                                                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
-                                                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
-                                                        "           </a>" +
-                                                        "           <span class='small'>" + comment1.commentContent + "</span>" +
-                                                        "       </div>" +
-                                                        "       <div class='card-text'>" +
-                                                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
-                                                        "       </div>" +
-                                                        "   <div>" +
-                                                        "</div>"
-                                                } else if(comment1.type === '3') {
-                                                    comment1Html =
-                                                        "<div class='bg-light border-0 rounded' id='reply-other-success-" + comment.commentId + "'>" +
-                                                        "   <div class='py-lg-1 px-lg-3'>" +
-                                                        "       <div>" +
-                                                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
-                                                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
-                                                        "           </a>" +
-                                                        "           <span class='small'>" +
-                                                        "               <a href='/community/u/" + comment1.replyHomepageId + "'>" +
-                                                        "                   <strong class='text-success small'>" +
-                                                        "                       @" + comment1.replyUsername +
-                                                        "                   </strong>" +
-                                                        "               </a>" + "&nbsp;" + comment1.commentContent +
-                                                        "           </span>" +
-                                                        "       </div>" +
-                                                        "       <div class='card-text'>" +
-                                                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
-                                                        "       </div>" +
-                                                        "   <div>" +
-                                                        "</div>"
-                                                }
-                                                $("#reply-area-" + comment.commentId).append(comment1Html)
-                                                $("#comment-count").html(commentCount + 1)
-                                                $("html,body").animate({scrollTop:$("#reply-other-success-" + comment.commentId).offset().top},1000);
-                                            }
-                                        }
-                                    },
-                                });
-                            });
-
-                            $.each(comment.commentVoList, function (index, comment1) {
-                                var comment1Html
-                                if(comment1.type === '2') {
-                                    comment1Html =
-                                        "<div class='bg-light border-0 rounded'>" +
-                                        "   <div class='py-lg-1 px-lg-3'>" +
-                                        "       <div>" +
-                                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
-                                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
-                                        "           </a>" +
-                                        "           <span class='small'>" + comment1.commentContent + "</span>" +
-                                        "       </div>" +
-                                        "       <div class='card-text'>" +
-                                        "           <a href='javascript:void(0)' class='text-secondary small' id='reply-ta-show-" + comment1.commentId + "'>回复&nbsp;&nbsp;</a>" +
-                                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
-                                        "       </div>" +
-                                        "   <div>" +
-                                        "</div>"
-                                } else if(comment1.type === '3') {
-                                    comment1Html =
-                                        "<div class='bg-light border-0 rounded'>" +
-                                        "   <div class='py-lg-1 px-lg-3'>" +
-                                        "       <div>" +
-                                        "           <a href='/community/u/" + comment1.createUserHomepageId + "'>" +
-                                        "               <strong class='text-success small'>" + comment1.createUsername + ":&nbsp;</strong>" +
-                                        "           </a>" +
-                                        "           <span class='small'>" +
-                                        "               <a href='/community/u/" + comment1.replyHomepageId + "'>" +
-                                        "                   <strong class='text-success small'>" +
-                                        "                       @" + comment1.replyUsername +
-                                        "                   </strong>" +
-                                        "               </a>" + "&nbsp;" + comment1.commentContent +
-                                        "           </span>" +
-                                        "       </div>" +
-                                        "       <div class='card-text'>" +
-                                        "           <a href='javascript:void(0)' class='text-secondary small' id='reply-ta-show-" + comment1.commentId + "'>回复&nbsp;&nbsp;</a>" +
-                                        "           <span class='text-secondary small'>发布于&nbsp;" + comment.createTime + "</span>" +
-                                        "       </div>" +
-                                        "   <div>" +
-                                        "</div>"
-                                }
-                                $("#reply-area-" + comment.commentId).append(comment1Html)
-                                $("#reply-ta-show-" + comment1.commentId).click(function () {
-                                    let $replyOther = $("#reply-other-" + comment.commentId);
-                                    $replyOther.show()
-                                    $("#reply-other-commit-" + comment.commentId).attr("ta-id", comment1.commentId)
-                                    $("#reply-other-content-" + comment.commentId).val("@" + comment1.createUsername + "：")
-                                    $("html,body").animate({scrollTop:$replyOther.offset().top},1000);
-                                });
-                            })
-                        })
+                        $.setPagination(data.commentPageVo, "first-comment-pagination", $.postTopicFirstComment);
 
                         $("#show-reply-topic").click(function () {
                             $("#reply-topic").toggle();
+
                         });
 
                         $("#reply-topic-commit").click(function () {
@@ -1198,16 +1182,10 @@ jQuery.extend({
                                 data: JSON.stringify(requestJson),
                                 success: function (result) {
                                     if (result == null) {
-                                        $.alert({
-                                            title: "出错啦!",
-                                            content: "请稍后再试！",
-                                        });
+                                        $.snack('error', '系统错误，请稍后再试！', 3000)
                                     } else {
                                         if (result.code !== "2000") {
-                                            $.alert({
-                                                title: "出错啦!",
-                                                content: result.description,
-                                            });
+                                            $.snack('error', result.description, 3000)
                                         } else {
                                             $.snack('success', '评论成功', 3000)
                                             var comment = result.data[0];
@@ -1261,16 +1239,10 @@ jQuery.extend({
                                                     data: JSON.stringify(requestJson),
                                                     success: function (result) {
                                                         if (result == null) {
-                                                            $.alert({
-                                                                title: "出错啦!",
-                                                                content: "请稍后再试！",
-                                                            });
+                                                            $.snack('error', '系统错误，请稍后再试！', 3000)
                                                         } else {
                                                             if (result.code !== "2000") {
-                                                                $.alert({
-                                                                    title: "出错啦!",
-                                                                    content: result.description,
-                                                                });
+                                                                $.snack('error', result.description, 3000)
                                                             } else {
                                                                 $.snack('success', '评论成功', 3000)
                                                                 var comment1 = result.data[0];
@@ -1291,21 +1263,37 @@ jQuery.extend({
                                                                     "</div>"
                                                                 $("#reply-area-" + comment.commentId).append(comment1Html)
                                                                 $("#comment-count").html(commentCount + 1)
-                                                                $("html,body").animate({scrollTop:$("#reply-other-success-" + comment.commentId).offset().top},1000);
+                                                                $("html,body").animate({scrollTop: $("#reply-other-success-" + comment.commentId).offset().top}, 1000);
                                                             }
                                                         }
                                                     },
                                                 });
                                             });
-                                            $("html,body").animate({scrollTop:$("#reply-topic-suceess-" + comment.commentId).offset().top},1000);
+                                            $("html,body").animate({scrollTop: $("#reply-topic-suceess-" + comment.commentId).offset().top}, 1000);
                                         }
                                     }
                                 },
                             });
+
                         });
                     }
                 }
             },
         });
     },
+
+    /**
+     * 渲染一级评论分页
+     */
+    postTopicFirstComment: function (jsonParam) {
+        // 调用获取评论分页接口
+        // 渲染评论
+        // 重新渲染分页
+        var requestJson = {
+            commentPageNum: jsonParam.pageNum,
+            commentPageSize: jsonParam.pageSize,
+            topicId: $("#topic-detail").attr("data-id")
+        }
+        $.postTopicDetail(requestJson)
+    }
 });

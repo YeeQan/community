@@ -40,7 +40,7 @@ public class TopicCon {
     @PostMapping("visit")
     @ApiOperation(value = "访问帖子")
     public ResponseEntity<TopicVo> visit(@RequestBody @Validated(TopicVisit.class) TopicDto topicDTO) {
-        TopicVo topicVO = topicSev.visit(topicDTO.getTopicId());
+        TopicVo topicVO = topicSev.visit(topicDTO.getTopicId(), topicDTO.getCommentPageNum(), topicDTO.getCommentPageSize());
         return new ResponseEntity<>(topicVO);
     }
 

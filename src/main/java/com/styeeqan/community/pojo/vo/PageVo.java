@@ -25,5 +25,5 @@ public class PageVo<T> {
     /**
      * 数据
      */
-    private List<T> list;
+    private List<T> data;
 }

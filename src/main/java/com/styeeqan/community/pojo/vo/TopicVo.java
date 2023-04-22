@@ -28,7 +28,7 @@ public class TopicVo {
 
     private String createUserHeadPortrait;
 
-    private List<CommentVo> commentVoList;
+    private PageVo<CommentVo> commentPageVo;
 
     private List<TagVo> tagVoList;
 }

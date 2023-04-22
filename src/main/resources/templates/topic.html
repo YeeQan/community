@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="shortcut icon" href="/community/images/logo.png" type="image/x-icon" />
-  <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap.css" />
   <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap-grid.min.css" />
   <link rel="stylesheet" href="/community/bootstrap-4.6.0/css/bootstrap-reboot.min.css" />
   <link rel="stylesheet" href="/community/css/community.css" />
@@ -30,7 +30,7 @@
         <div class="row mt-lg-3">
           <div class="col-lg-12">
             <div class="bg-white shadow-sm rounded">
-              <div id="topic-detail"></div>
+              <div id="topic-detail" topic-id></div>
             </div>
           </div>
         </div>
@@ -39,6 +39,11 @@
           <div class="col-lg-12">
             <div class="bg-white shadow-sm rounded">
               <div id="comment-area"></div>
+              <div class="p-lg-2 mt-lg-3 d-flex justify-content-center">
+                <nav>
+                  <ul class="pagination pagination-sm" id="first-comment-pagination"></ul>
+                </nav>
+              </div>
             </div>
           </div>
         </div>

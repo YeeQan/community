@@ -21,6 +21,12 @@ public class TopicDto extends BaseDto {
     @ApiModelProperty("页数")
     private int pageSize;
 
+    @ApiModelProperty("评论页码")
+    private int commentPageNum;
+
+    @ApiModelProperty("评论页数")
+    private int commentPageSize;
+
     @ApiModelProperty("帖子主键")
     @NotBlank(groups = {TopicVisit.class}, message = "参数为空")
     private String topicId;
