@@ -74,15 +74,20 @@ public class CommentSev {
 
         commentMapper.insert(comment);
 
+        QueryWrapper<UserInfo> userInfoQueryWrapper = new QueryWrapper<>();
+
         Comment commentDB = commentMapper.selectById(commentId);
         if (commentDB != null) {
+
             CommentVo commentVO = new CommentVo();
-            UserInfo info = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", account));
+
+            UserInfo info = userInfoMapper.selectOne(userInfoQueryWrapper.eq("account", account));
             commentVO.setCreateUsername(info.getUsername());
             commentVO.setHeadPortrait(info.getHeadPortrait());
             commentVO.setCommentId(commentDB.getId());
             commentVO.setCommentContent(commentDB.getCommentContent());
             commentVO.setType(commentDB.getType());
+
             User user = userMapper.selectById(account);
             commentVO.setCreateUserHomepageId(user.getHomepageId());
             commentVO.setCreateTime(commentDB.getCreateTime());
@@ -111,7 +116,8 @@ public class CommentSev {
                 threadUtil.execute(userDynamicTask);
             } else if(CommonField.LV3_COMMMENT_TYPE.equals(type)) {
                 Comment replyComment = commentMapper.selectById(commentDB.getReplyTaId());
-                UserInfo replyTaUserInfo = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", replyComment.getCreateUser()));
+                userInfoQueryWrapper.clear();
+                UserInfo replyTaUserInfo = userInfoMapper.selectOne(userInfoQueryWrapper.eq("account", replyComment.getCreateUser()));
                 commentVO.setReplyUsername(replyTaUserInfo.getUsername());
                 User replyUser = userMapper.selectById(replyComment.getCreateUser());
                 commentVO.setReplyHomepageId(replyUser.getHomepageId());

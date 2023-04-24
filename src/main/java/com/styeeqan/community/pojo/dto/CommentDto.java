@@ -2,7 +2,6 @@ package com.styeeqan.community.pojo.dto;
 
 import com.styeeqan.community.common.annotation.group.comment.CommentPage;
 import com.styeeqan.community.common.annotation.group.comment.CommentPublish;
-import com.styeeqan.community.pojo.vo.CommentVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -13,8 +12,7 @@ import javax.validation.constraints.Size;
 
 @Data
 @ApiModel("评论dto")
-@EqualsAndHashCode(callSuper = true)
-public class CommentDto extends BaseDto {
+public class CommentDto {
 
     @ApiModelProperty("页码")
     private int pageNum;

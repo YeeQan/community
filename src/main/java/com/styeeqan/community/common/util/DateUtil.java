@@ -3,10 +3,8 @@ package com.styeeqan.community.common.util;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.security.PrivateKey;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -30,7 +28,7 @@ public class DateUtil {
     private final String ONE_MONTH_AGO = "月前";
     private final String ONE_YEAR_AGO = "年前";
 
-    public static final String parse_date_pattern_1 = "yyyy-MM-dd";
+    public static final String yyyyMMdd1 = "yyyy-MM-dd";
 
     /**
      * 获取两个日期之间的所有日期

@@ -8,8 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class UserDto extends BaseDto {
+public class UserDto {
 
     @Pattern(regexp = "\\w{1,12}", message = "账号格式错误，必须由字母、数字、下划线组成，不能超过12位",
             groups = {UserRegister.class, UserLogin.class})

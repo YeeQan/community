@@ -43,7 +43,7 @@ public class UserContributeDayRankTask implements Runnable {
             }
             String json = jsonObject.toJSONString();
             redisUtil.setZSetValue(RedisKey.USER_CONTRIBUTE_DAY,
-                    dateUtil.getDateStr(new Date(), DateUtil.parse_date_pattern_1), json, 10);
+                    dateUtil.getDateStr(new Date(), DateUtil.yyyyMMdd1), json, 10);
         } catch (Exception e) {
             log.error("保存用户贡献日榜失败", e);
         }

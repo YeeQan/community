@@ -47,7 +47,7 @@ public class RsaUtil {
     }
 
     /**
-     * 加密
+     * RSA加密
      */
     public Optional<String> encrypt(String content, String publicKey) {
         byte[] decoded = Base64.getDecoder().decode(publicKey);

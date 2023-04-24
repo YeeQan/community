@@ -73,12 +73,6 @@ public class UserSev {
 
     /**
      * 用户注册
-     *
-     * @param account 账号
-     * @param username 昵称
-     * @param password 密码
-     * @param response response
-     * @throws Exception Exception
      */
     public void register(String account, String username, String password, HttpServletResponse response) throws Exception {
 
@@ -90,12 +84,16 @@ public class UserSev {
         }
 
         // 昵称已存在
-        if (userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("username", username)) != null) {
+        QueryWrapper<UserInfo> userInfoQueryWrapper = new QueryWrapper<>();
+        if (userInfoMapper.selectOne(userInfoQueryWrapper.eq("username", username)) != null) {
             throw new CustomizeException(ServerStatusCode.USERNAME_EXIST);
         }
 
-        // 避免重复注册
-        synchronized (this) {
+        synchronized (account.intern()) {
+            // 双重校验,避免重复注册
+            if (userDB != null) {
+                throw new CustomizeException(ServerStatusCode.ACCOUNT_EXIST);
+            }
             // 新增用户信息
             User user = new User();
             user.setAccount(account);
@@ -106,6 +104,7 @@ public class UserSev {
             user.setUpdateTime(new Date());
             user.setUpdateUser(account);
             userMapper.insert(user);
+
             // 插入用户个人资料信息
             UserInfo userInfo = new UserInfo();
             userInfo.setId(user.getUserInfoId());
@@ -146,16 +145,7 @@ public class UserSev {
             userContributeMapper.insert(userContribute);
 
             // 设置 token
-            Map<String, String> payloadMap = new HashMap<>(2);
-            payloadMap.put(CommonField.ACCOUNT, account);
-            Optional<String> tokenOpt = jwtUtil.getToken(payloadMap);
-            if (tokenOpt.isPresent()) {
-                String token = tokenOpt.get();
-                Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 365 * 10);
-                response.addCookie(cookie);
-                // 在 Redis 中保存
-                redisUtil.setValue(RedisKey.USER_TOKEN, account, token);
-            }
+            setToken(account, response);
         }
     }
 
@@ -177,23 +167,15 @@ public class UserSev {
         }
 
         // 设置 token
-        Map<String, String> payloadMap = new HashMap<>(2);
-        payloadMap.put(CommonField.ACCOUNT, account);
-        Optional<String> tokenOpt = jwtUtil.getToken(payloadMap);
-        if (tokenOpt.isPresent()) {
-            String token = tokenOpt.get();
-            Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 365 * 10);
-            response.addCookie(cookie);
-            // 在 Redis 中保存
-            redisUtil.setValue(RedisKey.USER_TOKEN, account, token);
-        }
+        setToken(account, response);
     }
 
     public UserVo getLoginInfo(String account) {
 
         UserVo userVO = new UserVo();
 
-        UserInfo userInfoDB = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", account));
+        QueryWrapper<UserInfo> userInfoQueryWrapper = new QueryWrapper<>();
+        UserInfo userInfoDB = userInfoMapper.selectOne(userInfoQueryWrapper.eq("account", account));
         if (userInfoDB != null) {
             userVO.setUsername(userInfoDB.getUsername());
             userVO.setHeadPortrait(userInfoDB.getHeadPortrait());
@@ -218,7 +200,8 @@ public class UserSev {
 
         UserHomepageVo userHomepageVO = new UserHomepageVo();
 
-        User userDB = userMapper.selectOne(new QueryWrapper<User>().eq("homepage_id", homepageId));
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        User userDB = userMapper.selectOne(userQueryWrapper.eq("homepage_id", homepageId));
         if (userDB == null) {
             throw new CustomizeException(ServerStatusCode.UNKNOWN);
         }
@@ -228,7 +211,8 @@ public class UserSev {
             userHomepageVO.setSelf(Boolean.TRUE);
         }
 
-        UserInfo userInfoDB = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", userDB.getAccount()));
+        QueryWrapper<UserInfo> userInfoQueryWrapper = new QueryWrapper<>();
+        UserInfo userInfoDB = userInfoMapper.selectOne(userInfoQueryWrapper.eq("account", userDB.getAccount()));
         if (userInfoDB != null) {
             userHomepageVO.setUserInfoId(userInfoDB.getId());
             userHomepageVO.setJoinTime(userInfoDB.getCreateTime());
@@ -243,7 +227,8 @@ public class UserSev {
 
         UserVo userVO = new UserVo();
 
-        UserInfo infoDB = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", account));
+        QueryWrapper<UserInfo> userInfoQueryWrapper = new QueryWrapper<>();
+        UserInfo infoDB = userInfoMapper.selectOne(userInfoQueryWrapper.eq("account", account));
 
         if (infoDB != null) {
             userVO.setUsername(infoDB.getUsername());
@@ -277,7 +262,7 @@ public class UserSev {
 
         userInfo.setId(user.getUserInfoId());
         userInfo.setUsername(userDTO.getUsername());
-        userInfo.setBirthday(dateUtil.parseDate(userDTO.getBirthday(), DateUtil.parse_date_pattern_1));
+        userInfo.setBirthday(dateUtil.parseDate(userDTO.getBirthday(), DateUtil.yyyyMMdd1));
         userInfo.setSex(userDTO.getSex());
         userInfo.setCity(userDTO.getCity());
         userInfo.setIntroduction(userDTO.getIntroduction());
@@ -332,13 +317,30 @@ public class UserSev {
 
         // 更新头像信息
         if (!StringUtils.isEmpty(url)) {
+            QueryWrapper<UserInfo> userInfoQueryWrapper = new QueryWrapper<>();
             userInfoMapper
                     .update(new UserInfo().setHeadPortrait(url),
-                            new QueryWrapper<UserInfo>().eq("account", account));
+                            userInfoQueryWrapper.eq("account", account));
         } else {
             throw new CustomizeException(ServerStatusCode.UNKNOWN);
         }
 
         return url;
+    }
+
+    /**
+     * 设置token
+     */
+    private void setToken(String account, HttpServletResponse response) {
+        Map<String, String> payloadMap = new HashMap<>(2);
+        payloadMap.put(CommonField.ACCOUNT, account);
+        Optional<String> tokenOpt = jwtUtil.getToken(payloadMap);
+        if (tokenOpt.isPresent()) {
+            String token = tokenOpt.get();
+            Cookie cookie = cookieUtil.getCookie(CommonField.TOKEN, token, 86400 * 365 * 10);
+            response.addCookie(cookie);
+            // 在 Redis 中保存
+            redisUtil.setValue(RedisKey.USER_TOKEN, account, token);
+        }
     }
 }

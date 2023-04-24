@@ -46,7 +46,6 @@ public class TopicCon {
 
     @PostMapping("publish")
     @ApiOperation(value = "发布帖子")
-    @RateLimiterAnnotation(permitsPerSecond = 2.0)
     public ResponseEntity<TopicVo> publish(@RequestBody @Validated(TopicPublish.class) TopicDto topicDTO, HttpServletRequest request) {
         TopicVo topicVO = topicSev.publish(
                 topicDTO.getTopicId(), topicDTO.getTopicTitle(), topicDTO.getTopicContent(),

@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface CommentMapper extends BaseMapper<Comment> {
 
-    List<Comment> selectCommentByParentId(String parentId);
 }

@@ -38,7 +38,34 @@ public class MvcConfig implements WebMvcConfigurer {
         // 解密拦截器
         registry.addInterceptor(getDecryptInterceptor()).addPathPatterns("/**");
         // token 校验拦截器
-        registry.addInterceptor(getTokenVerifyInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(getTokenVerifyInterceptor())
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/css/**",
+                        "/bootstrap-4.6.0/**",
+                        "/editor.md/**",
+                        "/fonts/**",
+                        "/images/**",
+                        "/js/**",
+                        "/",
+                        "/index",
+                        "/user/login",
+                        "/user/register",
+                        "/topic/view/**",
+                        "/u/**",
+                        "/common/header-non-logined",
+                        "/common/footer",
+                        "/error",
+                        "/topic/page",
+                        "/topic/visit",
+                        "/user/homepage",
+                        "/user/dynamic/list",
+                        "/publicKey",
+                        "/contributeList/**",
+                        "/tag/**",
+                        "/user/loginFlag",
+                        "/user/homepage"
+                );
         // RateLimiter 限流拦截器
         // registry.addInterceptor(getRateLimiterInterceptor()).addPathPatterns("/**");
     }

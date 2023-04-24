@@ -14,11 +14,6 @@ public class CommonField {
     public static final String TOKEN = "token";
 
     /**
-     * redis 默认值
-     */
-    public static final String REDIS_DEFAULT_VALUE = "#null";
-
-    /**
      * 用户账户
      */
     public static final String ACCOUNT = "account";

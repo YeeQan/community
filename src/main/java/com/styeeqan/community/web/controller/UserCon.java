@@ -83,13 +83,13 @@ public class UserCon {
         return new ResponseEntity<>(userHomepageVO);
     }
 
-    @PostMapping("userInfo/get")
+    @PostMapping("getUserInfo")
     @ApiOperation(value = "获取个人资料")
     public ResponseEntity<UserVo> getUserInfo(HttpServletRequest request) {
         return new ResponseEntity<>(userSev.getUserInfo(request.getAttribute(CommonField.ACCOUNT).toString()));
     }
 
-    @PostMapping("userInfo/save")
+    @PostMapping("saveUserInfo")
     @ApiOperation(value = "保存个人资料")
     public ResponseEntity<UserVo> saveUserInfo(@RequestBody @Validated(UserInfoSave.class) UserDto userDTO, HttpServletRequest request) {
         userDTO.setAccount(request.getAttribute(CommonField.ACCOUNT).toString());
@@ -97,7 +97,7 @@ public class UserCon {
     }
 
     @SneakyThrows
-    @PostMapping("headPortrait/upload")
+    @PostMapping("uploadHeadPortrait")
     @ApiOperation(value = "上传用户头像")
     public ResponseEntity<String> headPortrait(HttpServletRequest request, @RequestParam(name = "file") MultipartFile multipartFile) {
         return new ResponseEntity<>(userSev.uploadHeadPortrait(request.getAttribute(CommonField.ACCOUNT).toString(), multipartFile));

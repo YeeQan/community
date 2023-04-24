@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class ThreadUtil {
 
-    private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor(10, 15, 60L,
+    private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor(16, 32, 60L,
             TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
 

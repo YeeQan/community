@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -71,12 +72,13 @@ public class UserContributeSev {
                     .collect(Collectors.toList());
             userContributeQW.clear();
         } else if (CommonField.CONTRIBUTE_TYPE_DAY_RANK.equals(type)) {
-            String dateStr = dateUtil.getDateStr(new Date(), DateUtil.parse_date_pattern_1);
+            String dateStr = dateUtil.getDateStr(new Date(), DateUtil.yyyyMMdd1);
             list = redisUtil
                     .reverseRangeZSet(RedisKey.USER_CONTRIBUTE_DAY, dateStr, 0, 9)
                     .stream()
                     .map(json -> {
-                        Double score = redisUtil.scoreZSet(RedisKey.USER_CONTRIBUTE_DAY, dateStr, json);
+                        Optional<Double> optional = redisUtil.scoreZSet(RedisKey.USER_CONTRIBUTE_DAY, dateStr, json);
+                        Double score = optional.orElse(0.0);
                         UserContributeVo vo = JSON.parseObject(json, UserContributeVo.class);
                         vo.setUserContribute(score.intValue());
                         return vo;

@@ -28,6 +28,7 @@ public class ExceptionAdv {
     @ResponseBody
     @ExceptionHandler(value = CustomizeException.class)
     public ResponseEntity<?> handleCustomizeException(CustomizeException e) {
+        log.error("自定义异常, code:{}, msg:{}", e.getError().getCode(), e.getError().getDesc());
         return new ResponseEntity<>(e.getError());
     }
 
@@ -68,6 +69,7 @@ public class ExceptionAdv {
         }
         ResponseEntity<?> response = new ResponseEntity<>(ServerStatusCode.PARAM_ERROR);
         response.setDescription(msg.toString());
+        log.error("参数绑定异常, msg:{}", msg);
         return response;
     }
 }

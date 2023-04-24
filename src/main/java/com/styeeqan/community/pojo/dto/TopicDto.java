@@ -12,8 +12,7 @@ import javax.validation.constraints.Size;
 
 @Data
 @ApiModel("帖子dto")
-@EqualsAndHashCode(callSuper = true)
-public class TopicDto extends BaseDto {
+public class TopicDto {
 
     @ApiModelProperty("页码")
     private int pageNum;

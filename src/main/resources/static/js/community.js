@@ -128,7 +128,7 @@ jQuery.extend({
         $.initFooter();
         $.ajax({
             type: "POST",
-            url: "/community/user/userInfo/get",
+            url: "/community/user/getUserInfo",
             success: function (result) {
                 if (result == null) {
                     $.snack('error', '系统错误，请稍后再试！', 3000)
@@ -157,7 +157,7 @@ jQuery.extend({
                                 $.ajax({
                                     type: "POST",
                                     data: formData,
-                                    url: "/community/user/headPortrait/upload",
+                                    url: "/community/user/uploadHeadPortrait",
                                     contentType: false,
                                     processData: false,
                                     success: function (result) {
@@ -195,7 +195,7 @@ jQuery.extend({
                                 dataType: "json",
                                 contentType: "application/json",
                                 data: JSON.stringify(requestJson),
-                                url: "/community/user/userInfo/save",
+                                url: "/community/user/saveUserInfo",
                                 success: function (result) {
                                     if (result == null) {
                                         $.snack('error', '系统错误，请稍后再试！', 3000)

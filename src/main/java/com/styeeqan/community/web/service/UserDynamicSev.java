@@ -35,9 +35,13 @@ public class UserDynamicSev {
 
     public List<UserDynamicVo> getDynamicList(String homepageId) {
 
-        User userDB = userMapper.selectOne(new QueryWrapper<User>().eq("homepage_id", homepageId));
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        QueryWrapper<UserDynamic> userDynamicQueryWrapper = new QueryWrapper<>();
+        QueryWrapper<UserInfo> userInfoQueryWrapper = new QueryWrapper<>();
 
-        List<UserDynamic> dynamicList = userDynamicMapper.selectList(new QueryWrapper<UserDynamic>().eq("create_user", userDB.getAccount()));
+        User userDB = userMapper.selectOne(userQueryWrapper.eq("homepage_id", homepageId));
+
+        List<UserDynamic> dynamicList = userDynamicMapper.selectList(userDynamicQueryWrapper.eq("create_user", userDB.getAccount()));
 
         return dynamicList.stream().map(dynamic -> {
 
@@ -56,7 +60,8 @@ public class UserDynamicSev {
                 Comment comment = commentMapper.selectById(sourceId);
                 dynamicVO.setTargetContent(topic.getTopicTitle());
                 dynamicVO.setSourceContent(comment.getCommentContent());
-                UserInfo userInfo = userInfoMapper.selectOne(new QueryWrapper<UserInfo>().eq("account", comment.getCreateUser()));
+                userInfoQueryWrapper.clear();
+                UserInfo userInfo = userInfoMapper.selectOne(userInfoQueryWrapper.eq("account", comment.getCreateUser()));
                 if (userInfo != null) {
                     dynamicVO.setSourceCreateUsername(userInfo.getUsername());
                 }
